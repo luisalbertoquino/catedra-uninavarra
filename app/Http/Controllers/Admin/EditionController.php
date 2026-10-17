@@ -21,26 +21,47 @@ class EditionController extends Controller
         return view('admin.editions.index', compact('editions'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        // Precargar con la edición anterior para no empezar de cero cada semestre
-        $template = Edition::with(['milestones', 'criteria'])->orderByDesc('year')->orderByDesc('period')->first();
+        // Precargar con una edición base (la elegida con ?desde= o la más reciente) para no empezar de cero
+        $template = $request->filled('desde')
+            ? Edition::with(['milestones', 'criteria'])->findOrFail($request->integer('desde'))
+            : Edition::with(['milestones', 'criteria'])->orderByDesc('year')->orderByDesc('period')->first();
+
+        // Siguiente convocatoria: 2026-2 → 2027-1, 2027-1 → 2027-2; las fechas se corren 6 meses
+        $isNext = $request->filled('desde') && $template;
+        [$year, $period] = $isNext
+            ? ($template->period == 2 ? [$template->year + 1, 1] : [$template->year, 2])
+            : [now()->year, now()->month > 6 ? 2 : 1];
+        $shift = fn ($date) => $isNext && $date ? $date->copy()->addMonthsNoOverflow(6) : null;
+
         $edition = new Edition([
-            'year' => now()->year,
-            'period' => now()->month > 6 ? 2 : 1,
+            'name' => $isNext ? trim(preg_replace('/\d{4}(-\d)?/', "{$year}-{$period}", $template->name, 1)) : null,
+            'year' => $year,
+            'period' => $period,
+            'voting_starts_at' => $shift($template?->voting_starts_at),
+            'voting_ends_at' => $shift($template?->voting_ends_at),
+            'final_at' => $shift($template?->final_at),
+            'final_location' => $template->final_location ?? null,
             'event_name' => $template->event_name ?? 'LION HUB EVENT',
             'tagline' => $template->tagline ?? null,
             'description' => $template->description ?? null,
             'community_weight' => $template->community_weight ?? 30,
             'max_votes_per_user' => $template->max_votes_per_user ?? 1,
             'expert_title' => $template->expert_title ?? 'Profesor experto',
-            'expert_weight' => $template->expert_weight ?? 2,
+            'jury_weight' => $template->jury_weight ?? 40,
+            'expert_score_weight' => $template->expert_score_weight ?? 30,
+            'vote_grade_mode' => $template->vote_grade_mode ?? 'relativo',
+            'vote_grade_thresholds' => $template->vote_grade_thresholds ?? null,
             'finalists_count' => $template->finalists_count ?? 5,
             'voting_email_domain' => $template->voting_email_domain ?? null,
             'promo_video_url' => $template->promo_video_url ?? null,
             'is_published' => true,
         ]);
-        $milestones = $template?->milestones->map(fn ($m) => ['title' => $m->title, 'description' => $m->description, 'starts_at' => null, 'ends_at' => null])->all() ?? [];
+        $milestones = $template?->milestones->map(fn ($m) => [
+            'title' => $m->title, 'description' => $m->description,
+            'starts_at' => $shift($m->starts_at)?->format('Y-m-d'), 'ends_at' => $shift($m->ends_at)?->format('Y-m-d'),
+        ])->all() ?? [];
         // La rúbrica también se copia de la edición anterior (o se usa la de la Cátedra)
         $criteria = $template && $template->criteria->isNotEmpty()
             ? $template->criteria->map(fn ($c) => $c->only('name', 'description', 'weight', 'max_score'))->all()
@@ -128,7 +149,11 @@ class EditionController extends Controller
             'finalists_count' => ['required', 'integer', 'between:1,50'],
             'voting_email_domain' => ['nullable', 'string', 'max:100', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i'],
             'expert_title' => ['required', 'string', 'max:60'],
-            'expert_weight' => ['required', 'numeric', 'between:1,10'],
+            'jury_weight' => ['required', 'integer', 'between:0,100'],
+            'expert_score_weight' => ['required', 'integer', 'between:0,100'],
+            'vote_grade_mode' => ['required', 'in:relativo,rangos'],
+            'vote_grade_thresholds' => ['nullable', 'array'],
+            'vote_grade_thresholds.*' => ['nullable', 'integer', 'min:0'],
             'criteria' => ['array', 'max:15'],
             'criteria.*.id' => ['nullable', 'integer'],
             'criteria.*.name' => ['required', 'string', 'max:120'],
@@ -140,7 +165,12 @@ class EditionController extends Controller
             'milestones.*.description' => ['nullable', 'string', 'max:1000'],
             'milestones.*.starts_at' => ['nullable', 'date'],
             'milestones.*.ends_at' => ['nullable', 'date'],
-        ], ['promo_video_url.regex' => 'El video promocional debe ser un enlace de YouTube.'], ['milestones.*.title' => 'título de la fase', 'promo_video_url' => 'video promocional', 'criteria.*.name' => 'nombre del criterio', 'criteria.*.weight' => 'peso del criterio', 'criteria.*.max_score' => 'puntaje máximo', 'expert_title' => 'nombre del jurado experto', 'expert_weight' => 'peso del jurado experto']);
+        ], ['promo_video_url.regex' => 'El video promocional debe ser un enlace de YouTube.'], ['milestones.*.title' => 'título de la fase', 'promo_video_url' => 'video promocional', 'criteria.*.name' => 'nombre del criterio', 'criteria.*.weight' => 'peso del criterio', 'criteria.*.max_score' => 'puntaje máximo', 'expert_title' => 'nombre del jurado experto', 'jury_weight' => '% jurados', 'expert_score_weight' => '% experto', 'community_weight' => '% comunidad']);
+
+        if ($data['community_weight'] + $data['jury_weight'] + $data['expert_score_weight'] !== 100) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['community_weight' => 'Los porcentajes de comunidad, jurados y experto deben sumar 100%.']);
+        }
+        $data['vote_grade_thresholds'] = collect($data['vote_grade_thresholds'] ?? [])->only(['2', '3', '4', '5'])->map(fn ($v) => (int) $v)->all() ?: null;
 
         $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
         $data['is_published'] = $request->boolean('is_published');

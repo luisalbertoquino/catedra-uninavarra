@@ -100,38 +100,49 @@
             @endif
 
             {{-- Descripción --}}
-            @if ($venture->description)
+            @if ($venture->description && trim($venture->description) !== trim((string) $venture->tagline))
                 <section class="reveal">
                     <h2 class="font-display text-2xl font-semibold sm:text-3xl">Sobre el proyecto</h2>
                     <div class="prose-dark mt-4 text-lg">{!! nl2br(e($venture->description)) !!}</div>
                 </section>
             @endif
 
-            {{-- Problema / Solución / Mercado --}}
-            @if ($venture->problem || $venture->solution || $venture->target_market)
+            {{-- Problema, solución, misión, visión y población objetivo --}}
+            @php
+                $blocks = collect([
+                    ['bullseye', 'El problema', $venture->problem],
+                    ['lightbulb', 'La solución', $venture->solution],
+                    ['flag', 'Misión', $venture->mission],
+                    ['binoculars', 'Visión', $venture->vision],
+                    ['users-viewfinder', 'Población objetivo', $venture->target_market],
+                ])->filter(fn ($b) => filled($b[2]))->values();
+            @endphp
+            @if ($blocks->isNotEmpty())
                 <section class="grid gap-4 md:grid-cols-2">
-                    @if ($venture->problem)
-                        <div class="card-dark reveal relative overflow-hidden p-7">
+                    @foreach ($blocks as $i => [$icon, $label, $text])
+                        <div @class(['card-dark reveal relative overflow-hidden p-7', 'md:col-span-2' => $loop->last && $blocks->count() % 2 === 1])>
                             <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-lion-400/10 blur-2xl"></div>
-                            <span class="grid h-12 w-12 place-items-center rounded-xl bg-lion-400/10"><x-icon name="bullseye" class="text-xl" /></span>
-                            <h3 class="mt-4 font-display text-xl font-semibold">El problema</h3>
-                            <p class="mt-2 text-white/65">{!! nl2br(e($venture->problem)) !!}</p>
+                            <span class="grid h-12 w-12 place-items-center rounded-xl bg-lion-400/10"><x-icon :name="$icon" class="text-xl" /></span>
+                            <h3 class="mt-4 font-display text-xl font-semibold">{{ $label }}</h3>
+                            <p class="mt-2 text-white/65">{!! nl2br(e($text)) !!}</p>
+                        </div>
+                    @endforeach
+                </section>
+            @endif
+
+            {{-- Montos del plan de negocio --}}
+            @if ($venture->startup_amount || $venture->funding_goal)
+                <section class="reveal grid gap-4 sm:grid-cols-2">
+                    @if ($venture->startup_amount)
+                        <div class="card-dark p-6">
+                            <div class="text-sm text-white/55"><x-icon name="seedling" /> Monto estimado para iniciar</div>
+                            <div class="mt-2 font-display text-3xl font-semibold">${{ number_format($venture->startup_amount, 0, ',', '.') }} <span class="text-base text-white/40">COP</span></div>
                         </div>
                     @endif
-                    @if ($venture->solution)
-                        <div class="card-dark reveal relative overflow-hidden p-7" style="transition-delay:.1s">
-                            <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-lion-400/10 blur-2xl"></div>
-                            <span class="grid h-12 w-12 place-items-center rounded-xl bg-lion-400/10"><x-icon name="lightbulb" class="text-xl" /></span>
-                            <h3 class="mt-4 font-display text-xl font-semibold">La solución</h3>
-                            <p class="mt-2 text-white/65">{!! nl2br(e($venture->solution)) !!}</p>
-                        </div>
-                    @endif
-                    @if ($venture->target_market)
-                        <div class="card-dark reveal relative overflow-hidden p-7 md:col-span-2">
-                            <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-lion-400/10 blur-2xl"></div>
-                            <span class="grid h-12 w-12 place-items-center rounded-xl bg-lion-400/10"><x-icon name="users-viewfinder" class="text-xl" /></span>
-                            <h3 class="mt-4 font-display text-xl font-semibold">Mercado objetivo</h3>
-                            <p class="mt-2 text-white/65">{!! nl2br(e($venture->target_market)) !!}</p>
+                    @if ($venture->funding_goal)
+                        <div class="card-dark border-lion-400/30 p-6">
+                            <div class="text-sm text-white/55"><x-icon name="hand-holding-dollar" /> Monto que buscan con inversionistas</div>
+                            <div class="mt-2 font-display text-3xl font-semibold text-lion-300">${{ number_format($venture->funding_goal, 0, ',', '.') }} <span class="text-base text-white/40">COP</span></div>
                         </div>
                     @endif
                 </section>
@@ -261,7 +272,8 @@
                     <div class="relative">
                         <span class="eyebrow"><x-icon name="rocket" /> Impulsa este emprendimiento</span>
                         <h2 class="mt-3 font-display text-3xl font-semibold sm:text-4xl">¿Quieres apoyar a {{ $venture->name }}?</h2>
-                        <p class="mt-3 max-w-2xl text-white/65">Registra tu intención de apoyo. <b class="text-white/85">No se realiza ningún cobro en línea:</b> el equipo de la Cátedra UNINAVARRA revisa tu solicitud y te pone en contacto con los emprendedores.</p>
+                        <p class="mt-3 max-w-2xl text-white/65">Registra tu intención de apoyo. <b class="text-white/85">No se realiza ningún cobro en línea:</b> el Centro de Emprendimiento revisa tu solicitud, te contacta y te pone en contacto con los emprendedores. Cuando el apoyo se concreta, aparece en el ranking de inversionistas.</p>
+                        <x-investment-contact compact class="mt-5 max-w-xl" />
                         @if ($venture->funding_goal)
                             <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm"><x-icon name="bullseye" /> Meta de financiación: <b class="text-lion-300">${{ number_format($venture->funding_goal, 0, ',', '.') }} COP</b></p>
                         @endif
@@ -360,6 +372,10 @@
                     </div>
                 </div>
 
+                @if (! $venture->whatsapp_url && ! $venture->contact_email && ! $socials)
+                    {{-- El equipo aún no tiene canales propios: el contacto pasa por el Centro de Emprendimiento --}}
+                    <x-investment-contact compact />
+                @else
                 <div class="card-dark p-6">
                     <h3 class="font-display text-lg font-semibold">Contacto</h3>
                     @if ($venture->contact_name)<p class="mt-1 text-sm text-white/55">{{ $venture->contact_name }}</p>@endif
@@ -382,8 +398,10 @@
                         </div>
                     @endif
                 </div>
+                @endif
 
                 <div class="card-dark p-6 text-sm">
+                    @if ($venture->team_group)<div class="flex justify-between py-1.5"><span class="text-white/50">Grupo</span><span class="font-medium">{{ $venture->team_group }}</span></div>@endif
                     <div class="flex justify-between py-1.5"><span class="text-white/50">Edición</span><a href="{{ route('editions.show', $venture->edition) }}" class="font-medium hover:text-lion-300">{{ $venture->edition->name }}</a></div>
                     <div class="flex justify-between py-1.5"><span class="text-white/50">Intenciones de apoyo</span><span class="font-medium">{{ $venture->pledges_count }}</span></div>
                     <div class="flex justify-between py-1.5"><span class="text-white/50">Integrantes</span><span class="font-medium">{{ $venture->members->count() }}</span></div>

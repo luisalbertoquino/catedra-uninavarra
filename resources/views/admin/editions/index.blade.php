@@ -3,7 +3,7 @@
         <a href="{{ route('admin.editions.create') }}" class="a-btn-primary"><x-icon name="plus" /> Nueva edición</a>
     </x-slot:actions>
 
-    <p class="mb-6 max-w-3xl text-sm text-slate-500">Cada semestre crea una nueva edición: se precarga con la configuración y el cronograma de la anterior. La edición <b>activa</b> es la que se muestra en la página de inicio y en la que vota la comunidad.</p>
+    <p class="mb-6 max-w-3xl text-sm text-slate-500">Para la próxima convocatoria usa <b>Siguiente convocatoria</b> en la edición que quieras copiar: se precargan el periodo siguiente, el cronograma (corrido 6 meses), la rúbrica, los porcentajes y la configuración. Luego carga los emprendimientos con <a href="{{ route('admin.import.create') }}" class="font-medium text-ink-700 underline">Importar Excel</a>. La edición <b>activa</b> es la que se muestra en la página de inicio y en la que vota la comunidad.</p>
 
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         @foreach ($editions as $e)
@@ -29,7 +29,8 @@
                     Final: {{ $e->final_at?->translatedFormat('j M Y, g:i a') ?? '—' }}
                 </p>
                 <div class="mt-auto flex flex-wrap gap-2 pt-5">
-                    <a href="{{ route('admin.editions.edit', $e) }}" class="a-btn-light">Editar</a>
+                    <a href="{{ route('admin.editions.edit', $e) }}" class="a-btn-light"><x-icon name="pen-to-square" /> Editar</a>
+                    <a href="{{ route('admin.editions.create', ['desde' => $e->id]) }}" class="a-btn-light" title="Crea la convocatoria siguiente copiando cronograma, rúbrica y configuración"><x-icon name="copy" style="regular" /> Siguiente convocatoria</a>
                     <a href="{{ route('admin.ventures.index', ['edicion' => $e->id]) }}" class="a-btn-light">Emprendimientos</a>
                     @unless ($e->is_active)
                         <form method="POST" action="{{ route('admin.editions.activate', $e) }}">@csrf<button class="a-btn-lion"><x-icon name="power-off" /> Activar</button></form>

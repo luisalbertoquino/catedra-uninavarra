@@ -29,10 +29,10 @@
             </div>
             <label class="flex items-start gap-3 rounded-xl border border-lion-200 bg-lion-50/60 p-3">
                 <input type="checkbox" name="is_expert" value="1" @checked(old('is_expert')) class="mt-0.5 rounded border-slate-300 text-lion-600 focus:ring-lion-500">
-                <span class="text-sm"><b>{{ $expertTitle }}</b><br><span class="text-slate-500">Su puntaje pesa ×{{ rtrim(rtrim(number_format($edition?->expert_weight ?? 2, 2, ',', '.'), '0'), ',') }} frente a un jurado normal.</span></span>
+                <span class="text-sm"><b>{{ $expertTitle }}</b><br><span class="text-slate-500">Su evaluación vale el {{ $edition?->expert_score_weight ?? 30 }}% de la nota final; la de los demás jurados, el {{ $edition?->jury_weight ?? 40 }}%.</span></span>
             </label>
             <button class="a-btn-primary w-full"><x-icon name="user-plus" /> Crear jurado</button>
-            <p class="text-xs text-slate-500">El nombre "{{ $expertTitle }}" y su peso se configuran en <a href="{{ $edition ? route('admin.editions.edit', $edition) : route('admin.editions.index') }}#jurado" class="font-medium text-ink-700 underline">la edición</a>.</p>
+            <p class="text-xs text-slate-500">El nombre "{{ $expertTitle }}" y los porcentajes se configuran en <a href="{{ $edition ? route('admin.editions.edit', $edition) : route('admin.editions.index') }}#calificacion" class="font-medium text-ink-700 underline">la edición</a>.</p>
         </form>
 
         {{-- Lista de jurados --}}
@@ -57,7 +57,7 @@
                             <div class="text-xs text-slate-500">{{ $j->email }}@if ($j->organization) · {{ $j->organization }}@endif</div>
                             <div class="mt-2 flex items-center gap-3">
                                 <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-lion-500" style="width: {{ $pct }}%"></div></div>
-                                <span class="shrink-0 text-xs text-slate-500">{{ $j->evaluations_count }}/{{ $total }} evaluados @if ($j->evaluations_avg_total_score) · prom. {{ number_format($j->evaluations_avg_total_score, 1, ',', '.') }} @endif</span>
+                                <span class="shrink-0 text-xs text-slate-500">{{ $j->evaluations_count }}/{{ $total }} evaluados @if ($j->evaluations_avg_total_score) · nota prom. {{ number_format($j->evaluations_avg_total_score / 20, 2, ',', '.') }} @endif</span>
                             </div>
                         </div>
                         <div class="flex shrink-0 gap-2">

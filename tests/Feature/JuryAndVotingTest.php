@@ -27,7 +27,7 @@ class JuryAndVotingTest extends TestCase
         $this->edition = Edition::create([
             'name' => 'Edición de prueba', 'slug' => 'edicion-prueba', 'year' => 2026, 'period' => 2,
             'voting_starts_at' => now()->subDay(), 'voting_ends_at' => now()->addDays(10),
-            'community_weight' => 30, 'max_votes_per_user' => 1, 'expert_title' => 'Profesor experto', 'expert_weight' => 2,
+            'community_weight' => 30, 'jury_weight' => 40, 'expert_score_weight' => 30, 'max_votes_per_user' => 1, 'expert_title' => 'Profesor experto',
             'is_active' => true, 'is_published' => true,
         ]);
         foreach (RubricCriterion::DEFAULTS as $i => [$name]) {
@@ -67,7 +67,8 @@ class JuryAndVotingTest extends TestCase
         $this->evaluate($this->jury(), $venture, 4)->assertRedirect(route('jury.show', $venture));
 
         $evaluation = Evaluation::first();
-        $this->assertEquals(80.0, (float) $evaluation->total_score); // 4/5 en todos los criterios
+        $this->assertEquals(80.0, (float) $evaluation->total_score); // 4/5 en todos los criterios = nota 4,0
+        $this->assertEquals(4.0, JuryScoring::forEdition($this->edition)->get($venture->id)['jury']);
         $this->assertCount(5, $evaluation->scores);
     }
 
@@ -82,27 +83,67 @@ class JuryAndVotingTest extends TestCase
         $this->assertDatabaseCount('evaluations', 0);
     }
 
-    public function test_expert_jury_has_more_weight_in_the_committee_score(): void
+    public function test_jury_and_expert_grades_are_separate_components(): void
     {
         $venture = $this->venture('Agro Tres');
-        $this->evaluate($this->jury(expert: true), $venture, 5); // 100 puntos, pesa ×2
-        $this->evaluate($this->jury(), $venture, 2);              // 40 puntos, pesa ×1
+        $this->evaluate($this->jury(expert: true), $venture, 5); // experto: nota 5
+        $this->evaluate($this->jury(), $venture, 2);              // jurado: nota 2
+        $this->evaluate($this->jury(), $venture, 4);              // jurado: nota 4
 
-        // (100×2 + 40×1) / 3 = 80
-        $this->assertEquals(80.0, JuryScoring::forEdition($this->edition)->get($venture->id)['score']);
+        $s = JuryScoring::forEdition($this->edition)->get($venture->id);
+        $this->assertEquals(3.0, $s['jury']);   // promedio de jurados normales
+        $this->assertEquals(5.0, $s['expert']); // el experto es un componente aparte
     }
 
-    public function test_final_ranking_combines_committee_and_community(): void
+    public function test_final_grade_uses_30_40_30_weights(): void
     {
         $a = $this->venture('Alfa');
         $b = $this->venture('Beta');
-        $this->evaluate($this->jury(), $a, 5); // comité 100
-        $this->evaluate($this->jury(), $b, 5);
+        $this->evaluate($this->jury(), $a, 4);              // jurados 4
+        $this->evaluate($expert = $this->jury(expert: true), $a, 5); // experto 5
+        $this->evaluate($this->jury(), $b, 3);
+        $this->evaluate($expert, $b, 3);
         $a->votes()->create(['user_id' => User::factory()->create()->id, 'edition_id' => $this->edition->id]);
 
         $ranking = Ranking::for($this->edition)->keyBy('slug');
-        $this->assertEquals(100.0, $ranking['alfa']->final_score); // 100×0,7 + 100×0,3
-        $this->assertEquals(70.0, $ranking['beta']->final_score);  // 100×0,7 + 0×0,3
+        // Alfa: comunidad 5 (más votado) ×0,3 + jurados 4 ×0,4 + experto 5 ×0,3 = 4,6
+        $this->assertEquals(5.0, $ranking['alfa']->community_grade);
+        $this->assertEquals(4.6, $ranking['alfa']->final_grade);
+        // Beta: comunidad 1 (0 votos) ×0,3 + 3 ×0,4 + 3 ×0,3 = 2,4
+        $this->assertEquals(2.4, $ranking['beta']->final_grade);
+        $this->assertFalse($ranking['alfa']->is_partial);
+    }
+
+    public function test_missing_components_are_reweighted_and_marked_partial(): void
+    {
+        $v = $this->venture('Gamma Parcial');
+        $this->evaluate($this->jury(), $v, 4); // sin experto, sin votos (comunidad = 1)
+
+        $row = Ranking::for($this->edition)->firstWhere('slug', 'gamma-parcial');
+        // (1 ×30 + 4 ×40) / 70 = 2,71
+        $this->assertEquals(2.71, $row->final_grade);
+        $this->assertTrue($row->is_partial);
+    }
+
+    public function test_vote_grade_by_ranges_is_configurable(): void
+    {
+        $this->edition->update(['vote_grade_mode' => 'rangos', 'vote_grade_thresholds' => ['2' => 2, '3' => 4, '4' => 6, '5' => 8]]);
+
+        $this->assertEquals(1.0, $this->edition->voteGrade(1, 100));
+        $this->assertEquals(3.0, $this->edition->voteGrade(5, 100));
+        $this->assertEquals(5.0, $this->edition->voteGrade(20, 100));
+
+        $this->edition->update(['vote_grade_mode' => 'relativo']);
+        $this->assertEquals(3.0, $this->edition->fresh()->voteGrade(5, 10)); // 1 + 4 × 5/10
+    }
+
+    public function test_grade_weights_must_add_up_to_100(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->put(route('admin.editions.update', $this->edition), [
+            'name' => $this->edition->name, 'year' => 2026, 'community_weight' => 30, 'jury_weight' => 50, 'expert_score_weight' => 30,
+            'vote_grade_mode' => 'relativo', 'max_votes_per_user' => 1, 'finalists_count' => 5, 'expert_title' => 'Profesor experto',
+        ])->assertSessionHasErrors('community_weight');
     }
 
     public function test_changing_the_rubric_keeps_scores_and_recalculates_totals(): void
@@ -117,7 +158,7 @@ class JuryAndVotingTest extends TestCase
 
         $this->actingAs($admin)->put(route('admin.editions.update', $this->edition), [
             'name' => $this->edition->name, 'year' => 2026, 'community_weight' => 30, 'max_votes_per_user' => 1,
-            'finalists_count' => 5, 'expert_title' => 'Mentor senior', 'expert_weight' => 3, 'is_published' => 1,
+            'finalists_count' => 5, 'expert_title' => 'Mentor senior', 'jury_weight' => 40, 'expert_score_weight' => 30, 'vote_grade_mode' => 'relativo', 'is_published' => 1,
             'criteria' => $rows,
         ])->assertSessionHasNoErrors();
 
@@ -154,7 +195,7 @@ class JuryAndVotingTest extends TestCase
         $this->assertDatabaseCount('support_pledges', 0);
     }
 
-    public function test_investor_ranking_only_shows_people_who_consented(): void
+    public function test_investor_ranking_only_counts_completed_pledges_of_people_who_consented(): void
     {
         $venture = $this->venture('Zeta');
         $public = User::factory()->create(['role' => 'inversionista', 'organization' => 'Fondo Visible']);
@@ -163,12 +204,15 @@ class JuryAndVotingTest extends TestCase
         $this->actingAs($public)->post(route('ventures.pledge', $venture), ['type' => 'inversion', 'amount' => 5000000, 'message' => 'Quiero invertir en esto', 'public_ranking' => 1]);
         $this->actingAs($private)->post(route('ventures.pledge', $venture), ['type' => 'donacion', 'amount' => 9000000, 'message' => 'Quiero donar a este equipo']);
 
+        // Mientras sean solo intenciones, nadie aparece en el ranking
+        $this->assertCount(0, InvestorRanking::for($this->edition));
+
+        SupportPledge::query()->update(['status' => 'concretado']);
         $ranking = InvestorRanking::for($this->edition);
         $this->assertCount(1, $ranking);
         $this->assertEquals(5000000, (float) $ranking->first()->total_amount);
         $this->assertSame(1, InvestorRanking::hiddenCount($this->edition));
-        $this->get(route('ranking', ['vista' => 'inversionistas']))->assertOk()->assertSee('Fondo Visible');
-        $this->assertSame(2, SupportPledge::count());
+        $this->get(route('ranking', ['vista' => 'inversionistas']))->assertOk()->assertSee('Fondo Visible')->assertSee('centroemprendimiento@uninavarra.edu.co');
     }
 
     public function test_security_headers_are_sent(): void

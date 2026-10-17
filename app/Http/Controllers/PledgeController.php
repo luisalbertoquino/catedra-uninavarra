@@ -40,6 +40,6 @@ class PledgeController extends Controller
         ]);
 
         return redirect(route('ventures.show', $venture).'#apoyar')
-            ->with('status', '¡Recibimos tu intención de apoyo! El equipo de la Cátedra te contactará pronto.');
+            ->with('status', '¡Recibimos tu intención de apoyo! '.\App\Models\Setting::get('investment_contact_name').' te contactará pronto.');
     }
 }

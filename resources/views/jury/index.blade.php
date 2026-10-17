@@ -18,7 +18,7 @@
                     <p class="mt-3 max-w-2xl text-white/60">
                         Mira el video pitch de cada equipo y califícalo con la rúbrica. Puedes ajustar tus calificaciones hasta que se publiquen los resultados.
                         @if (auth()->user()->is_expert)
-                            <span class="text-lion-300">Como {{ $edition->expert_title }}, tu evaluación pesa ×{{ rtrim(rtrim(number_format($edition->expert_weight, 2, ',', '.'), '0'), ',') }}.</span>
+                            <span class="text-lion-300">Como {{ $edition->expert_title }}, tu evaluación vale el {{ $edition->expert_score_weight }}% de la nota final.</span>
                         @endif
                     </p>
                 </div>
@@ -67,7 +67,7 @@
                                 <span class="grid h-14 w-14 place-items-center rounded-full bg-lion-400/90 text-ink-950"><i class="fa-solid fa-play text-xl" aria-hidden="true"></i></span>
                             </span>
                             <span @class(['absolute right-3 top-3 rounded-md px-2.5 py-1 text-xs font-semibold', 'bg-lion-400 text-ink-950' => $ev, 'bg-ink-950/80 text-white/80' => ! $ev])>
-                                @if ($ev)<i class="fa-solid fa-check" aria-hidden="true"></i> {{ number_format($ev->total_score, 1, ',', '.') }} pts @else Pendiente @endif
+                                @if ($ev)<i class="fa-solid fa-check" aria-hidden="true"></i> Nota {{ number_format($ev->total_score / 20, 1, ',', '.') }} @else Pendiente @endif
                             </span>
                             @unless ($v->video_embed_url)
                                 <span class="absolute bottom-3 left-3 rounded-md bg-ink-950/80 px-2 py-1 text-xs text-lion-200"><x-icon name="video-slash" /> Sin video</span>

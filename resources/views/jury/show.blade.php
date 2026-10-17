@@ -52,15 +52,25 @@
                 @endif
 
                 <div class="grid gap-4 md:grid-cols-2">
-                    @foreach ([['bullseye', 'El problema', $venture->problem], ['lightbulb', 'La solución', $venture->solution], ['users-viewfinder', 'Mercado objetivo', $venture->target_market]] as [$icon, $label, $text])
+                    @php
+                        $blocks = collect([['bullseye', 'El problema', $venture->problem], ['lightbulb', 'La solución', $venture->solution], ['flag', 'Misión', $venture->mission], ['binoculars', 'Visión', $venture->vision], ['users-viewfinder', 'Población objetivo', $venture->target_market]])->filter(fn ($b) => filled($b[2]))->values();
+                    @endphp
+                    @foreach ($blocks as [$icon, $label, $text])
                         @if ($text)
-                            <div @class(['card-dark p-6', 'md:col-span-2' => $loop->last])>
+                            <div @class(['card-dark p-6', 'md:col-span-2' => $loop->last && $blocks->count() % 2 === 1])>
                                 <h3 class="flex items-center gap-2 font-display text-lg font-semibold"><x-icon :name="$icon" /> {{ $label }}</h3>
                                 <p class="mt-2 text-sm leading-relaxed text-white/65">{!! nl2br(e($text)) !!}</p>
                             </div>
                         @endif
                     @endforeach
                 </div>
+
+                @if ($venture->startup_amount || $venture->funding_goal)
+                    <div class="grid gap-3 sm:grid-cols-2 text-sm">
+                        @if ($venture->startup_amount)<div class="glass rounded-xl p-4"><div class="text-white/50">Monto para iniciar</div><div class="mt-1 font-display text-xl font-semibold">${{ number_format($venture->startup_amount, 0, ',', '.') }}</div></div>@endif
+                        @if ($venture->funding_goal)<div class="glass rounded-xl p-4"><div class="text-white/50">Solicitan a inversionistas</div><div class="mt-1 font-display text-xl font-semibold text-lion-300">${{ number_format($venture->funding_goal, 0, ',', '.') }}</div></div>@endif
+                    </div>
+                @endif
 
                 @if ($venture->description)
                     <div>
@@ -97,7 +107,7 @@
                           get total() {
                               const w = this.criteria.reduce((a, c) => a + c.weight, 0) || 1;
                               const s = this.criteria.reduce((a, c) => a + ((this.scores[c.id] || 0) / c.max) * c.weight, 0);
-                              return (s / w * 100).toFixed(1).replace('.', ',');
+                              return (s / w * 5).toFixed(2).replace('.', ',');
                           }
                       }">
                     @csrf
@@ -108,13 +118,13 @@
                         </div>
                         <div class="text-right">
                             <div class="countdown-num font-display text-4xl font-semibold leading-none tabular-nums" x-text="total">0</div>
-                            <div class="mt-1 text-xs text-white/50">de 100 puntos</div>
+                            <div class="mt-1 text-xs text-white/50">nota de 1 a 5</div>
                         </div>
                     </div>
 
                     @if ($isExpert)
                         <p class="mt-4 rounded-lg border border-lion-400/30 bg-lion-400/10 px-3 py-2 text-sm text-lion-100">
-                            <x-icon name="award" /> Evalúas como <b>{{ $edition->expert_title }}</b>: tu puntaje pesa ×{{ rtrim(rtrim(number_format($edition->expert_weight, 2, ',', '.'), '0'), ',') }} en el comité.
+                            <x-icon name="award" /> Evalúas como <b>{{ $edition->expert_title }}</b>: tu nota vale el {{ $edition->expert_score_weight }}% de la nota final del emprendimiento.
                         </p>
                     @endif
 

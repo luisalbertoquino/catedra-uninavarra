@@ -22,15 +22,10 @@
 
         <div class="container-x">
             <div class="mx-auto max-w-6xl text-center">
-                <h1 class="hero-title animate-fade-up">
-                    Ideas que <span class="text-gradient">rugen</span><br>
-                    desde UNINAVARRA<br class="hidden sm:block">
-                    para el mundo
-                </h1>
+                <h1 class="hero-title animate-fade-up">{!! \App\Models\Setting::headline('hero_title') !!}</h1>
 
                 <p class="mx-auto mt-8 max-w-3xl animate-fade-up text-lg font-light italic leading-relaxed text-lion-300 [animation-delay:.2s] sm:text-2xl">
-                    &ldquo;Descubre los emprendimientos creados por los estudiantes Navarristas{{ $edition?->tagline ? ' en «'.$edition->tagline.'»' : '' }}.
-                    Vota por tus favoritos, déjales tu opinión o súmate como inversionista y aliado.&rdquo;
+                    &ldquo;{{ str_replace('{lema}', $edition?->tagline ?? 'la Cátedra', \App\Models\Setting::get('hero_quote')) }}&rdquo;
                 </p>
 
                 <div class="mt-10 flex animate-fade-up flex-col items-center justify-center gap-3 [animation-delay:.3s] sm:flex-row">
@@ -259,7 +254,7 @@
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row lg:col-span-2 lg:justify-end">
                     <a href="{{ route('register', ['perfil' => 'inversionista']) }}" class="btn bg-ink-950 px-7 py-3.5 text-base text-white hover:bg-ink-800">Registrarme como aliado</a>
-                    <a href="https://wa.me/{{ config('catedra.contact.whatsapp') }}" target="_blank" rel="noopener" class="btn border border-ink-950/20 px-7 py-3.5 text-base hover:bg-ink-950/10"><x-icon name="whatsapp" style="brands" /> Hablar con la Cátedra</a>
+                    <a href="https://wa.me/{{ \App\Models\Setting::whatsapp('investment_contact_phone') }}" target="_blank" rel="noopener" class="btn border border-ink-950/20 px-7 py-3.5 text-base hover:bg-ink-950/10"><x-icon name="whatsapp" style="brands" /> Hablar con la Cátedra</a>
                 </div>
             </div>
         </div>

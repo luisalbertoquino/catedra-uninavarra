@@ -3,12 +3,19 @@
     <a href="{{ route('ventures.show', $venture) }}" class="absolute inset-0 z-10" aria-label="Ver {{ $venture->name }}"></a>
 
     <div class="relative aspect-[16/10] overflow-hidden">
+        @php $logoAsCover = ! $venture->cover_url && $venture->logo_url; @endphp
         @if ($venture->cover_url)
             <img src="{{ $venture->cover_url }}" alt="" loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
+        @elseif ($logoAsCover)
+            {{-- Sin foto de portada: el logo protagoniza la tarjeta --}}
+            <div class="grid h-full w-full place-items-center bg-white p-6">
+                <img src="{{ $venture->logo_url }}" alt="Logo {{ $venture->name }}" loading="lazy" class="max-h-full max-w-full object-contain transition duration-700 group-hover:scale-105">
+            </div>
         @else
             <div class="h-full w-full bg-gradient-to-br from-volt-600/60 via-ink-800 to-lion-500/40"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
         @endif
-        <div class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
 
         <div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
             @if ($venture->final_position === 1)
@@ -27,7 +34,7 @@
             <span class="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white font-display text-sm font-semibold text-ink-950 shadow-lg">#{{ $rank }}</span>
         @endif
 
-        <div class="absolute bottom-3 left-4 flex items-center gap-3">
+        <div @class(['absolute bottom-3 left-4 flex items-center gap-3', 'hidden' => $logoAsCover])>
             @if ($venture->logo_url)
                 <img src="{{ $venture->logo_url }}" alt="" class="h-12 w-12 rounded-2xl border border-white/20 bg-white object-contain p-1">
             @else

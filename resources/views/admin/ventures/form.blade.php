@@ -26,7 +26,9 @@
                     <div class="sm:col-span-2"><label class="a-label" for="description">Descripción</label><textarea id="description" name="description" rows="5" class="a-input">{{ $field('description') }}</textarea></div>
                     <div><label class="a-label" for="problem"><x-icon name="bullseye" /> Problema</label><textarea id="problem" name="problem" rows="4" class="a-input">{{ $field('problem') }}</textarea></div>
                     <div><label class="a-label" for="solution"><x-icon name="lightbulb" /> Solución</label><textarea id="solution" name="solution" rows="4" class="a-input">{{ $field('solution') }}</textarea></div>
-                    <div class="sm:col-span-2"><label class="a-label" for="target_market"><x-icon name="users-viewfinder" /> Mercado objetivo</label><textarea id="target_market" name="target_market" rows="2" class="a-input">{{ $field('target_market') }}</textarea></div>
+                    <div class="sm:col-span-2"><label class="a-label" for="target_market"><x-icon name="users-viewfinder" /> Población objetivo</label><textarea id="target_market" name="target_market" rows="2" class="a-input">{{ $field('target_market') }}</textarea></div>
+                    <div><label class="a-label" for="mission"><x-icon name="flag" /> Misión</label><textarea id="mission" name="mission" rows="3" class="a-input">{{ $field('mission') }}</textarea></div>
+                    <div><label class="a-label" for="vision"><x-icon name="binoculars" /> Visión</label><textarea id="vision" name="vision" rows="3" class="a-input">{{ $field('vision') }}</textarea></div>
                     <div class="sm:col-span-2" x-data="{ url: @js($field('video_url')) }">
                         <label class="a-label" for="video_url">Video pitch (YouTube, Vimeo o Google Drive)</label>
                         <input id="video_url" type="url" name="video_url" x-model="url" class="a-input" placeholder="https://youtu.be/…">
@@ -106,7 +108,9 @@
                         </select>
                     </div>
                     <div><label class="a-label" for="academic_program">Programa académico principal</label><input id="academic_program" name="academic_program" class="a-input" value="{{ $field('academic_program') }}"></div>
-                    <div><label class="a-label" for="funding_goal">Meta de financiación (COP)</label><input id="funding_goal" type="number" min="0" step="1000" name="funding_goal" class="a-input" value="{{ $field('funding_goal') }}"></div>
+                    <div><label class="a-label" for="funding_goal">Monto que solicita a inversionistas (COP)</label><input id="funding_goal" type="number" min="0" step="1000" name="funding_goal" class="a-input" value="{{ $field('funding_goal') }}"></div>
+                    <div><label class="a-label" for="startup_amount">Monto estimado para iniciar (COP)</label><input id="startup_amount" type="number" min="0" step="1000" name="startup_amount" class="a-input" value="{{ $field('startup_amount') }}"></div>
+                    <div><label class="a-label" for="team_group">Grupo</label><input id="team_group" name="team_group" maxlength="40" class="a-input" value="{{ $field('team_group') }}" placeholder="Ej. Grupo 7"></div>
                     <div><label class="a-label" for="slug">URL amigable</label><input id="slug" name="slug" class="a-input" value="{{ $field('slug') }}" placeholder="se genera automáticamente"></div>
                     <label class="flex items-center gap-3 pt-1"><input type="checkbox" name="is_published" value="1" class="rounded border-slate-300 text-ink-700 focus:ring-ink-500" @checked(old('is_published', $venture->is_published))><span class="text-sm">Publicado en el sitio</span></label>
                 </div>

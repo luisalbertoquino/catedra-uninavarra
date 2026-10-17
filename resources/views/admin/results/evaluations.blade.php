@@ -3,11 +3,11 @@
         <a href="{{ route('admin.results.index', ['edicion' => $edition->id]) }}" class="a-btn-light"><x-icon name="arrow-left" /> Resultados</a>
     </x-slot:actions>
 
-    @php $fmt = fn ($n) => $n === null ? '—' : number_format($n, 1, ',', '.'); @endphp
+    @php $fmt = fn ($n) => $n === null ? '—' : number_format($n, 2, ',', '.'); @endphp
 
     <p class="mb-6 max-w-3xl text-sm text-slate-500">
-        Puntaje de cada jurado (0–100) por emprendimiento. La columna <b>Comité</b> es el promedio ponderado:
-        el <b>{{ $edition->expert_title }}</b> pesa ×{{ rtrim(rtrim(number_format($edition->expert_weight, 2, ',', '.'), '0'), ',') }}.
+        Nota de cada jurado (1 a 5) por emprendimiento según la rúbrica. Las columnas finales muestran el promedio de los
+        <b>jurados</b> ({{ $edition->jury_weight }}% de la nota final) y del <b>{{ $edition->expert_title }}</b> ({{ $edition->expert_score_weight }}%).
         Pasa el mouse sobre una celda para ver el detalle por criterio.
     </p>
 
@@ -23,10 +23,11 @@
                             @foreach ($juries as $j)
                                 <th class="text-center normal-case tracking-normal">
                                     <div class="font-semibold text-slate-700">{{ Str::limit($j->name, 18) }}</div>
-                                    @if ($j->is_expert)<div class="text-[10px] font-semibold uppercase text-lion-700"><x-icon name="award" /> ×{{ rtrim(rtrim(number_format($edition->expert_weight, 2, ',', '.'), '0'), ',') }}</div>@endif
+                                    @if ($j->is_expert)<div class="text-[10px] font-semibold uppercase text-lion-700"><x-icon name="award" /> {{ Str::limit($edition->expert_title, 14) }}</div>@endif
                                 </th>
                             @endforeach
-                            <th class="bg-lion-50 text-center">Comité</th>
+                            <th class="bg-lion-50 text-center">Jurados</th>
+                            <th class="bg-lion-50 text-center">Experto</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -41,14 +42,15 @@
                                     @endphp
                                     <td class="text-center" title="{{ $detail }}">
                                         @if ($e)
-                                            <span class="inline-block min-w-[3rem] rounded-md bg-slate-100 px-2 py-1 font-semibold tabular-nums text-slate-800">{{ $fmt((float) $e->total_score) }}</span>
+                                            <span class="inline-block min-w-[3rem] rounded-md bg-slate-100 px-2 py-1 font-semibold tabular-nums text-slate-800">{{ $fmt(\App\Services\JuryScoring::toGrade((float) $e->total_score)) }}</span>
                                             @if ($e->comment)<i class="fa-regular fa-comment ml-1 text-slate-400" aria-hidden="true"></i>@endif
                                         @else
                                             <span class="text-slate-300">—</span>
                                         @endif
                                     </td>
                                 @endforeach
-                                <td class="bg-lion-50/60 text-center font-display text-base font-semibold text-ink-900">{{ $fmt($scores->get($v->id)['score'] ?? null) }}</td>
+                                <td class="bg-lion-50/60 text-center font-display text-base font-semibold text-ink-900">{{ $fmt($scores->get($v->id)['jury'] ?? null) }}</td>
+                                <td class="bg-lion-50/60 text-center font-display text-base font-semibold text-ink-900">{{ $fmt($scores->get($v->id)['expert'] ?? null) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -59,7 +61,7 @@
                                 @php $n = $evaluations->filter(fn ($r) => $r->has($j->id))->count(); @endphp
                                 <td class="text-center">{{ $n }}/{{ $ventures->count() }}</td>
                             @endforeach
-                            <td></td>
+                            <td></td><td></td>
                         </tr>
                     </tfoot>
                 </table>

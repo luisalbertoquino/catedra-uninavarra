@@ -14,11 +14,11 @@
             </h1>
             <p class="mx-auto mt-4 max-w-2xl text-white/60">
                 @if ($tab === 'inversionistas')
-                    Aliados que más le apuestan al talento Navarrista, según el monto comprometido en inversiones y donaciones.
+                    Aliados que más le apuestan al talento Navarrista, según el monto de inversiones y donaciones ya concretadas.
                 @elseif ($byScore)
-                    Puntaje final = comité técnico ({{ 100 - $edition->community_weight }}%) + votación de la comunidad ({{ $edition->community_weight }}%).
+                    Nota final de 1 a 5: comunidad {{ $edition->community_weight }}% + jurados {{ $edition->jury_weight }}% + {{ $edition->expert_title }} {{ $edition->expert_score_weight }}%.
                 @else
-                    Así va la votación en tiempo real. La comunidad aporta el {{ $edition?->community_weight ?? 30 }}% de la evaluación; el resto lo define el comité técnico.
+                    Así va la votación en tiempo real. La comunidad aporta el {{ $edition?->community_weight ?? 30 }}% de la nota final; el resto lo definen los jurados y el {{ $edition?->expert_title ?? 'Profesor experto' }}.
                 @endif
             </p>
             <div class="mt-8 inline-flex rounded-xl border border-white/10 bg-white/[.03] p-1">
@@ -61,7 +61,7 @@
                             </div>
                             <div class="truncate px-1 text-sm font-bold group-hover:text-lion-300 sm:text-lg">{{ $v->name }}</div>
                             <div class="text-xs text-white/50 sm:text-sm">
-                                {{ $byScore && $v->final_score !== null ? number_format($v->final_score, 1, ',', '.').' pts' : number_format($v->votes_count, 0, ',', '.').' votos' }}
+                                {{ $byScore && $v->final_grade !== null ? 'Nota '.number_format($v->final_grade, 2, ',', '.') : number_format($v->votes_count, 0, ',', '.').' votos' }}
                             </div>
                             <div @class([
                                 'mt-3 rounded-t-2xl border border-b-0 border-white/10 font-display text-4xl font-semibold sm:text-6xl',
@@ -89,12 +89,12 @@
                                 @if ($v->category)<span class="hidden items-center gap-1.5 text-xs text-white/40 sm:inline-flex">@if ($v->category->icon)<x-icon :name="$v->category->icon" />@endif {{ $v->category->name }}</span>@endif
                             </div>
                             <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/5">
-                                <div class="h-full rounded-full bg-gradient-to-r from-lion-400 to-volt-500 transition-all duration-1000" style="width: {{ $byScore && $v->final_score !== null ? $v->final_score : $v->community_score }}%"></div>
+                                <div class="h-full rounded-full bg-gradient-to-r from-lion-400 to-volt-500 transition-all duration-1000" style="width: {{ $byScore && $v->final_grade !== null ? round($v->final_grade / 5 * 100, 1) : ($totalVotes ? round($v->votes_count / max(1, $ranking->max('votes_count')) * 100, 1) : 0) }}%"></div>
                             </div>
                         </div>
                         <div class="text-right">
-                            @if ($byScore && $v->final_score !== null)
-                                <div class="font-display text-lg font-semibold tabular-nums">{{ number_format($v->final_score, 1, ',', '.') }}</div>
+                            @if ($byScore && $v->final_grade !== null)
+                                <div class="font-display text-lg font-semibold tabular-nums">{{ number_format($v->final_grade, 2, ',', '.') }}<span class="text-xs text-white/40">/5</span></div>
                                 <div class="text-[11px] text-white/45">{{ $v->votes_count }} votos</div>
                             @else
                                 <div class="font-display text-lg font-semibold tabular-nums">{{ number_format($v->votes_count, 0, ',', '.') }}</div>

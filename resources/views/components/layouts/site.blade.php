@@ -139,9 +139,7 @@
         <div class="container-x relative grid gap-10 py-16 md:grid-cols-12">
             <div class="md:col-span-5">
                 <x-brand size="lg" />
-                <p class="mt-6 max-w-sm text-sm leading-relaxed text-white/60">
-                    Vitrina oficial de los emprendimientos creados por los estudiantes Navarristas en la Cátedra UNINAVARRA. Conócelos, vota por tus favoritos y súmate como inversionista, mentor o aliado.
-                </p>
+                <p class="mt-6 max-w-sm text-sm leading-relaxed text-white/60">{{ \App\Models\Setting::get('footer_text') }}</p>
             </div>
             <div class="md:col-span-3">
                 <h3 class="text-sm font-semibold text-white">Explora</h3>
@@ -155,10 +153,10 @@
             <div class="md:col-span-4">
                 <h3 class="text-sm font-semibold text-white">Contacto</h3>
                 <ul class="mt-4 space-y-2 text-sm text-white/60">
-                    <li><a href="https://wa.me/{{ config('catedra.contact.whatsapp') }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="whatsapp" style="brands" fw /> {{ config('catedra.contact.phone') }}</a></li>
-                    <li><a href="mailto:{{ config('catedra.contact.email') }}" class="flex items-center gap-3 break-all hover:text-lion-300"><x-icon name="envelope" fw /> {{ config('catedra.contact.email') }}</a></li>
-                    <li class="flex items-center gap-3"><x-icon name="location-dot" fw /> {{ config('catedra.contact.address') }}</li>
-                    <li><a href="{{ config('catedra.contact.site') }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="globe" fw /> uninavarra.edu.co</a></li>
+                    <li><a href="https://wa.me/{{ \App\Models\Setting::whatsapp('contact_phone') }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="whatsapp" style="brands" fw /> {{ \App\Models\Setting::get('contact_phone') }}</a></li>
+                    <li><a href="mailto:{{ \App\Models\Setting::get('contact_email') }}" class="flex items-center gap-3 break-all hover:text-lion-300"><x-icon name="envelope" fw /> {{ \App\Models\Setting::get('contact_email') }}</a></li>
+                    <li class="flex items-center gap-3"><x-icon name="location-dot" fw /> {{ \App\Models\Setting::get('contact_address') }}</li>
+                    <li><a href="{{ \App\Models\Setting::get('contact_site') }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="globe" fw /> {{ preg_replace('~^https?://(www\.)?~', '', rtrim(\App\Models\Setting::get('contact_site'), '/')) }}</a></li>
                 </ul>
             </div>
         </div>

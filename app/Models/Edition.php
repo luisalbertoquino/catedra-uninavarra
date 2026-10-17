@@ -12,7 +12,8 @@ class Edition extends Model
     protected $fillable = [
         'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner', 'promo_video_url',
         'voting_starts_at', 'voting_ends_at', 'final_at', 'final_location',
-        'community_weight', 'max_votes_per_user', 'finalists_count', 'voting_email_domain', 'expert_title', 'expert_weight',
+        'community_weight', 'jury_weight', 'expert_score_weight', 'vote_grade_mode', 'vote_grade_thresholds',
+        'max_votes_per_user', 'finalists_count', 'voting_email_domain', 'expert_title',
         'is_active', 'is_published', 'results_published',
     ];
 
@@ -23,7 +24,7 @@ class Edition extends Model
         'is_active' => 'boolean',
         'is_published' => 'boolean',
         'results_published' => 'boolean',
-        'expert_weight' => 'decimal:2',
+        'vote_grade_thresholds' => 'array',
     ];
 
     public function getRouteKeyName(): string
@@ -54,6 +55,41 @@ class Edition extends Model
     public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class);
+    }
+
+    /** Pesos de la nota final (comunidad, jurados, experto) en porcentaje */
+    public function gradeWeights(): array
+    {
+        return ['community' => (int) $this->community_weight, 'jury' => (int) $this->jury_weight, 'expert' => (int) $this->expert_score_weight];
+    }
+
+    /** Votos mínimos para obtener nota 2, 3, 4 y 5 en el modo "por rangos" */
+    public function voteThresholds(): array
+    {
+        $t = $this->vote_grade_thresholds ?: [];
+
+        return ['2' => (int) ($t['2'] ?? 5), '3' => (int) ($t['3'] ?? 15), '4' => (int) ($t['4'] ?? 30), '5' => (int) ($t['5'] ?? 50)];
+    }
+
+    /**
+     * Nota de 1 a 5 según los votos de la comunidad.
+     *  - relativo: el emprendimiento más votado obtiene 5 y los demás en proporción (0 votos = 1).
+     *  - rangos: nota según los votos mínimos configurados para cada nota.
+     */
+    public function voteGrade(int $votes, int $maxVotes): float
+    {
+        if ($this->vote_grade_mode === 'rangos') {
+            $grade = 1;
+            foreach ($this->voteThresholds() as $g => $min) {
+                if ($votes >= $min) {
+                    $grade = (int) $g;
+                }
+            }
+
+            return (float) $grade;
+        }
+
+        return $maxVotes > 0 ? round(1 + 4 * $votes / $maxVotes, 2) : 1.0;
     }
 
     /** Los jurados pueden evaluar mientras la edición esté activa y no se hayan publicado resultados. */

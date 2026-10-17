@@ -97,6 +97,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('jurados/{user}', [Admin\JuryController::class, 'destroy'])->name('juries.destroy');
     Route::get('resultados/{edition}/evaluaciones', [Admin\ResultsController::class, 'evaluations'])->name('results.evaluations');
 
+    Route::get('configuracion', [Admin\SettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('configuracion', [Admin\SettingsController::class, 'update'])->name('settings.update');
+
+    Route::get('importar', [Admin\ImportController::class, 'create'])->name('import.create');
+    Route::post('importar', [Admin\ImportController::class, 'store'])->name('import.store');
+
     Route::get('usuarios', [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('usuarios/exportar', [Admin\UserController::class, 'export'])->name('users.export');
     Route::patch('usuarios/{user}', [Admin\UserController::class, 'update'])->name('users.update');

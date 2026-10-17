@@ -131,8 +131,7 @@
                     <div><label class="a-label" for="voting_ends_at">Cierre de votación</label><input id="voting_ends_at" type="datetime-local" name="voting_ends_at" class="a-input" value="{{ $dt('voting_ends_at') }}"></div>
                     <div><label class="a-label" for="final_at">Gran final</label><input id="final_at" type="datetime-local" name="final_at" class="a-input" value="{{ $dt('final_at') }}"></div>
                     <div><label class="a-label" for="final_location">Lugar de la final</label><input id="final_location" name="final_location" class="a-input" value="{{ old('final_location', $edition->final_location) }}"></div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <div><label class="a-label" for="community_weight">% comunidad</label><input id="community_weight" type="number" min="0" max="100" name="community_weight" class="a-input" value="{{ old('community_weight', $edition->community_weight ?? 30) }}"></div>
+                    <div class="grid grid-cols-2 gap-3">
                         <div><label class="a-label" for="max_votes_per_user">Votos/persona</label><input id="max_votes_per_user" type="number" min="1" name="max_votes_per_user" class="a-input" value="{{ old('max_votes_per_user', $edition->max_votes_per_user ?? 1) }}"></div>
                         <div><label class="a-label" for="finalists_count">Finalistas</label><input id="finalists_count" type="number" min="1" name="finalists_count" class="a-input" value="{{ old('finalists_count', $edition->finalists_count ?? 5) }}"></div>
                     </div>
@@ -145,14 +144,40 @@
                 </div>
             </section>
 
-            <section id="jurado" class="a-card scroll-mt-24 p-6">
-                <h2 class="font-semibold text-ink-900"><x-icon name="award" /> Jurado experto</h2>
-                <p class="mt-1 text-sm text-slate-500">Jurado especial con más peso en el puntaje del comité técnico.</p>
+            @php $th = $edition->exists ? $edition->voteThresholds() : (new \App\Models\Edition(['vote_grade_thresholds' => $edition->vote_grade_thresholds]))->voteThresholds(); @endphp
+            <section id="calificacion" class="a-card scroll-mt-24 p-6"
+                     x-data="{ c: {{ (int) old('community_weight', $edition->community_weight ?? 30) }}, j: {{ (int) old('jury_weight', $edition->jury_weight ?? 40) }}, e: {{ (int) old('expert_score_weight', $edition->expert_score_weight ?? 30) }}, mode: @js(old('vote_grade_mode', $edition->vote_grade_mode ?? 'relativo')) }">
+                <h2 class="font-semibold text-ink-900"><x-icon name="scale-balanced" /> Calificación (nota de 1 a 5)</h2>
+                <p class="mt-1 text-sm text-slate-500">Peso de cada componente en la nota final. Debe sumar 100%.</p>
                 <div class="mt-4 grid grid-cols-3 gap-3">
-                    <div class="col-span-2"><label class="a-label" for="expert_title">Nombre del rol</label><input id="expert_title" name="expert_title" required maxlength="60" class="a-input" value="{{ old('expert_title', $edition->expert_title ?? 'Profesor experto') }}"></div>
-                    <div><label class="a-label" for="expert_weight">Peso ×</label><input id="expert_weight" type="number" step="0.5" min="1" max="10" name="expert_weight" required class="a-input" value="{{ old('expert_weight', $edition->expert_weight ?? 2) }}"></div>
+                    <div><label class="a-label" for="community_weight">% Comunidad</label><input id="community_weight" type="number" min="0" max="100" name="community_weight" x-model.number="c" required class="a-input"></div>
+                    <div><label class="a-label" for="jury_weight">% Jurados</label><input id="jury_weight" type="number" min="0" max="100" name="jury_weight" x-model.number="j" required class="a-input"></div>
+                    <div><label class="a-label" for="expert_score_weight">% Experto</label><input id="expert_score_weight" type="number" min="0" max="100" name="expert_score_weight" x-model.number="e" required class="a-input"></div>
                 </div>
-                <p class="mt-2 text-xs text-slate-500">Ej.: con peso ×2, su evaluación cuenta como la de dos jurados. Los jurados se gestionan en <a href="{{ route('admin.juries.index') }}" class="font-medium text-ink-700 underline">Jurados</a>.</p>
+                <p class="mt-2 text-sm font-medium" :class="c + j + e === 100 ? 'text-emerald-700' : 'text-rose-600'">Suma: <span x-text="c + j + e"></span>%</p>
+
+                <div class="mt-5">
+                    <label class="a-label" for="expert_title">Nombre del jurado experto</label>
+                    <input id="expert_title" name="expert_title" required maxlength="60" class="a-input" value="{{ old('expert_title', $edition->expert_title ?? 'Profesor experto') }}">
+                    <p class="mt-1 text-xs text-slate-500">Las cuentas se crean en <a href="{{ route('admin.juries.index') }}" class="font-medium text-ink-700 underline">Jurados</a> marcando la casilla de experto.</p>
+                </div>
+
+                <div class="mt-5">
+                    <span class="a-label">Nota de la comunidad según los votos</span>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-2 text-sm"><input type="radio" name="vote_grade_mode" value="relativo" x-model="mode" class="mt-0.5 border-slate-300 text-ink-700 focus:ring-ink-500">
+                            <span><b>Relativa</b>: el emprendimiento más votado obtiene 5,0 y los demás en proporción (0 votos = 1,0).</span></label>
+                        <label class="flex items-start gap-2 text-sm"><input type="radio" name="vote_grade_mode" value="rangos" x-model="mode" class="mt-0.5 border-slate-300 text-ink-700 focus:ring-ink-500">
+                            <span><b>Por rangos</b>: defines cuántos votos se necesitan para cada nota.</span></label>
+                    </div>
+                    <div x-show="mode === 'rangos'" x-collapse class="mt-3 grid grid-cols-4 gap-2">
+                        @foreach (['2', '3', '4', '5'] as $grade)
+                            <label class="text-xs text-slate-500">Nota {{ $grade }} desde
+                                <input type="number" min="0" name="vote_grade_thresholds[{{ $grade }}]" value="{{ old("vote_grade_thresholds.$grade", $th[$grade]) }}" class="a-input mt-1"> votos</label>
+                        @endforeach
+                        <p class="col-span-4 text-xs text-slate-500">Menos votos que el mínimo de la nota 2 = nota 1.</p>
+                    </div>
+                </div>
             </section>
 
             <section class="a-card p-6">

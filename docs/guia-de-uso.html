@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de uso · Plataforma Cátedra UNINAVARRA</title>
+<meta name="description" content="Cómo funciona la plataforma de emprendimientos de la Cátedra UNINAVARRA: roles, credenciales de prueba, votación, jurados, inversionistas y administración.">
+<style>
+  :root {
+    --bg: #f6f7fb; --surface: #ffffff; --ink: #141833; --muted: #5b6080; --line: #e3e5ef;
+    --gold: #b27a05; --gold-soft: #fff6dc; --gold-line: #f2d891; --navy: #151a3a; --ok: #13795b; --ok-soft: #e6f6ef;
+    --warn: #9a4b00; --warn-soft: #fff1e0; --code: #f0f1f7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #070a1a; --surface: #0f1430; --ink: #eef0fa; --muted: #a3a8c6; --line: #232a55;
+      --gold: #fdc31b; --gold-soft: #2a2108; --gold-line: #5c4810; --navy: #c9cdea; --ok: #5fd3a7; --ok-soft: #0d2b22;
+      --warn: #ffb86b; --warn-soft: #2e1d08; --code: #151a3a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #070a1a; --surface: #0f1430; --ink: #eef0fa; --muted: #a3a8c6; --line: #232a55;
+    --gold: #fdc31b; --gold-soft: #2a2108; --gold-line: #5c4810; --navy: #c9cdea; --ok: #5fd3a7; --ok-soft: #0d2b22;
+    --warn: #ffb86b; --warn-soft: #2e1d08; --code: #151a3a;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--gold); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+  header.hero { background: #070a1a; color: #fff; padding: 56px 0 40px; border-bottom: 4px solid #fdc31b; }
+  header.hero .eyebrow { color: #fdc31b; font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+  header.hero h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.1; margin: 10px 0 12px; }
+  header.hero p { color: #c9cdea; max-width: 760px; margin: 0; }
+  header.hero .meta { margin-top: 18px; font-size: 14px; color: #a3a8c6; }
+  header.hero code { background: #151a3a; color: #fdc31b; }
+  .layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 32px; padding: 32px 0 64px; }
+  nav.toc { position: sticky; top: 16px; align-self: start; font-size: 14px; }
+  nav.toc b { display: block; margin-bottom: 8px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+  nav.toc a { display: block; padding: 5px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; }
+  nav.toc a:hover { background: var(--gold-soft); }
+  section { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 20px; scroll-margin-top: 16px; }
+  section > h2 { margin: 0 0 4px; font-size: 24px; display: flex; gap: 10px; align-items: center; }
+  section > h2 .n { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: #fdc31b; color: #070a1a; font-size: 15px; flex: none; }
+  section > .lead { color: var(--muted); margin: 0 0 16px; }
+  h3 { font-size: 17px; margin: 22px 0 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; display: block; overflow-x: auto; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+  code { background: var(--code); padding: 2px 6px; border-radius: 6px; font-size: .9em; word-break: break-all; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .card h4 { margin: 0 0 6px; font-size: 16px; }
+  .card p, .card ul { margin: 0; font-size: 14px; color: var(--muted); }
+  .card ul { padding-left: 18px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; background: var(--gold-soft); color: var(--gold); border: 1px solid var(--gold-line); }
+  .note { border-left: 4px solid var(--gold); background: var(--gold-soft); padding: 12px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; font-size: 14px; }
+  .note.ok { border-color: var(--ok); background: var(--ok-soft); }
+  .note.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 10px 0; }
+  .steps li { counter-increment: s; position: relative; padding: 0 0 14px 44px; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: var(--surface); font-weight: 700; font-size: 14px; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; font-size: 14px; }
+  .flow span { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--bg); }
+  .flow span.on { border-color: var(--ok); color: var(--ok); font-weight: 700; }
+  .flow i { color: var(--muted); font-style: normal; }
+  .formula { font-size: 17px; font-weight: 700; background: var(--bg); border: 1px dashed var(--gold-line); border-radius: 12px; padding: 14px; text-align: center; }
+  ul.check { list-style: none; padding: 0; }
+  ul.check li { padding-left: 26px; position: relative; margin-bottom: 6px; }
+  ul.check li::before { content: "☐"; position: absolute; left: 0; color: var(--gold); }
+  footer { color: var(--muted); font-size: 13px; text-align: center; padding: 0 0 40px; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } nav.toc { position: static; display: flex; flex-wrap: wrap; gap: 4px; } nav.toc b { width: 100%; } }
+  @media print { nav.toc { display: none; } .layout { grid-template-columns: 1fr; } section { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Cátedra UNINAVARRA · LION HUB EVENT</div>
+    <h1>Guía de uso de la plataforma de emprendimientos</h1>
+    <p>Qué puede hacer cada persona, cómo se vota, cómo evalúan los jurados, cómo funciona el apoyo de los inversionistas y cómo el administrador gestiona cada convocatoria.</p>
+    <div class="meta">Entorno de pruebas: <code>http://emprendimientos.test</code> · Panel admin: <code>/admin</code> · Panel jurado: <code>/jurado</code></div>
+  </div>
+</header>
+
+<div class="wrap layout">
+  <nav class="toc" aria-label="Contenido">
+    <b>Contenido</b>
+    <a href="#que-es">1. ¿Qué es?</a>
+    <a href="#roles">2. Roles</a>
+    <a href="#credenciales">3. Credenciales de prueba</a>
+    <a href="#vistas">4. Vistas del sitio</a>
+    <a href="#votar">5. Votar</a>
+    <a href="#opinar">6. Opinar</a>
+    <a href="#inversionistas">7. Inversionistas</a>
+    <a href="#jurados">8. Jurados</a>
+    <a href="#nota">9. Nota final</a>
+    <a href="#admin">10. Panel admin</a>
+    <a href="#convocatoria">11. Nueva convocatoria</a>
+    <a href="#seguridad">12. Seguridad</a>
+    <a href="#pruebas">13. Guion de pruebas</a>
+    <a href="#faq">14. Preguntas</a>
+  </nav>
+
+  <main>
+    <section id="que-es">
+      <h2><span class="n">1</span> ¿Qué es la plataforma?</h2>
+      <p class="lead">La vitrina oficial de los emprendimientos de cada convocatoria semestral de la Cátedra UNINAVARRA.</p>
+      <div class="grid">
+        <div class="card"><h4>Para la comunidad</h4><p>Conocer los emprendimientos (video pitch, equipo, misión, visión, montos), votar por su favorito y dejar opiniones.</p></div>
+        <div class="card"><h4>Para inversionistas y aliados</h4><p>Registrar una <b>intención de apoyo</b>. El Centro de Emprendimiento los contacta y los conecta con el equipo.</p></div>
+        <div class="card"><h4>Para el comité</h4><p>Jurados y Profesor experto califican cada video pitch con una rúbrica. La plataforma calcula la nota final.</p></div>
+        <div class="card"><h4>Para la Cátedra</h4><p>Un panel para cargar convocatorias, emprendimientos (incluso desde Excel), jurados, resultados y textos del sitio.</p></div>
+      </div>
+      <div class="note"><b>No se procesan pagos en línea.</b> Las donaciones e inversiones son intenciones que gestiona personalmente el Centro de Emprendimiento.</div>
+    </section>
+
+    <section id="roles">
+      <h2><span class="n">2</span> Roles</h2>
+      <p class="lead">Cada cuenta tiene un rol que define lo que puede hacer.</p>
+      <table>
+        <thead><tr><th>Rol</th><th>Cómo se obtiene</th><th>Puede</th><th>No puede</th></tr></thead>
+        <tbody>
+          <tr><td><b>Visitante</b></td><td>Sin cuenta</td><td>Ver todo el sitio, videos, ranking, ediciones y compartir.</td><td>Votar, opinar ni registrar apoyos.</td></tr>
+          <tr><td><b>Comunidad</b></td><td>Se registra eligiendo "Comunidad"</td><td>Votar (1 voto por convocatoria), calificar y comentar, registrar apoyos (mentoría, cliente…), ver "Mi actividad".</td><td>Entrar a los paneles de jurado o admin.</td></tr>
+          <tr><td><b>Inversionista / Aliado</b></td><td>Se registra eligiendo "Inversionista / Aliado" (teléfono obligatorio)</td><td>Todo lo de comunidad, y registrar intenciones de inversión o donación. Aparecer en el ranking de inversionistas si lo autoriza.</td><td>Entrar a los paneles de jurado o admin.</td></tr>
+          <tr><td><b>Jurado</b></td><td>Lo crea el administrador</td><td>Entrar a <code>/jurado</code>, ver el video de cada equipo y calificarlo con la rúbrica.</td><td>Votar como comunidad ni ver el panel admin.</td></tr>
+          <tr><td><b>Profesor experto</b> <span class="tag">jurado especial</span></td><td>Jurado marcado como experto por el administrador (el nombre del rol es configurable)</td><td>Lo mismo que un jurado; su nota es un componente aparte de la nota final (30 % por defecto).</td><td>Votar como comunidad.</td></tr>
+          <tr><td><b>Administrador</b></td><td>Lo asigna otro administrador en Usuarios</td><td>Gestionar todo: convocatorias, emprendimientos, jurados, resultados, apoyos, comentarios, usuarios, categorías, importación y configuración.</td><td>Votar como comunidad (para evitar conflicto de interés).</td></tr>
+        </tbody>
+      </table>
+      <div class="note">Nadie puede registrarse a sí mismo como jurado o administrador: esas cuentas solo las crea el administrador.</div>
+    </section>
+
+    <section id="credenciales">
+      <h2><span class="n">3</span> Credenciales de prueba</h2>
+      <p class="lead">Todas las cuentas de prueba tienen la contraseña <code>password</code> y el correo ya verificado. Ingreso en <code>/login</code>.</p>
+      <table>
+        <thead><tr><th>Rol</th><th>Correo</th><th>Al ingresar llega a</th><th>Para probar</th></tr></thead>
+        <tbody>
+          <tr><td>Administrador</td><td><code>admin@uninavarra.edu.co</code></td><td>Panel admin</td><td>Todo el panel de gestión.</td></tr>
+          <tr><td>Profesor experto</td><td><code>experto@uninavarra.edu.co</code></td><td>Panel del jurado</td><td>Evaluar con la rúbrica como experto.</td></tr>
+          <tr><td>Jurados</td><td><code>jurado1@uninavarra.edu.co</code> a <code>jurado4@uninavarra.edu.co</code></td><td>Panel del jurado</td><td>Evaluar como jurado normal.</td></tr>
+          <tr><td>Inversionista</td><td><code>inversionista@demo.co</code></td><td>Mi actividad</td><td>Registrar intenciones de apoyo.</td></tr>
+          <tr><td>Comunidad</td><td><code>estudiante1@uninavarra.edu.co</code> a <code>estudiante70@uninavarra.edu.co</code></td><td>Mi actividad</td><td>Votar, cambiar el voto, calificar y comentar.</td></tr>
+        </tbody>
+      </table>
+      <div class="note warn"><b>Antes de publicar el sitio</b> se deben eliminar o cambiar estas cuentas de prueba, en especial la del administrador.</div>
+      <p>Los 15 emprendimientos de la convocatoria 2026-2 son <b>reales</b> (cargados desde el Excel del portafolio, con sus logos). Las convocatorias 2025-2 y 2026-1 contienen datos <b>ficticios</b> de demostración.</p>
+    </section>
+
+    <section id="vistas">
+      <h2><span class="n">4</span> Vistas del sitio y qué se puede hacer en cada una</h2>
+      <div class="grid">
+        <div class="card"><h4>Anuncio superior</h4><p>Mientras la votación está abierta aparece una franja dorada con la cuenta regresiva del cierre y el enlace "Vota ahora". Se cierra con la ✕ y no vuelve a salir para esa votación.</p></div>
+        <div class="card"><h4>Inicio</h4><ul><li>Video promocional de fondo y botón "Ver video".</li><li>Cuenta regresiva a la gran final.</li><li>Cifras: emprendimientos, votos, personas, apoyos.</li><li>Los más votados, cronograma de fases, sectores, ediciones anteriores.</li></ul></div>
+        <div class="card"><h4>Emprendimientos</h4><ul><li>Buscador, filtro por categoría y por edición.</li><li>Orden: más votados, más comentados, recientes, A-Z.</li><li>Indica si el usuario aún tiene su voto disponible.</li></ul></div>
+        <div class="card"><h4>Ficha del emprendimiento</h4><ul><li>Logo, video pitch, descripción, misión, visión, población objetivo.</li><li>Monto para iniciar y monto que buscan con inversionistas.</li><li>Equipo, galería, opiniones con estrellas.</li><li>Botones Votar, Apoyar y Compartir (WhatsApp, Facebook, X, LinkedIn, copiar enlace).</li></ul></div>
+        <div class="card"><h4>Ranking · Emprendimientos</h4><p>Podio y tabla. Durante la votación ordena por votos; cuando el admin publica los resultados muestra la nota final oficial (1 a 5).</p></div>
+        <div class="card"><h4>Ranking · Inversionistas</h4><p>Aliados con apoyos <b>concretados</b> que autorizaron aparecer, ordenados por monto. Muestra el contacto del Centro de Emprendimiento.</p></div>
+        <div class="card"><h4>Ediciones</h4><p>Archivo de convocatorias anteriores con sus ganadores y emprendimientos.</p></div>
+        <div class="card"><h4>Mi actividad y Mi perfil</h4><p>Voto usado, opiniones, intenciones de apoyo y su estado. En el perfil: datos de contacto y autorización para aparecer en el ranking de inversionistas.</p></div>
+      </div>
+    </section>
+
+    <section id="votar">
+      <h2><span class="n">5</span> Votar</h2>
+      <p class="lead">Para que un voto cuente se deben cumplir <b>todas</b> estas condiciones. Si falta una, el botón explica el motivo.</p>
+      <ol class="steps">
+        <li><b>Tener cuenta e iniciar sesión.</b> Si alguien sin sesión pulsa "Votar", va al formulario de ingreso.</li>
+        <li><b>Correo verificado.</b> Al registrarse llega un enlace al correo (requiere que el servidor de correo esté configurado).</li>
+        <li><b>Votación abierta:</b> entre la fecha de inicio y la de cierre definidas por el admin en la convocatoria.</li>
+        <li><b>Un solo voto por persona en la convocatoria.</b> Mientras la votación siga abierta se puede retirar (pulsando de nuevo "Votaste") y darlo a otro emprendimiento.</li>
+        <li><b>Rol de comunidad o inversionista.</b> Jurados y administradores no votan.</li>
+        <li><b>Dominio de correo (opcional):</b> si el admin lo configura (por ejemplo <code>uninavarra.edu.co</code>), solo votan cuentas de ese dominio.</li>
+      </ol>
+      <div class="note">Si la persona intenta votar por otro emprendimiento ya habiendo votado, la plataforma le indica por cuál votó y cómo cambiarlo.</div>
+    </section>
+
+    <section id="opinar">
+      <h2><span class="n">6</span> Opinar y calificar</h2>
+      <ul>
+        <li>Cualquier persona registrada con <b>correo verificado</b> puede dejar una calificación de 1 a 5 estrellas y un comentario (3 a 1000 caracteres), en cualquier momento.</li>
+        <li>Cada persona puede borrar sus comentarios. El admin puede ocultarlos, publicarlos o eliminarlos.</li>
+        <li>Opcionalmente, el admin puede activar que los comentarios queden ocultos hasta aprobarlos (moderación previa).</li>
+        <li>Las estrellas son retroalimentación para el equipo: <b>no afectan la nota final</b>.</li>
+      </ul>
+    </section>
+
+    <section id="inversionistas">
+      <h2><span class="n">7</span> Inversionistas y aliados: cómo funciona el apoyo</h2>
+      <p class="lead">La plataforma no cobra ni recibe dinero. Registra la intención y el Centro de Emprendimiento hace la gestión.</p>
+      <div class="flow"><span>1. Intención de apoyo</span><i>→</i><span>2. Pendiente</span><i>→</i><span>3. Contactado</span><i>→</i><span>4. En proceso</span><i>→</i><span class="on">5. Concretado</span><i>o</i><span>Descartado</span></div>
+      <ol class="steps">
+        <li>El inversionista o aliado inicia sesión, abre la ficha de un emprendimiento y pulsa <b>Apoyar</b>.</li>
+        <li>Elige el tipo de apoyo: <b>inversión, donación, mentoría, alianza o cliente</b>, escribe un mensaje, el monto aproximado (si aplica) y su teléfono.</li>
+        <li>Marca, si lo desea, la casilla <b>"Mostrar mi nombre u organización en el ranking de inversionistas"</b>.</li>
+        <li>La intención queda <b>Pendiente</b> y la ve el administrador en <b>Admin → Intenciones de apoyo</b>.</li>
+        <li>La persona encargada lo contacta y conecta con el equipo, actualizando el estado: <b>Contactado → En proceso → Concretado</b> (o <b>Descartado</b>), con notas internas de seguimiento.</li>
+        <li>Solo cuando el apoyo queda <b>Concretado</b> cuenta en el <b>ranking de inversionistas</b> (si la persona autorizó aparecer).</li>
+      </ol>
+      <div class="card">
+        <h4>Persona encargada de la gestión de inversiones</h4>
+        <p><b>Centro de Emprendimiento UNINAVARRA</b><br>WhatsApp / teléfono: <b>+57 322 385 9086</b><br>Correo: <b>centroemprendimiento@uninavarra.edu.co</b></p>
+        <p style="margin-top:6px">Estos datos aparecen en la ficha de cada emprendimiento, en el ranking de inversionistas y se cambian en <b>Admin → Configuración</b>.</p>
+      </div>
+      <div class="note">Mientras un equipo no tenga redes ni teléfono propios, su ficha muestra el contacto del Centro de Emprendimiento.</div>
+    </section>
+
+    <section id="jurados">
+      <h2><span class="n">8</span> Jurados y Profesor experto</h2>
+      <ol class="steps">
+        <li>El administrador crea las cuentas en <b>Admin → Jurados</b> (puede marcar a una o más personas como <b>Profesor experto</b>). Si no escribe contraseña, la plataforma genera una y la muestra una sola vez para copiarla y enviarla.</li>
+        <li>El jurado ingresa en <code>/login</code> y llega a su <b>Panel del jurado</b>: lista de emprendimientos, su avance (por ejemplo 7/15) y filtros Pendientes / Evaluados.</li>
+        <li>Al abrir un emprendimiento ve el <b>video pitch de YouTube</b> embebido, la información del equipo (problema, solución, misión, visión, montos, integrantes) y la <b>rúbrica</b>.</li>
+        <li>Califica cada criterio (1 a 5 por defecto), escribe retroalimentación opcional y pulsa <b>Guardar</b> o <b>Guardar y siguiente</b>. La nota se calcula en vivo.</li>
+        <li>Puede ajustar sus calificaciones hasta que el administrador <b>publica los resultados</b>; en ese momento la evaluación se cierra.</li>
+      </ol>
+      <h3>Rúbrica por defecto</h3>
+      <p>Innovación · Viabilidad comercial · Viabilidad técnica · Proyección · Sostenibilidad — 20 % cada uno, escala 1 a 5. El admin puede cambiar criterios, pesos y escala en cada convocatoria.</p>
+    </section>
+
+    <section id="nota">
+      <h2><span class="n">9</span> Cómo se calcula la nota final (1 a 5)</h2>
+      <div class="formula">Nota final = Comunidad × 30 % + Jurados × 40 % + Profesor experto × 30 %</div>
+      <div class="grid" style="margin-top:14px">
+        <div class="card"><h4>Nota de la comunidad (votos)</h4><p><b>Relativa</b> (por defecto): el más votado obtiene 5,0 y los demás en proporción; 0 votos = 1,0.<br><b>Por rangos</b>: el admin define cuántos votos se necesitan para nota 2, 3, 4 y 5.</p></div>
+        <div class="card"><h4>Nota de los jurados</h4><p>Promedio de las rúbricas de los jurados normales, convertido a 1-5.</p></div>
+        <div class="card"><h4>Nota del Profesor experto</h4><p>Promedio de las rúbricas de los expertos, convertido a 1-5.</p></div>
+      </div>
+      <h3>Ejemplo</h3>
+      <p>Un emprendimiento es el más votado (comunidad 5,0), los jurados le dan en promedio 4,0 y el experto 5,0:<br>
+      <code>5,0 × 0,30 + 4,0 × 0,40 + 5,0 × 0,30 = 1,5 + 1,6 + 1,5 = 4,6</code></p>
+      <div class="note">Si a un emprendimiento le falta un componente (por ejemplo, el experto aún no lo evalúa), su peso se reparte entre los demás y la nota se marca como <b>Parcial</b>. Los tres porcentajes (deben sumar 100 %), el nombre del experto y la forma de calcular la nota de votos se configuran en <b>Admin → Ediciones → Editar → Calificación</b>.</div>
+      <p>Con la nota final, el administrador marca los <b>5 finalistas</b> (botón automático en Resultados), asigna las posiciones tras la gran final y publica los resultados oficiales.</p>
+    </section>
+
+    <section id="admin">
+      <h2><span class="n">10</span> Panel de administración</h2>
+      <table>
+        <thead><tr><th>Sección</th><th>Para qué sirve</th></tr></thead>
+        <tbody>
+          <tr><td><b>Dashboard</b></td><td>Indicadores, votos por día, top de emprendimientos, tipos de apoyo, últimos comentarios y apoyos.</td></tr>
+          <tr><td><b>Ediciones</b></td><td>Convocatorias: nombre, lema, video promocional, fechas de votación y final, cronograma, rúbrica, porcentajes de la nota, votos por persona, finalistas, dominio de correo, visibilidad. Botón <b>Activar</b> (la activa es la del inicio) y <b>Siguiente convocatoria</b>.</td></tr>
+          <tr><td><b>Emprendimientos</b></td><td>Crear o editar: textos, misión, visión, montos, grupo, categoría, logo, portada, galería, video pitch (YouTube, Vimeo o Drive), contacto, redes y equipo.</td></tr>
+          <tr><td><b>Resultados</b></td><td>Nota de comunidad, jurados, experto y final; finalistas automáticos; posiciones; publicar resultados; matriz de evaluaciones; exportar a Excel (CSV).</td></tr>
+          <tr><td><b>Jurados</b></td><td>Crear, editar, marcar experto, cambiar contraseña y ver el avance de cada jurado.</td></tr>
+          <tr><td><b>Intenciones de apoyo</b></td><td>Filtrar por estado, tipo y edición; cambiar estado; notas internas; contacto directo por correo o WhatsApp; exportar.</td></tr>
+          <tr><td><b>Comentarios</b></td><td>Publicar, ocultar o eliminar.</td></tr>
+          <tr><td><b>Usuarios</b></td><td>Buscar, filtrar por rol, cambiar rol, exportar.</td></tr>
+          <tr><td><b>Categorías</b></td><td>Nombres e iconos de los sectores.</td></tr>
+          <tr><td><b>Importar Excel</b></td><td>Cargar los emprendimientos de una convocatoria desde el Excel del portafolio, con sus logos.</td></tr>
+          <tr><td><b>Configuración</b></td><td>Título y frase de la portada, datos de la persona encargada de inversiones, contacto y texto del pie de página.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="convocatoria">
+      <h2><span class="n">11</span> Crear la convocatoria del siguiente semestre o año</h2>
+      <ol class="steps">
+        <li>En <b>Admin → Ediciones</b>, en la convocatoria actual, pulsa <b>Siguiente convocatoria</b>. Se precargan el periodo siguiente (2026-2 → 2027-1), el cronograma con las fechas corridas 6 meses, la rúbrica, los porcentajes y la configuración. Revisa las fechas y guarda.</li>
+        <li>Ve a <b>Admin → Importar Excel</b>, elige la nueva convocatoria, sube el Excel del portafolio y los logos (nombrados como cada emprendimiento, por ejemplo <code>Rayvix.png</code>).</li>
+        <li>Revisa los emprendimientos importados: ajusta nombres, categorías, frase corta y agrega el <b>video pitch</b> cuando los equipos lo entreguen.</li>
+        <li>Crea o reutiliza los <b>jurados</b>.</li>
+        <li>Pulsa <b>Activar</b> en la nueva convocatoria: pasa a la portada y queda disponible para los jurados. Las anteriores quedan en el archivo de Ediciones.</li>
+      </ol>
+      <h3>Formato del Excel</h3>
+      <p>Primera fila con los encabezados: <code>Nombre</code> · <code>Programa</code> · <code>Grupo</code> · <code>Nombre de la Idea de Negocio</code> · <code>Descripción de la idea</code> · <code>Población objetivo</code> · <code>Misión</code> · <code>Visión</code> · <code>Monto estimado para iniciar</code> · <code>Monto que solicitaría a un inversionista</code> · <code>Logo</code>. La fila con el nombre de la idea inicia el emprendimiento; las siguientes con nombre y programa son los integrantes. Los bloques repetidos se ignoran y volver a importar actualiza en lugar de duplicar.</p>
+      <div class="note warn">El Excel contiene datos personales de los estudiantes: guárdalo en un lugar privado, nunca dentro de la carpeta <code>public</code> del sitio.</div>
+    </section>
+
+    <section id="seguridad">
+      <h2><span class="n">12</span> Seguridad y protección contra bots</h2>
+      <ul>
+        <li>Registro protegido con campo trampa invisible, tiempo mínimo de llenado, bloqueo de correos temporales y CAPTCHA opcional (Cloudflare Turnstile).</li>
+        <li>Máximo 3 registros por minuto y 10 por día desde una misma conexión; límite general de peticiones por conexión.</li>
+        <li>Contraseñas con mínimo 8 caracteres, letras y números; intentos de ingreso limitados.</li>
+        <li>Correo verificado para votar, comentar y registrar apoyos; un voto por persona.</li>
+        <li>Cabeceras de seguridad en todas las páginas.</li>
+      </ul>
+    </section>
+
+    <section id="pruebas">
+      <h2><span class="n">13</span> Guion de pruebas sugerido</h2>
+      <div class="grid">
+        <div class="card"><h4>Comunidad · estudiante5</h4><ul class="check"><li>Votar por un emprendimiento.</li><li>Intentar votar por otro (debe indicar el voto actual).</li><li>Retirar el voto y votar por otro.</li><li>Calificar con estrellas y comentar.</li><li>Revisar "Mi actividad".</li></ul></div>
+        <div class="card"><h4>Inversionista</h4><ul class="check"><li>Apoyar un emprendimiento con inversión y monto.</li><li>Marcar "Mostrar en el ranking".</li><li>Ver el estado "Pendiente" en "Mi actividad".</li><li>Comprobar que aún no aparece en el ranking.</li></ul></div>
+        <div class="card"><h4>Administrador</h4><ul class="check"><li>En Intenciones de apoyo, pasar ese apoyo a "Concretado".</li><li>Ver al inversionista en Ranking → Inversionistas.</li><li>Cambiar porcentajes o modo de nota de votos en la edición.</li><li>Editar textos en Configuración.</li><li>Probar "Siguiente convocatoria" (sin guardar).</li></ul></div>
+        <div class="card"><h4>Jurados</h4><ul class="check"><li>Evaluar con jurado1 y con experto el mismo emprendimiento.</li><li>Ver en Resultados la nota de jurados, experto y final.</li><li>Abrir la matriz de evaluaciones.</li><li>Marcar finalistas y publicar resultados.</li></ul></div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">14</span> Preguntas frecuentes</h2>
+      <h3>Me registré pero no puedo votar.</h3>
+      <p>Debes verificar tu correo con el enlace que llega al registrarte. En el entorno de pruebas el correo no se envía realmente; usa las cuentas de prueba, que ya están verificadas.</p>
+      <h3>¿Puedo cambiar mi voto?</h3>
+      <p>Sí, mientras la votación esté abierta: retíralo en el emprendimiento que votaste y vota por otro.</p>
+      <h3>¿Dónde pago mi inversión o donación?</h3>
+      <p>En ningún lado dentro de la plataforma. Registra tu intención y el Centro de Emprendimiento (+57 322 385 9086 · centroemprendimiento@uninavarra.edu.co) te contacta para concretarla.</p>
+      <h3>¿Por qué no aparezco en el ranking de inversionistas?</h3>
+      <p>Solo aparecen los apoyos <b>concretados</b> de quienes autorizaron ser visibles. Puedes activar la autorización en tu perfil.</p>
+      <h3>Un emprendimiento no tiene video.</h3>
+      <p>El administrador lo agrega en la ficha del emprendimiento (enlace de YouTube) cuando el equipo lo entregue. Los jurados pueden evaluar con la información escrita mientras tanto.</p>
+    </section>
+  </main>
+</div>
+<footer>Plataforma Cátedra UNINAVARRA · LION HUB EVENT · Guía para pruebas internas</footer>
+</body>
+</html>

@@ -48,9 +48,9 @@ class ResultsController extends Controller
     /** Marca automáticamente como finalistas a los N primeros según el puntaje ponderado. */
     public function pickFinalists(Edition $edition)
     {
-        $ranking = Ranking::for($edition)->filter(fn ($v) => $v->final_score !== null);
+        $ranking = Ranking::for($edition)->filter(fn ($v) => $v->final_grade !== null);
         if ($ranking->isEmpty()) {
-            return back()->with('error', 'Primero registra los puntajes del comité técnico.');
+            return back()->with('error', 'Aún no hay notas finales: faltan evaluaciones de los jurados.');
         }
         $ids = $ranking->take($edition->finalists_count)->pluck('id');
 
@@ -76,15 +76,17 @@ class ResultsController extends Controller
 
     public function export(Edition $edition)
     {
+        $grade = fn ($n) => $n === null ? null : number_format($n, 2, ',', '');
         $rows = Ranking::for($edition, false)->values()->map(fn ($v, $i) => [
-            $i + 1, $v->name, $v->category?->name, $v->votes_count, $v->community_score,
-            $v->committee_total, $v->committee_source === 'jurados' ? "Jurados ({$v->jury_count})" : ($v->committee_source === 'manual' ? 'Manual' : ''),
-            $v->final_score, $v->is_finalist ? 'Sí' : 'No', $v->final_position,
+            $i + 1, $v->name, $v->team_group, $v->category?->name, $v->votes_count, $grade($v->community_grade),
+            $grade($v->jury_grade), $v->jury_count, $grade($v->expert_grade), $v->expert_count,
+            $grade($v->final_grade), $v->is_partial ? 'Parcial' : '', $v->is_finalist ? 'Sí' : 'No', $v->final_position,
             $v->comments_count, $v->rating_avg ? round($v->rating_avg, 1) : null, $v->views,
         ]);
 
         return Csv::download("resultados-{$edition->slug}.csv",
-            ['#', 'Emprendimiento', 'Categoría', 'Votos', 'Puntaje comunidad', 'Puntaje comité', 'Fuente comité', 'Puntaje final', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
+            ['#', 'Emprendimiento', 'Grupo', 'Categoría', 'Votos', 'Nota comunidad', 'Nota jurados', 'N.º jurados', "Nota {$edition->expert_title}", 'N.º expertos',
+                'Nota final', 'Estado', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
             $rows);
     }
 }

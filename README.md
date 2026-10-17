@@ -2,10 +2,12 @@
 
 Vitrina pública de los emprendimientos de la Cátedra UNINAVARRA / LION HUB EVENT. Es reutilizable en cada edición semestral.
 
+📘 **Guía de uso para cualquier persona (roles, credenciales de prueba, votación, jurados, inversionistas, admin):** [`docs/guia-de-uso.html`](docs/guia-de-uso.html)
+
 - **Público:** inicio con video promocional, anuncio de votación con cuenta regresiva y cronograma; listado con búsqueda y filtros; ficha de cada emprendimiento (video pitch, galería, equipo, contacto, compartir); ranking de emprendimientos y de inversionistas; archivo de ediciones.
 - **Comunidad:** registro, **un voto por persona** en cada edición (se puede cambiar mientras la votación esté abierta), calificación de 1 a 5 y comentarios.
 - **Inversionistas / aliados:** registran *intenciones de apoyo* (inversión, donación, mentoría, alianza o compra). **No se maneja dinero en línea.** Aparecen en el ranking público solo si lo autorizan.
-- **Jurados:** panel propio (`/jurado`) para ver el video de cada equipo y calificarlo con la rúbrica de la edición. El **Profesor experto** (nombre configurable) tiene más peso.
+- **Jurados:** panel propio (`/jurado`) para ver el video de cada equipo y calificarlo con la rúbrica de la edición. El **Profesor experto** (nombre configurable) es un componente aparte de la nota (30 %).
 - **Admin:** dashboard, ediciones (con rúbrica y jurado experto), emprendimientos, jurados, resultados (comité + comunidad, finalistas automáticos, matriz de evaluaciones), apoyos, comentarios, usuarios, categorías y exportes CSV.
 
 ## Stack
@@ -31,13 +33,19 @@ Usuarios de demo (contraseña `password`):
 > Los emprendimientos, personas y cifras del seeder son ficticios. Las imágenes vienen de picsum.photos y los videos de ejemplo son los promocionales de la Cátedra.
 > Para agregar solo los datos de jurados a una base existente: `php artisan db:seed --class=JuryDemoSeeder`.
 
-## Evaluación del comité y puntaje final
-1. Cada edición tiene una **rúbrica** (por defecto: innovación, viabilidad comercial, viabilidad técnica, proyección y sostenibilidad; 20 % cada uno, escala 1 a 5). Se edita en *Admin → Ediciones*.
-2. Cada evaluación de un jurado se convierte a 0–100 según el peso de cada criterio.
-3. **Puntaje del comité** = promedio ponderado de los jurados; el Profesor experto pesa ×2 (configurable).
-4. **Puntaje final** = comité × 70 % + comunidad × 30 % (la comunidad se normaliza: el más votado = 100).
-5. Si un emprendimiento no tiene evaluaciones, el admin puede escribir un puntaje manual.
+## Nota final (escala 1 a 5)
+**Nota final = comunidad × 30 % + jurados × 40 % + Profesor experto × 30 %** (porcentajes configurables por edición; deben sumar 100 %).
+1. **Comunidad:** nota de 1 a 5 según los votos, *relativa* (el más votado = 5) o *por rangos* (votos mínimos para cada nota), configurable.
+2. **Jurados:** promedio de las rúbricas de los jurados normales. **Experto:** promedio de las rúbricas del Profesor experto (nombre configurable).
+3. Rúbrica por edición (por defecto 5 criterios de 20 %, escala 1 a 5), editable en *Admin → Ediciones*.
+4. Si falta un componente, su peso se reparte entre los demás y la nota se marca como *parcial*. Sin evaluaciones, el admin puede escribir un puntaje manual.
 
+## Inversionistas
+Las personas registran *intenciones de apoyo*; el Centro de Emprendimiento (datos en *Admin → Configuración*) las gestiona y cambia su estado. Solo los apoyos **concretados** cuentan en el ranking público de inversionistas, y solo de quienes lo autorizan.
+
+## Importar emprendimientos desde Excel
+*Admin → Importar Excel* (o `php artisan catedra:importar "archivo.xlsx" --edicion=slug --logos=carpeta [--simular]`). Lee el formato del portafolio (Nombre, Programa, Grupo, Nombre de la Idea, Descripción, Población objetivo, Misión, Visión, montos, Logo), agrupa integrantes, ignora duplicados y asigna logos por nombre aproximado. Volver a importar actualiza sin duplicar.
+> El Excel tiene datos personales: guárdalo fuera de `public/` (por ejemplo en `storage/app/import/`, que no se sube a git).
 ## Seguridad y anti-bots
 - Registro y recuperación de contraseña: campo trampa invisible, tiempo mínimo de llenado, bloqueo de correos desechables, máx. 3 por minuto y 10 por día por IP, y CAPTCHA opcional (Cloudflare Turnstile).
 - Límite general de peticiones por IP (`CATEDRA_RATE_LIMIT_PER_MINUTE`).
@@ -61,8 +69,8 @@ En producción: `APP_ENV=production`, `APP_DEBUG=false`, HTTPS y `SESSION_SECURE
 Cada edición define en el admin: fechas de votación y final, video promocional, % de peso de la comunidad (30 %), votos por persona (1), número de finalistas, rúbrica, nombre y peso del jurado experto y, opcionalmente, un dominio de correo para restringir el voto (ej. `uninavarra.edu.co`).
 
 ## Flujo semestral
-1. **Admin → Ediciones → Nueva edición** (se copian el cronograma y la rúbrica anteriores; ajustar fechas).
-2. Cargar los emprendimientos con su video pitch (YouTube, Vimeo o Drive), logo, portada, galería y equipo.
+1. **Admin → Ediciones → Siguiente convocatoria** (se copian cronograma corrido 6 meses, rúbrica, porcentajes y configuración; revisar fechas).
+2. **Admin → Importar Excel** con el portafolio y los logos; luego completar videos pitch, categorías y redes.
 3. **Admin → Jurados**: crear las cuentas (marcar al Profesor experto) y enviarles sus credenciales.
 4. **Activar** la edición: pasa a la portada y queda disponible para los jurados.
 5. Durante la votación, seguir el dashboard y la matriz de evaluaciones. Al cierre, en **Resultados**, marcar finalistas y publicar resultados (esto cierra la evaluación de los jurados).
@@ -74,4 +82,4 @@ php artisan test   # usa la base emprendimientos_testing (crearla vacía antes)
 ```
 
 ## Personalización de marca
-Colores en `tailwind.config.js` (`ink`, `lion`, `volt`, `aqua`). Logo en `resources/views/components/brand.blade.php` (imágenes en `public/images`). Contacto en `config/catedra.php`.
+Textos de portada, contacto de inversiones y pie de página en *Admin → Configuración*. Colores en `tailwind.config.js` (`ink`, `lion`, `volt`, `aqua`). Logo en `resources/views/components/brand.blade.php` (imágenes en `public/images`). Contacto en `config/catedra.php`.

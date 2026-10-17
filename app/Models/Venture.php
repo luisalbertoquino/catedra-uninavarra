@@ -12,13 +12,14 @@ class Venture extends Model
 {
     protected $fillable = [
         'edition_id', 'category_id', 'name', 'slug', 'tagline', 'description', 'problem', 'solution',
-        'target_market', 'logo', 'cover', 'video_url', 'academic_program', 'contact_name',
+        'target_market', 'mission', 'vision', 'logo', 'cover', 'video_url', 'academic_program', 'team_group', 'contact_name',
         'contact_email', 'contact_phone', 'website', 'instagram', 'facebook', 'tiktok',
-        'funding_goal', 'committee_score', 'is_finalist', 'final_position', 'is_published',
+        'funding_goal', 'startup_amount', 'committee_score', 'is_finalist', 'final_position', 'is_published',
     ];
 
     protected $casts = [
         'funding_goal' => 'decimal:2',
+        'startup_amount' => 'decimal:2',
         'committee_score' => 'decimal:2',
         'is_finalist' => 'boolean',
         'is_published' => 'boolean',

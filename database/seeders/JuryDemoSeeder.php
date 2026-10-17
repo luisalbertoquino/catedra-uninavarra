@@ -50,11 +50,11 @@ class JuryDemoSeeder extends Seeder
         }
 
         // 3) Videos de ejemplo para los emprendimientos de la edición activa que no tengan
-        $active->ventures()->whereNull('video_url')->orderBy('id')->get()
+        $active->ventures()->whereNull('video_url')->where('cover', 'like', 'https://picsum.photos/%')->orderBy('id')->get() // solo los ficticios
             ->each(fn ($v, $i) => $v->update(['video_url' => self::DEMO_VIDEOS[$i % count(self::DEMO_VIDEOS)]]));
 
-        // 4) Evaluaciones parciales: cada jurado ya calificó algunos emprendimientos
-        $ventures = $active->ventures()->published()->orderBy('id')->get();
+        // 4) Evaluaciones parciales de demo (solo sobre emprendimientos ficticios)
+        $ventures = $active->ventures()->published()->where('cover', 'like', 'https://picsum.photos/%')->orderBy('id')->get();
         foreach ($juries as $j => $jury) {
             if ($jury->evaluations()->where('edition_id', $active->id)->exists()) {
                 continue;
