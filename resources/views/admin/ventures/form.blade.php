@@ -1,9 +1,9 @@
 <x-layouts.admin :title="$venture->exists ? $venture->name : 'Nuevo emprendimiento'">
     <x-slot:actions>
         @if ($venture->exists)
-            <a href="{{ route('ventures.show', $venture) }}" target="_blank" class="a-btn-light hidden sm:inline-flex">Ver en el sitio ↗</a>
+            <a href="{{ route('ventures.show', $venture) }}" target="_blank" class="a-btn-light hidden sm:inline-flex"><x-icon name="arrow-up-right-from-square" /> Ver en el sitio</a>
         @endif
-        <a href="{{ route('admin.ventures.index', ['edicion' => $venture->edition_id]) }}" class="a-btn-light">← Volver</a>
+        <a href="{{ route('admin.ventures.index', ['edicion' => $venture->edition_id]) }}" class="a-btn-light"><x-icon name="arrow-left" /> Volver</a>
     </x-slot:actions>
 
     @php
@@ -24,9 +24,9 @@
                     <div class="sm:col-span-2"><label class="a-label" for="name">Nombre *</label><input id="name" name="name" required class="a-input" value="{{ $field('name') }}"></div>
                     <div class="sm:col-span-2"><label class="a-label" for="tagline">Frase corta (eslogan)</label><input id="tagline" name="tagline" maxlength="200" class="a-input" value="{{ $field('tagline') }}" placeholder="En una línea: ¿qué hacen y para quién?"></div>
                     <div class="sm:col-span-2"><label class="a-label" for="description">Descripción</label><textarea id="description" name="description" rows="5" class="a-input">{{ $field('description') }}</textarea></div>
-                    <div><label class="a-label" for="problem">🎯 Problema</label><textarea id="problem" name="problem" rows="4" class="a-input">{{ $field('problem') }}</textarea></div>
-                    <div><label class="a-label" for="solution">💡 Solución</label><textarea id="solution" name="solution" rows="4" class="a-input">{{ $field('solution') }}</textarea></div>
-                    <div class="sm:col-span-2"><label class="a-label" for="target_market">🧭 Mercado objetivo</label><textarea id="target_market" name="target_market" rows="2" class="a-input">{{ $field('target_market') }}</textarea></div>
+                    <div><label class="a-label" for="problem"><x-icon name="bullseye" /> Problema</label><textarea id="problem" name="problem" rows="4" class="a-input">{{ $field('problem') }}</textarea></div>
+                    <div><label class="a-label" for="solution"><x-icon name="lightbulb" /> Solución</label><textarea id="solution" name="solution" rows="4" class="a-input">{{ $field('solution') }}</textarea></div>
+                    <div class="sm:col-span-2"><label class="a-label" for="target_market"><x-icon name="users-viewfinder" /> Mercado objetivo</label><textarea id="target_market" name="target_market" rows="2" class="a-input">{{ $field('target_market') }}</textarea></div>
                     <div class="sm:col-span-2" x-data="{ url: @js($field('video_url')) }">
                         <label class="a-label" for="video_url">Video pitch (YouTube, Vimeo o Google Drive)</label>
                         <input id="video_url" type="url" name="video_url" x-model="url" class="a-input" placeholder="https://youtu.be/…">
@@ -38,14 +38,14 @@
             <section class="a-card p-6" x-data="{ rows: @js($members) }">
                 <div class="flex items-center justify-between">
                     <div><h2 class="font-semibold text-ink-900">Equipo</h2><p class="text-sm text-slate-500">Normalmente 5 integrantes.</p></div>
-                    <button type="button" class="a-btn-light" @click="rows.push({ uid: 'n' + Date.now(), name: '', role: '', academic_program: '', linkedin: '' })">+ Integrante</button>
+                    <button type="button" class="a-btn-light" @click="rows.push({ uid: 'n' + Date.now(), name: '', role: '', academic_program: '', linkedin: '' })"><x-icon name="user-plus" /> Integrante</button>
                 </div>
                 <div class="mt-5 space-y-3">
                     <template x-for="(row, i) in rows" :key="row.uid">
                         <div class="flex flex-col gap-3 rounded-xl border border-slate-200 p-4 sm:flex-row sm:items-start">
                             <div class="shrink-0">
                                 <template x-if="row.photo_url"><img :src="row.photo_url" class="h-14 w-14 rounded-full object-cover" alt=""></template>
-                                <template x-if="!row.photo_url"><span class="grid h-14 w-14 place-items-center rounded-full bg-slate-100 text-slate-400">👤</span></template>
+                                <template x-if="!row.photo_url"><span class="grid h-14 w-14 place-items-center rounded-full bg-lion-50 text-xl"><x-icon name="user" /></span></template>
                             </div>
                             <input type="hidden" :name="`members[${row.uid}][id]`" :value="row.id" x-bind:disabled="!row.id">
                             <div class="grid flex-1 gap-3 sm:grid-cols-2">
@@ -55,7 +55,7 @@
                                 <input class="a-input" type="url" :name="`members[${row.uid}][linkedin]`" x-model="row.linkedin" placeholder="https://linkedin.com/in/…">
                                 <input type="file" accept="image/*" :name="`members[${row.uid}][photo]`" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold sm:col-span-2">
                             </div>
-                            <button type="button" class="self-end rounded-lg p-2 text-rose-400 hover:bg-rose-50 hover:text-rose-600 sm:self-start" @click="rows.splice(i, 1)" title="Quitar">✕</button>
+                            <button type="button" class="self-end rounded-lg p-2 text-rose-400 hover:bg-rose-50 hover:text-rose-600 sm:self-start" @click="rows.splice(i, 1)" title="Quitar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                         </div>
                     </template>
                     <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">Sin integrantes registrados.</p>
@@ -69,14 +69,14 @@
                         @foreach ($venture->images as $img)
                             <div class="group relative aspect-square overflow-hidden rounded-xl">
                                 <img src="{{ $img->url }}" class="h-full w-full object-cover" alt="">
-                                <button type="submit" form="del-img-{{ $img->id }}" class="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-white/90 text-xs text-rose-600 opacity-0 shadow transition group-hover:opacity-100" title="Eliminar">✕</button>
+                                <button type="submit" form="del-img-{{ $img->id }}" class="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-lg bg-white/90 text-xs text-rose-600 opacity-0 shadow transition group-hover:opacity-100" title="Eliminar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                             </div>
                         @endforeach
                     </div>
                 @endif
                 <div x-data="{ previews: [] }" class="mt-4">
                     <label class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-6 text-center hover:border-ink-400 hover:bg-slate-50">
-                        <span class="text-2xl">🖼️</span>
+                        <x-icon name="images" class="text-2xl" />
                         <span class="mt-1 text-sm font-medium text-slate-600">Agregar imágenes</span>
                         <span class="text-xs text-slate-400">JPG/PNG, máx. 4 MB c/u, hasta 12</span>
                         <input type="file" name="gallery[]" accept="image/*" multiple class="sr-only" @change="previews = [...$event.target.files].map(f => URL.createObjectURL(f))">

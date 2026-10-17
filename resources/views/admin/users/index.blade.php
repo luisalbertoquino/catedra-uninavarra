@@ -1,6 +1,6 @@
 <x-layouts.admin title="Usuarios">
     <x-slot:actions>
-        <a href="{{ route('admin.users.export', request()->query()) }}" class="a-btn-light">⬇ Exportar CSV</a>
+        <a href="{{ route('admin.users.export', request()->query()) }}" class="a-btn-light"><x-icon name="file-arrow-down" /> Exportar CSV</a>
     </x-slot:actions>
 
     <form method="GET" class="mb-6 flex flex-col gap-3 sm:flex-row">
@@ -24,7 +24,7 @@
                                     <x-avatar :name="$u->name" size="sm" />
                                     <div>
                                         <div class="font-semibold text-ink-900">{{ $u->name }}</div>
-                                        <div class="text-xs text-slate-500">{{ $u->email }} @if ($u->email_verified_at)<span class="text-emerald-600" title="Verificado">✓</span>@else<span class="text-slate-400" title="Sin verificar">·</span>@endif</div>
+                                        <div class="text-xs text-slate-500">{{ $u->email }} @if ($u->email_verified_at)<span title="Verificado"><x-icon name="circle-check" /></span>@else<span class="text-slate-400" title="Sin verificar">·</span>@endif</div>
                                     </div>
                                 </div>
                             </td>

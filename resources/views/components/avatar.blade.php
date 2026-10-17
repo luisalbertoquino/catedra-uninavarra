@@ -6,7 +6,7 @@
     $sizes = ['xs' => 'h-6 w-6 text-[10px]', 'sm' => 'h-8 w-8 text-xs', 'md' => 'h-10 w-10 text-sm', 'lg' => 'h-16 w-16 text-lg', 'xl' => 'h-24 w-24 text-2xl'];
 @endphp
 @if ($src)
-    <img src="{{ $src }}" alt="{{ $name }}" loading="lazy" {{ $attributes->merge(['class' => 'shrink-0 rounded-full object-cover '.$sizes[$size]]) }}>
+    <img src="{{ $src }}" alt="{{ $name }}" loading="lazy" {{ $attributes->merge(['class' => 'shrink-0 rounded-lg object-cover '.$sizes[$size]]) }}>
 @else
     <span {{ $attributes->merge(['class' => "inline-grid shrink-0 place-items-center rounded-full bg-gradient-to-br font-bold text-ink-950 $palette ".$sizes[$size]]) }} aria-hidden="true">{{ $initials }}</span>
 @endif

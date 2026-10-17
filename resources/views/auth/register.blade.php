@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <h1 class="font-display text-3xl font-bold sm:text-4xl">Únete a la comunidad 🦁</h1>
+    <h1 class="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Únete a la comunidad</h1>
     <p class="mt-2 text-white/60">Crea tu cuenta en menos de un minuto.</p>
 
     <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-5" x-data="{ role: @js(old('role', $role)) }">
@@ -8,11 +8,11 @@
         <fieldset>
             <legend class="mb-2 text-sm font-medium text-white/80">¿Cómo quieres participar?</legend>
             <div class="grid grid-cols-2 gap-3">
-                @foreach (['comunidad' => ['🗳️', 'Comunidad', 'Votar y opinar'], 'inversionista' => ['💼', 'Inversionista / Aliado', 'Invertir, donar o mentorear']] as $key => [$icon, $label, $hint])
+                @foreach (['comunidad' => ['check-to-slot', 'Comunidad', 'Votar y opinar'], 'inversionista' => ['briefcase', 'Inversionista / Aliado', 'Invertir, donar o mentorear']] as $key => [$icon, $label, $hint])
                     <label class="cursor-pointer">
                         <input type="radio" name="role" value="{{ $key }}" x-model="role" class="peer sr-only">
                         <span class="flex h-full flex-col rounded-2xl border border-white/10 bg-white/[.03] p-4 transition peer-checked:border-lion-400 peer-checked:bg-lion-400/10 peer-focus-visible:ring-2 peer-focus-visible:ring-lion-400 hover:border-white/30">
-                            <span class="text-2xl">{{ $icon }}</span>
+                            <x-icon :name="$icon" class="text-2xl" />
                             <span class="mt-2 text-sm font-semibold leading-tight">{{ $label }}</span>
                             <span class="mt-0.5 text-xs text-white/50">{{ $hint }}</span>
                         </span>

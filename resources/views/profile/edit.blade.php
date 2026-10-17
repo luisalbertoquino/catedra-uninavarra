@@ -1,7 +1,7 @@
 <x-layouts.site title="Mi perfil">
     <section class="container-x max-w-3xl pb-10 pt-32 lg:pt-40">
-        <a href="{{ route('dashboard') }}" class="text-sm text-white/50 hover:text-white">← Mi actividad</a>
-        <h1 class="mt-4 font-display text-4xl font-bold">Mi perfil</h1>
+        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white"><x-icon name="arrow-left" /> Mi actividad</a>
+        <h1 class="page-title mt-4">Mi perfil</h1>
 
         <div class="mt-8 space-y-6">
             <div class="card-dark p-6 sm:p-8">@include('profile.partials.update-profile-information-form')</div>

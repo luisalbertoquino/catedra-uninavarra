@@ -1,6 +1,6 @@
 <x-layouts.admin title="Emprendimientos">
     <x-slot:actions>
-        <a href="{{ route('admin.ventures.create', ['edicion' => $editionId]) }}" class="a-btn-primary">+ Nuevo</a>
+        <a href="{{ route('admin.ventures.create', ['edicion' => $editionId]) }}" class="a-btn-primary"><x-icon name="plus" /> Nuevo</a>
     </x-slot:actions>
 
     <form method="GET" class="mb-6 flex flex-col gap-3 sm:flex-row">
@@ -38,7 +38,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="whitespace-nowrap">{{ $v->category ? $v->category->icon.' '.$v->category->name : '—' }}</td>
+                            <td class="whitespace-nowrap">@if ($v->category)<x-icon :name="$v->category->icon ?: 'tag'" fw /> {{ $v->category->name }}@else — @endif</td>
                             <td class="text-center">{{ $v->members_count }}</td>
                             <td class="text-center font-semibold">{{ $v->votes_count }}</td>
                             <td class="text-center">{{ $v->comments_count }}</td>
@@ -48,12 +48,12 @@
                                 @if ($v->is_finalist)<span class="a-badge bg-lion-100 text-lion-800">Finalista</span>@endif
                             </td>
                             <td class="whitespace-nowrap text-right">
-                                <a href="{{ route('ventures.show', $v) }}" target="_blank" class="text-sm text-slate-500 hover:text-ink-900">Ver ↗</a>
+                                <a href="{{ route('ventures.show', $v) }}" target="_blank" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-ink-900"><x-icon name="arrow-up-right-from-square" /> Ver</a>
                                 <a href="{{ route('admin.ventures.edit', $v) }}" class="ml-3 text-sm font-semibold text-ink-700 hover:text-ink-900">Editar</a>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="py-12 text-center text-slate-400">No hay emprendimientos. <a href="{{ route('admin.ventures.create', ['edicion' => $editionId]) }}" class="font-semibold text-ink-700">Crea el primero →</a></td></tr>
+                        <tr><td colspan="8" class="py-12 text-center text-slate-400">No hay emprendimientos. <a href="{{ route('admin.ventures.create', ['edicion' => $editionId]) }}" class="font-semibold text-ink-700">Crea el primero <x-icon name="arrow-right" /></a></td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -33,6 +33,7 @@ class EditionController extends Controller
             'max_votes_per_user' => $template->max_votes_per_user ?? 3,
             'finalists_count' => $template->finalists_count ?? 5,
             'voting_email_domain' => $template->voting_email_domain ?? null,
+            'promo_video_url' => $template->promo_video_url ?? null,
             'is_published' => true,
         ]);
         $milestones = $template?->milestones->map(fn ($m) => ['title' => $m->title, 'description' => $m->description, 'starts_at' => null, 'ends_at' => null])->all() ?? [];
@@ -105,6 +106,7 @@ class EditionController extends Controller
             'tagline' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:5000'],
             'banner' => ['nullable', 'image', 'max:4096'],
+            'promo_video_url' => ['nullable', 'url', 'max:255', 'regex:~(youtube\.com|youtu\.be)/~i'],
             'voting_starts_at' => ['nullable', 'date'],
             'voting_ends_at' => ['nullable', 'date', 'after:voting_starts_at'],
             'final_at' => ['nullable', 'date'],
@@ -118,7 +120,7 @@ class EditionController extends Controller
             'milestones.*.description' => ['nullable', 'string', 'max:1000'],
             'milestones.*.starts_at' => ['nullable', 'date'],
             'milestones.*.ends_at' => ['nullable', 'date'],
-        ], [], ['milestones.*.title' => 'título de la fase']);
+        ], ['promo_video_url.regex' => 'El video promocional debe ser un enlace de YouTube.'], ['milestones.*.title' => 'título de la fase', 'promo_video_url' => 'video promocional']);
 
         $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
         $data['is_published'] = $request->boolean('is_published');

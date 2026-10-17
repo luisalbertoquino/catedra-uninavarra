@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <h1 class="font-display text-3xl font-bold sm:text-4xl">Bienvenido de nuevo 👋</h1>
+    <h1 class="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Bienvenido de nuevo</h1>
     <p class="mt-2 text-white/60">Ingresa para votar, opinar y apoyar emprendimientos.</p>
 
     <x-auth-session-status class="mt-6" :status="session('status')" />

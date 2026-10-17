@@ -35,7 +35,7 @@ class VoteController extends Controller
                 'ip' => $request->ip(),
             ]);
 
-            return ['voted' => true, 'message' => '¡Gracias por tu voto! 🦁'];
+            return ['voted' => true, 'message' => '¡Gracias por tu voto!'];
         });
 
         if (isset($result['error'])) {

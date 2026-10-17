@@ -1,6 +1,6 @@
 <x-layouts.admin :title="$edition->exists ? 'Editar edición' : 'Nueva edición'">
     <x-slot:actions>
-        <a href="{{ route('admin.editions.index') }}" class="a-btn-light">← Volver</a>
+        <a href="{{ route('admin.editions.index') }}" class="a-btn-light"><x-icon name="arrow-left" /> Volver</a>
     </x-slot:actions>
 
     @php
@@ -60,7 +60,7 @@
                         <h2 class="font-semibold text-ink-900">Cronograma / fases</h2>
                         <p class="text-sm text-slate-500">Se muestra como línea de tiempo en la página de inicio.</p>
                     </div>
-                    <button type="button" class="a-btn-light" @click="rows.push({ title: '', description: '', starts_at: '', ends_at: '' })">+ Fase</button>
+                    <button type="button" class="a-btn-light" @click="rows.push({ title: '', description: '', starts_at: '', ends_at: '' })"><x-icon name="plus" /> Fase</button>
                 </div>
                 <div class="mt-5 space-y-3">
                     <template x-for="(row, i) in rows" :key="i">
@@ -74,9 +74,9 @@
                                     <label class="text-xs text-slate-500 sm:col-span-3">Fin<input type="date" class="a-input mt-1" :name="`milestones[${i}][ends_at]`" x-model="row.ends_at"></label>
                                 </div>
                                 <div class="flex flex-col gap-1">
-                                    <button type="button" class="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700" @click="i > 0 && rows.splice(i - 1, 0, rows.splice(i, 1)[0])" title="Subir">↑</button>
-                                    <button type="button" class="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700" @click="i < rows.length - 1 && rows.splice(i + 1, 0, rows.splice(i, 1)[0])" title="Bajar">↓</button>
-                                    <button type="button" class="rounded-lg p-1.5 text-rose-400 hover:bg-rose-50 hover:text-rose-600" @click="rows.splice(i, 1)" title="Eliminar">✕</button>
+                                    <button type="button" class="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700" @click="i > 0 && rows.splice(i - 1, 0, rows.splice(i, 1)[0])" title="Subir"><x-icon name="arrow-up" /></button>
+                                    <button type="button" class="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700" @click="i < rows.length - 1 && rows.splice(i + 1, 0, rows.splice(i, 1)[0])" title="Bajar"><x-icon name="arrow-down" /></button>
+                                    <button type="button" class="rounded-lg p-1.5 text-rose-400 hover:bg-rose-50 hover:text-rose-600" @click="rows.splice(i, 1)" title="Eliminar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -89,6 +89,11 @@
         <div class="space-y-6">
             <section class="a-card p-6">
                 <h2 class="font-semibold text-ink-900">Votación y final</h2>
+                <div class="mt-5">
+                    <label class="a-label" for="promo_video_url"><x-icon name="youtube" style="brands" /> Video promocional (YouTube)</label>
+                    <input id="promo_video_url" type="url" name="promo_video_url" class="a-input" value="{{ old('promo_video_url', $edition->promo_video_url) }}" placeholder="https://www.youtube.com/watch?v=…">
+                    <p class="mt-1 text-xs text-slate-500">Se reproduce en bucle, sin sonido y oscurecido de fondo en la portada.</p>
+                </div>
                 <div class="mt-5 space-y-4">
                     <div><label class="a-label" for="voting_starts_at">Inicio de votación</label><input id="voting_starts_at" type="datetime-local" name="voting_starts_at" class="a-input" value="{{ $dt('voting_starts_at') }}"></div>
                     <div><label class="a-label" for="voting_ends_at">Cierre de votación</label><input id="voting_ends_at" type="datetime-local" name="voting_ends_at" class="a-input" value="{{ $dt('voting_ends_at') }}"></div>

@@ -41,9 +41,8 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
-            'color' => ['required', 'regex:/^#[0-9a-f]{6}$/i'],
-            'icon' => ['nullable', 'string', 'max:16'],
-        ]);
+            'icon' => ['nullable', 'string', 'max:40', 'regex:/^[a-z0-9-]+$/'],
+        ], ['icon.regex' => 'El icono debe ser un nombre de Font Awesome, por ejemplo: rocket.']);
         $data['slug'] = Str::slug($data['name']);
         validator($data, ['slug' => 'unique:categories,slug'.($category ? ','.$category->id : '')], ['slug.unique' => 'Ya existe una categoría con ese nombre.'])->validate();
 

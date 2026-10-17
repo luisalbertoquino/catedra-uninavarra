@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SupportPledge extends Model
 {
     public const TYPES = [
-        'inversion' => ['label' => 'Inversión', 'icon' => '💼', 'hint' => 'Quiero invertir capital a cambio de participación o retorno'],
-        'donacion' => ['label' => 'Donación', 'icon' => '🎁', 'hint' => 'Quiero aportar recursos sin esperar retorno'],
-        'mentoria' => ['label' => 'Mentoría', 'icon' => '🧭', 'hint' => 'Quiero acompañar al equipo con mi experiencia'],
-        'alianza' => ['label' => 'Alianza', 'icon' => '🤝', 'hint' => 'Mi empresa u organización quiere trabajar con ellos'],
-        'compra' => ['label' => 'Cliente', 'icon' => '🛒', 'hint' => 'Me interesa comprar su producto o servicio'],
+        'inversion' => ['label' => 'Inversión', 'icon' => 'chart-line', 'hint' => 'Quiero invertir capital a cambio de participación o retorno'],
+        'donacion' => ['label' => 'Donación', 'icon' => 'hand-holding-heart', 'hint' => 'Quiero aportar recursos sin esperar retorno'],
+        'mentoria' => ['label' => 'Mentoría', 'icon' => 'compass', 'hint' => 'Quiero acompañar al equipo con mi experiencia'],
+        'alianza' => ['label' => 'Alianza', 'icon' => 'handshake', 'hint' => 'Mi empresa u organización quiere trabajar con ellos'],
+        'compra' => ['label' => 'Cliente', 'icon' => 'cart-shopping', 'hint' => 'Me interesa comprar su producto o servicio'],
     ];
 
     public const STATUSES = [

@@ -38,14 +38,19 @@ class Media
         }
     }
 
+    public static function youtubeId(?string $url): ?string
+    {
+        return $url && preg_match('~(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)([\w-]{11})~', $url, $m) ? $m[1] : null;
+    }
+
     /** Convierte enlaces de YouTube, Vimeo o Google Drive a URL embebible. */
     public static function videoEmbed(?string $url): ?string
     {
         if (! $url) {
             return null;
         }
-        if (preg_match('~(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)([\w-]{11})~', $url, $m)) {
-            return "https://www.youtube-nocookie.com/embed/{$m[1]}?rel=0";
+        if ($id = static::youtubeId($url)) {
+            return "https://www.youtube-nocookie.com/embed/{$id}?rel=0";
         }
         if (preg_match('~vimeo\.com/(?:video/)?(\d+)~', $url, $m)) {
             return "https://player.vimeo.com/video/{$m[1]}";

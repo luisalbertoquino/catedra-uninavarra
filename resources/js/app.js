@@ -1,5 +1,11 @@
 import './bootstrap';
 
+// Iconos: Font Awesome Free (sólidos, regulares y marcas) servidos localmente
+import '@fortawesome/fontawesome-free/css/fontawesome.css';
+import '@fortawesome/fontawesome-free/css/solid.css';
+import '@fortawesome/fontawesome-free/css/regular.css';
+import '@fortawesome/fontawesome-free/css/brands.css';
+
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
 import collapse from '@alpinejs/collapse';
@@ -26,17 +32,23 @@ Alpine.data('countdown', (target) => ({
     },
 }));
 
-/* Contador animado al entrar en pantalla */
-Alpine.data('counter', (to, duration = 1600) => ({
+/* Contador animado: sube al entrar en pantalla y vuelve a 0 al salir, para repetirse en cada scroll */
+Alpine.data('counter', (to, duration = 1800) => ({
     value: 0,
+    frame: null,
     run() {
+        cancelAnimationFrame(this.frame);
         const start = performance.now();
         const step = (now) => {
             const p = Math.min(1, (now - start) / duration);
             this.value = Math.round(to * (1 - Math.pow(1 - p, 3)));
-            if (p < 1) requestAnimationFrame(step);
+            if (p < 1) this.frame = requestAnimationFrame(step);
         };
-        requestAnimationFrame(step);
+        this.frame = requestAnimationFrame(step);
+    },
+    reset() {
+        cancelAnimationFrame(this.frame);
+        this.value = 0;
     },
     get formatted() { return this.value.toLocaleString('es-CO'); },
 }));

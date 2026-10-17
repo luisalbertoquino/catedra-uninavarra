@@ -14,7 +14,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
-                display: ['"Space Grotesk"', ...defaultTheme.fontFamily.sans],
+                display: ['Outfit', ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 // Paleta de marca: ajustar aquí si Comunicaciones entrega el manual de identidad

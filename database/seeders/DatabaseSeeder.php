@@ -47,15 +47,16 @@ class DatabaseSeeder extends Seeder
         ]));
 
         $categories = collect([
-            ['Tecnología', '#6366f1', '💻'], ['Salud y bienestar', '#ec4899', '🩺'], ['Agroindustria', '#22c55e', '🌱'],
-            ['Sostenibilidad', '#14b8a6', '♻️'], ['Alimentos y bebidas', '#f97316', '☕'], ['Educación', '#0ea5e9', '📚'],
-            ['Moda y diseño', '#a855f7', '👕'], ['Turismo', '#eab308', '🏜️'], ['Servicios', '#64748b', '🛠️'],
-        ])->mapWithKeys(fn ($c) => [$c[0] => Category::create(['name' => $c[0], 'slug' => Str::slug($c[0]), 'color' => $c[1], 'icon' => $c[2]])]);
+            ['Tecnología', 'microchip'], ['Salud y bienestar', 'heart-pulse'], ['Agroindustria', 'seedling'],
+            ['Sostenibilidad', 'recycle'], ['Alimentos y bebidas', 'mug-hot'], ['Educación', 'graduation-cap'],
+            ['Moda y diseño', 'shirt'], ['Turismo', 'mountain-sun'], ['Servicios', 'screwdriver-wrench'],
+        ])->mapWithKeys(fn ($c) => [$c[0] => Category::create(['name' => $c[0], 'slug' => Str::slug($c[0]), 'icon' => $c[1]])]);
 
         // ---------- Ediciones ----------
         $past1 = $this->edition('Cátedra UNINAVARRA 2025-2', 2025, 2, 'Lion Hub · Innovation Week', '2025-10-20', '2025-11-05', '2025-11-08 10:00', true);
         $past2 = $this->edition('Cátedra UNINAVARRA 2026-1', 2026, 1, 'Lion Hub · Build the Future', '2026-04-20', '2026-05-08', '2026-05-09 10:00', true);
         $current = $this->edition('Cátedra UNINAVARRA 2026-2', 2026, 2, 'Disruptive Minds', '2026-10-01', '2026-11-06 23:59', '2026-11-07 10:00', false, true);
+        $current->update(['promo_video_url' => 'https://www.youtube.com/watch?v=0r4d-hZam6I']);
 
         $current->milestones()->createMany([
             ['title' => 'Congreso UNINAVARRA Emprende', 'description' => 'Tendencias y oportunidades para emprender en la región: IA, mercados, Fondo Emprender y panel de empresarios.', 'starts_at' => '2026-08-21', 'ends_at' => '2026-08-21', 'sort' => 0],
@@ -120,7 +121,7 @@ class DatabaseSeeder extends Seeder
             'Muy bien pensado el modelo de negocio. ¿Tienen pensado expandirse a otros municipios?', 'Gran trabajo en equipo, se nota la dedicación.',
             'La solución es innovadora y tiene impacto social real.', 'Sería genial una alianza con la Gobernación.',
             'Como cliente potencial me interesa mucho. ¿Cuándo lanzan?', 'Excelente uso de la tecnología para un problema local.',
-            'Tienen mi voto. ¡Vamos Navarristas! 🦁', 'Faltaría ver más sobre la competencia, pero me gusta.',
+            'Tienen mi voto. ¡Vamos Navarristas!', 'Faltaría ver más sobre la competencia, pero me gusta.',
         ];
         $start = Carbon::parse('2026-10-01');
         foreach ($community as $user) {

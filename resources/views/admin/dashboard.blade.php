@@ -22,18 +22,18 @@
             <div class="relative flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                     <div class="flex flex-wrap items-center gap-2 text-xs">
-                        @if ($edition->is_active)<span class="rounded-full bg-emerald-400/20 px-2.5 py-1 font-semibold text-emerald-300">● Edición activa</span>@endif
+                        @if ($edition->is_active)<span class="rounded-full bg-lion-400/20 px-2.5 py-1 font-semibold text-lion-200"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Edición activa</span>@endif
                         @php $vs = $edition->votingStatus(); @endphp
                         <span class="rounded-full bg-white/10 px-2.5 py-1">Votación: {{ ['abierta' => 'abierta', 'proxima' => 'próxima', 'cerrada' => 'cerrada', 'sin_fecha' => 'sin fechas'][$vs] }}</span>
                         <span class="rounded-full bg-white/10 px-2.5 py-1">Resultados {{ $edition->results_published ? 'publicados' : 'ocultos' }}</span>
                     </div>
-                    <h2 class="mt-3 font-display text-2xl font-bold sm:text-3xl">{{ $edition->name }}</h2>
+                    <h2 class="mt-3 font-display text-2xl font-semibold sm:text-3xl">{{ $edition->name }}</h2>
                     <p class="text-white/60">{{ $edition->event_name }} · {{ $edition->tagline }}</p>
                 </div>
                 @if ($edition->final_at)
                     <div class="text-left sm:text-right">
                         <div class="text-xs uppercase tracking-wider text-white/50">Gran final</div>
-                        <div class="font-display text-2xl font-bold text-lion-300">{{ $edition->final_at->isFuture() ? 'en '.now()->diffInDays($edition->final_at).' días' : $edition->final_at->translatedFormat('j M Y') }}</div>
+                        <div class="font-display text-2xl font-semibold text-lion-300">{{ $edition->final_at->isFuture() ? 'en '.now()->diffInDays($edition->final_at).' días' : $edition->final_at->translatedFormat('j M Y') }}</div>
                         <div class="text-sm text-white/60">{{ $edition->final_at->translatedFormat('l j \d\e F, g:i a') }}</div>
                     </div>
                 @endif
@@ -43,14 +43,14 @@
         {{-- KPIs --}}
         <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
             @foreach ([
-                ['Emprendimientos', $kpis['ventures'], '🚀', route('admin.ventures.index', ['edicion' => $edition->id]), null],
-                ['Votos', number_format($kpis['votes'], 0, ',', '.'), '🗳️', route('admin.results.index', ['edicion' => $edition->id]), $kpis['voters'].' votantes únicos'],
-                ['Usuarios registrados', number_format($kpis['users'], 0, ',', '.'), '👥', route('admin.users.index'), $kpis['investors'].' inversionistas/aliados'],
-                ['Intenciones de apoyo', $kpis['pledges'], '🤝', route('admin.pledges.index'), '$'.number_format($kpis['pledged_amount'], 0, ',', '.').' en intención'],
+                ['Emprendimientos', $kpis['ventures'], 'rocket', route('admin.ventures.index', ['edicion' => $edition->id]), null],
+                ['Votos', number_format($kpis['votes'], 0, ',', '.'), 'check-to-slot', route('admin.results.index', ['edicion' => $edition->id]), $kpis['voters'].' votantes únicos'],
+                ['Usuarios registrados', number_format($kpis['users'], 0, ',', '.'), 'users', route('admin.users.index'), $kpis['investors'].' inversionistas/aliados'],
+                ['Intenciones de apoyo', $kpis['pledges'], 'handshake', route('admin.pledges.index'), '$'.number_format($kpis['pledged_amount'], 0, ',', '.').' en intención'],
             ] as [$label, $value, $icon, $url, $sub])
                 <a href="{{ $url }}" class="a-card group p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="flex items-center justify-between"><span class="text-sm text-slate-500">{{ $label }}</span><span class="text-xl">{{ $icon }}</span></div>
-                    <div class="mt-3 font-display text-3xl font-bold text-ink-900">{{ $value }}</div>
+                    <div class="flex items-center justify-between"><span class="text-sm text-slate-500">{{ $label }}</span><span class="grid h-10 w-10 place-items-center rounded-xl bg-lion-50"><x-icon :name="$icon" /></span></div>
+                    <div class="mt-3 font-display text-3xl font-semibold text-ink-900">{{ $value }}</div>
                     @if ($sub)<div class="mt-1 text-xs text-slate-500">{{ $sub }}</div>@endif
                 </a>
             @endforeach
@@ -59,10 +59,10 @@
         @if ($kpis['pending_pledges'] || $kpis['pending_comments'])
             <div class="mt-4 flex flex-wrap gap-3">
                 @if ($kpis['pending_pledges'])
-                    <a href="{{ route('admin.pledges.index', ['estado' => 'pendiente']) }}" class="rounded-xl border border-lion-300 bg-lion-50 px-4 py-2 text-sm font-medium text-lion-800 hover:bg-lion-100">⏳ {{ $kpis['pending_pledges'] }} intenciones de apoyo por gestionar →</a>
+                    <a href="{{ route('admin.pledges.index', ['estado' => 'pendiente']) }}" class="rounded-xl border border-lion-300 bg-lion-50 px-4 py-2 text-sm font-medium text-lion-800 hover:bg-lion-100"><x-icon name="hourglass-half" /> {{ $kpis['pending_pledges'] }} intenciones de apoyo por gestionar <x-icon name="arrow-right" /></a>
                 @endif
                 @if ($kpis['pending_comments'])
-                    <a href="{{ route('admin.comments.index', ['estado' => 'pendientes']) }}" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100">💬 {{ $kpis['pending_comments'] }} comentarios por moderar →</a>
+                    <a href="{{ route('admin.comments.index', ['estado' => 'pendientes']) }}" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100"><x-icon name="comments" /> {{ $kpis['pending_comments'] }} comentarios por moderar <x-icon name="arrow-right" /></a>
                 @endif
             </div>
         @endif
@@ -86,7 +86,7 @@
             <div class="a-card p-5 xl:col-span-2">
                 <div class="flex items-center justify-between">
                     <h3 class="font-semibold text-ink-900">Top emprendimientos por votos</h3>
-                    <a href="{{ route('admin.results.index', ['edicion' => $edition->id]) }}" class="text-sm font-medium text-ink-600 hover:text-ink-900">Ver resultados →</a>
+                    <a href="{{ route('admin.results.index', ['edicion' => $edition->id]) }}" class="text-sm font-medium text-ink-600 hover:text-ink-900">Ver resultados <x-icon name="arrow-right" /></a>
                 </div>
                 <div class="mt-4 h-72"><canvas id="chart-ranking"></canvas></div>
             </div>
@@ -112,7 +112,7 @@
         <div class="a-card mt-6 overflow-hidden">
             <div class="flex items-center justify-between p-5">
                 <h3 class="font-semibold text-ink-900">Últimas intenciones de apoyo</h3>
-                <a href="{{ route('admin.pledges.index') }}" class="text-sm font-medium text-ink-600 hover:text-ink-900">Gestionar →</a>
+                <a href="{{ route('admin.pledges.index') }}" class="text-sm font-medium text-ink-600 hover:text-ink-900">Gestionar <x-icon name="arrow-right" /></a>
             </div>
             <div class="overflow-x-auto">
                 <table class="a-table">

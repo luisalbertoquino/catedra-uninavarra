@@ -11,14 +11,14 @@
             <div class="absolute -left-20 top-20 h-96 w-96 animate-blob rounded-full bg-volt-600/40 blur-3xl"></div>
             <div class="absolute bottom-10 right-0 h-96 w-96 animate-blob rounded-full bg-lion-500/30 blur-3xl [animation-delay:-8s]"></div>
             <div class="absolute inset-0 bg-grid-light [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"></div>
-            <div class="relative flex h-full flex-col justify-between p-12">
+            <div class="relative flex h-full flex-col items-center justify-between p-12 text-center">
                 <a href="{{ route('home') }}"><x-brand /></a>
-                <div>
-                    <h2 class="font-display text-5xl font-bold leading-tight">Tu voto <span class="text-gradient">impulsa</span><br>a la próxima gran idea.</h2>
-                    <p class="mt-5 max-w-md text-lg text-white/60">Únete a la comunidad de la Cátedra UNINAVARRA: vota, opina y conecta con los emprendedores Navarristas.</p>
-                    <div class="mt-10 flex gap-8 text-sm">
-                        <div><div class="font-display text-3xl font-bold text-lion-300">30%</div><div class="text-white/50">de la evaluación<br>la decide la comunidad</div></div>
-                        <div><div class="font-display text-3xl font-bold text-lion-300">5</div><div class="text-white/50">finalistas llegan al<br>LION HUB EVENT</div></div>
+                <div class="mx-auto max-w-xl">
+                    <h2 class="font-display text-6xl font-semibold leading-[1.02] tracking-tight">Tu voto <span class="text-gradient">impulsa</span><br>a la próxima<br>gran idea.</h2>
+                    <p class="mx-auto mt-5 max-w-md text-lg text-white/60">Únete a la comunidad de la Cátedra UNINAVARRA: vota, opina y conecta con los emprendedores Navarristas.</p>
+                    <div class="mt-10 flex justify-center gap-12 text-sm">
+                        <div><div class="font-display text-3xl font-semibold text-lion-300">30%</div><div class="text-white/50">de la evaluación<br>la decide la comunidad</div></div>
+                        <div><div class="font-display text-3xl font-semibold text-lion-300">5</div><div class="text-white/50">finalistas llegan al<br>LION HUB EVENT</div></div>
                     </div>
                 </div>
                 <p class="text-xs text-white/40">© {{ date('Y') }} UNINAVARRA · Neiva, Huila</p>

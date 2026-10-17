@@ -18,7 +18,7 @@
                         <span class="font-semibold text-ink-900">{{ $c->user->name }}</span>
                         <span class="text-slate-400">en</span>
                         <a href="{{ route('ventures.show', $c->venture) }}#opiniones" target="_blank" class="font-medium text-ink-700 hover:underline">{{ $c->venture->name }}</a>
-                        @if ($c->rating)<span class="text-lion-500">{{ str_repeat('★', $c->rating) }}</span>@endif
+                        @if ($c->rating)<span class="inline-flex gap-0.5 text-xs">@for ($s = 1; $s <= 5; $s++)<x-icon name="star" :style="$s <= $c->rating ? 'solid' : 'regular'" />@endfor</span>@endif
                         <span class="text-xs text-slate-400">{{ $c->created_at->diffForHumans() }}</span>
                         @unless ($c->is_approved)<span class="a-badge bg-rose-100 text-rose-700">Oculto</span>@endunless
                     </div>
@@ -26,10 +26,10 @@
                 </div>
                 <div class="flex shrink-0 gap-2">
                     <form method="POST" action="{{ route('admin.comments.toggle', $c) }}">@csrf @method('PATCH')
-                        <button class="a-btn-light !py-1.5">{{ $c->is_approved ? 'Ocultar' : 'Publicar' }}</button>
+                        <button class="a-btn-light !py-1.5"><x-icon :name="$c->is_approved ? 'eye-slash' : 'eye'" /> {{ $c->is_approved ? 'Ocultar' : 'Publicar' }}</button>
                     </form>
                     <form method="POST" action="{{ route('admin.comments.destroy', $c) }}" onsubmit="return confirm('¿Eliminar este comentario?')">@csrf @method('DELETE')
-                        <button class="a-btn !py-1.5 text-rose-600 hover:bg-rose-50">Eliminar</button>
+                        <button class="a-btn !py-1.5 text-rose-600 hover:bg-rose-50"><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Eliminar</button>
                     </form>
                 </div>
             </div>

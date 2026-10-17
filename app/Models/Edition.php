@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Edition extends Model
 {
     protected $fillable = [
-        'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner',
+        'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner', 'promo_video_url',
         'voting_starts_at', 'voting_ends_at', 'final_at', 'final_location',
         'community_weight', 'max_votes_per_user', 'finalists_count', 'voting_email_domain',
         'is_active', 'is_published', 'results_published',
@@ -80,6 +80,12 @@ class Edition extends Model
     public function getBannerUrlAttribute(): ?string
     {
         return Media::url($this->banner);
+    }
+
+    /** ID de YouTube del video promocional, para reproducirlo de fondo. */
+    public function getPromoVideoIdAttribute(): ?string
+    {
+        return Media::youtubeId($this->promo_video_url);
     }
 
     public function getPeriodLabelAttribute(): string

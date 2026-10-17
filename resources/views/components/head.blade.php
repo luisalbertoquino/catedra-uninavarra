@@ -17,5 +17,5 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23f5b70a'/><text x='50' y='70' font-size='60' text-anchor='middle' font-family='Arial' font-weight='bold' fill='%23070a1a'>U</text></svg>">
 <link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700|space-grotesk:500,600,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700|outfit:300,400,500,600&display=swap" rel="stylesheet" />
 @vite(['resources/css/app.css', 'resources/js/app.js'])
