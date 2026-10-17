@@ -1,7 +1,7 @@
 <x-layouts.site>
     {{-- ================= HERO con video promocional de fondo ================= --}}
     @php $videoId = $edition?->promo_video_id; @endphp
-    <section class="noise relative isolate overflow-hidden pb-20 pt-24 lg:pb-32 lg:pt-32" x-data="{ watch: false }">
+    <section class="surface-dark noise relative isolate flex min-h-[100svh] items-center overflow-hidden bg-ink-950 py-28 text-white">
         <div class="pointer-events-none absolute inset-0 -z-10">
             @if ($videoId)
                 {{-- Póster mientras carga el video (o si el navegador bloquea la reproducción automática) --}}
@@ -33,49 +33,9 @@
                         Explorar emprendimientos <x-icon name="arrow-right" />
                     </a>
                     <a href="{{ route('register', ['perfil' => 'inversionista']) }}" class="btn-ghost px-7 py-3.5 text-base"><x-icon name="briefcase" /> Quiero invertir</a>
-                    @if ($videoId)
-                        <button type="button" @click="watch = true" class="btn-ghost px-7 py-3.5 text-base"><x-icon name="circle-play" /> Ver video</button>
-                    @endif
                 </div>
-
-                @if ($edition?->final_at && $edition->final_at->isFuture())
-                    {{-- Contador de números grandes hacia la gran final --}}
-                    <div x-data="countdown('{{ $edition->final_at->toIso8601String() }}')" class="mx-auto mt-16 animate-fade-up [animation-delay:.4s] lg:mt-20">
-                        <p class="flex flex-col items-center justify-center gap-1.5 text-center text-xs font-semibold uppercase tracking-[.22em] text-white/90 sm:text-sm sm:tracking-[.3em]">
-                            <span class="inline-flex items-center justify-center gap-2"><x-icon name="flag-checkered" /> Gran final</span>
-                            <span>{{ $edition->final_at->translatedFormat('l j \d\e F, g:i a') }}</span>
-                        </p>
-                        <div class="mt-6 flex items-start justify-center gap-1 sm:gap-3 lg:gap-5">
-                            @foreach (['d' => 'Días', 'h' => 'Horas', 'm' => 'Minutos', 's' => 'Segundos'] as $k => $label)
-                                @unless ($loop->first)
-                                    <span class="countdown-sep font-display text-5xl font-semibold leading-none text-lion-400/70 sm:text-7xl lg:text-8xl" aria-hidden="true">:</span>
-                                @endunless
-                                <div class="min-w-[3.75rem] text-center sm:min-w-[7rem] lg:min-w-[9rem]">
-                                    <div class="countdown-num font-display text-5xl font-semibold leading-none tabular-nums sm:text-7xl lg:text-8xl" x-text="{{ $k }}">00</div>
-                                    <div class="mt-3 text-[10px] font-semibold uppercase tracking-[.25em] text-white/50 sm:text-xs">{{ $label }}</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
-
-        {{-- Video con sonido y controles --}}
-        @if ($videoId)
-            <template x-teleport="body">
-                <div x-cloak x-show="watch" x-transition.opacity @keydown.escape.window="watch = false"
-                     class="fixed inset-0 z-[80] flex items-center justify-center bg-ink-950/95 p-4 backdrop-blur" @click.self="watch = false">
-                    <button type="button" @click="watch = false" class="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-lg bg-white/10 hover:bg-white/20" aria-label="Cerrar"><x-icon name="xmark" class="text-xl" /></button>
-                    <div class="aspect-video w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
-                        <template x-if="watch">
-                            <iframe src="https://www.youtube-nocookie.com/embed/{{ $videoId }}?autoplay=1&rel=0" title="Video promocional de la Cátedra UNINAVARRA"
-                                    class="h-full w-full" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
-                        </template>
-                    </div>
-                </div>
-            </template>
-        @endif
     </section>
 
     {{-- ================= MARQUEE ================= --}}
@@ -170,8 +130,8 @@
     <section class="reveal relative overflow-hidden">
         <img src="{{ asset('images/catedra-banner.jpg') }}" alt="Cátedra UNINAVARRA en el auditorio" loading="lazy"
              class="h-32 w-full object-cover sm:h-44 lg:h-auto lg:max-h-60">
-        <div class="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/10 to-ink-950"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-ink-950/40 via-transparent to-ink-950/40"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-white via-white/0 to-white"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-white/50"></div>
     </section>
 
     {{-- ================= CRONOGRAMA ================= --}}

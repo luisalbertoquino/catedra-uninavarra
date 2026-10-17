@@ -18,7 +18,7 @@
     @endphp
 
     {{-- ================= HERO ================= --}}
-    <section class="relative isolate overflow-hidden pt-16 lg:pt-20">
+    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pt-16 lg:pt-20">
         <div class="absolute inset-0 -z-10">
             @if ($venture->cover_url)
                 <img src="{{ $venture->cover_url }}" alt="" class="h-full w-full scale-110 object-cover opacity-40 blur-sm">
@@ -267,7 +267,7 @@
 
             {{-- Apoyar --}}
             <section id="apoyar" class="scroll-mt-28">
-                <div class="relative overflow-hidden rounded-[2rem] border border-lion-400/20 bg-gradient-to-br from-lion-400/[.12] via-ink-900 to-volt-600/[.12] p-6 sm:p-10">
+                <div class="relative overflow-hidden rounded-[2rem] border border-lion-400/20 bg-gradient-to-br from-lion-400/[.14] via-white to-volt-600/[.08] p-6 sm:p-10">
                     <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-lion-400/20 blur-3xl"></div>
                     <div class="relative">
                         <span class="eyebrow"><x-icon name="rocket" /> Impulsa este emprendimiento</span>

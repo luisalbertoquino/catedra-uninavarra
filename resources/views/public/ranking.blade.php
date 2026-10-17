@@ -5,7 +5,7 @@
         $order = [1, 0, 2]; // 2º, 1º, 3º
     @endphp
 
-    <section class="relative overflow-hidden pb-6 pt-32 text-center lg:pt-40">
+    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-12 pt-32 text-center lg:pt-40">
         <div class="pointer-events-none absolute -top-10 left-1/2 -z-10 h-[28rem] w-[50rem] -translate-x-1/2 rounded-full bg-lion-500/15 blur-3xl"></div>
         <div class="container-x">
             <span class="eyebrow"><x-icon name="ranking-star" /> {{ $edition?->name }}</span>
@@ -45,7 +45,7 @@
         <p class="container-x py-20 text-center text-white/50">Aún no hay emprendimientos en esta edición.</p>
     @else
         {{-- Podio --}}
-        <section class="container-x pt-10">
+        <section class="container-x pt-12">
             <div class="mx-auto grid max-w-4xl grid-cols-3 items-end gap-2 sm:gap-5">
                 @foreach ($order as $idx)
                     @if ($v = $podium->get($idx))
@@ -66,7 +66,7 @@
                             <div @class([
                                 'mt-3 rounded-t-2xl border border-b-0 border-white/10 font-display text-4xl font-semibold sm:text-6xl',
                                 'h-40 bg-gradient-to-b from-lion-400 to-lion-600 pt-6 text-ink-950 sm:h-56' => $place === 1,
-                                'h-28 bg-gradient-to-b from-white/25 to-white/5 pt-5 text-white/80 sm:h-40' => $place === 2,
+                                'h-28 bg-gradient-to-b from-slate-300 to-slate-100 pt-5 text-ink-700 sm:h-40' => $place === 2,
                                 'h-20 bg-gradient-to-b from-orange-700/60 to-orange-900/20 pt-3 text-white/80 sm:h-28' => $place === 3,
                             ])>{{ $place }}</div>
                         </a>

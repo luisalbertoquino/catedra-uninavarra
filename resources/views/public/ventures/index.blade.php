@@ -1,5 +1,5 @@
 <x-layouts.site title="Emprendimientos" :description="'Conoce los emprendimientos de la '.($edition?->name ?? 'Cátedra UNINAVARRA')">
-    <section class="relative overflow-hidden pb-10 pt-32 lg:pt-40">
+    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-10 pt-32 lg:pt-40">
         <div class="pointer-events-none absolute -top-20 left-1/2 -z-10 h-96 w-[50rem] -translate-x-1/2 rounded-full bg-volt-600/20 blur-3xl"></div>
         <div class="container-x">
             <span class="eyebrow"><x-icon name="lightbulb" /> {{ $edition?->name }}</span>
@@ -36,7 +36,7 @@
     </section>
 
     {{-- Filtros --}}
-    <div class="sticky top-16 z-30 border-y border-white/10 bg-ink-950/80 backdrop-blur-xl lg:top-20">
+    <div class="sticky top-[calc(4rem+var(--announce-h,0px))] z-30 border-b border-white/10 bg-white/90 backdrop-blur-xl lg:top-[calc(5rem+var(--announce-h,0px))]">
         <form method="GET" x-data x-ref="f" class="container-x flex flex-col gap-3 py-4 lg:flex-row lg:items-center">
             <div class="relative flex-1">
                 <x-icon name="magnifying-glass" class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" />

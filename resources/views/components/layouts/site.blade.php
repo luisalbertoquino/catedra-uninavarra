@@ -4,7 +4,7 @@
 <head>
     <x-head :title="$title" :description="$description" :image="$image" />
 </head>
-<body class="min-h-screen bg-ink-950 font-sans text-white antialiased">
+<body class="min-h-screen bg-white font-sans text-ink-900 antialiased">
     @php
         $links = [
             ['Inicio', route('home'), 'home'],
@@ -15,9 +15,10 @@
     @endphp
 
     {{-- Navegación --}}
-    <header x-data="{ open: false, scrolled: false }" @scroll.window="scrolled = window.scrollY > 10"
-            class="fixed inset-x-0 top-0 z-50 transition duration-300"
-            :class="scrolled || open ? 'border-b border-white/10 bg-ink-950/80 backdrop-blur-xl' : 'border-b border-transparent'">
+    {{-- Barra: transparente sobre el video de la portada; sólida en las demás páginas --}}
+    <header x-data="{ open: false, scrolled: false, solid: @js(! request()->routeIs('home')) }" @scroll.window="scrolled = window.scrollY > 10"
+            class="surface-dark fixed inset-x-0 top-0 z-50 text-white transition duration-300"
+            :class="scrolled || open || solid ? 'border-b border-white/10 bg-ink-950/90 backdrop-blur-xl' : 'border-b border-transparent'">
         {{-- Anuncio: votación abierta con cuenta regresiva (se puede cerrar; se recuerda por votación) --}}
         @if ($siteEdition?->isVotingOpen())
             @php $announceKey = 'aviso-votacion-'.$siteEdition->id.'-'.$siteEdition->voting_ends_at->timestamp; @endphp
@@ -120,7 +121,7 @@
 
     @auth
         @unless (auth()->user()->hasVerifiedEmail())
-            <div class="fixed inset-x-0 top-[calc(4rem+var(--announce-h,0px))] z-40 border-b border-lion-400/20 bg-lion-400/10 text-center text-xs text-lion-200 backdrop-blur lg:top-[calc(5rem+var(--announce-h,0px))]">
+            <div class="fixed inset-x-0 top-[calc(4rem+var(--announce-h,0px))] z-40 border-b border-lion-300 bg-lion-100 text-center text-xs text-lion-900 lg:top-[calc(5rem+var(--announce-h,0px))]">
                 <div class="container-x flex flex-wrap items-center justify-center gap-2 py-2">
                     <span><x-icon name="envelope-circle-check" class="mr-1" /> Verifica tu correo para que tus votos cuenten.</span>
                     <form method="POST" action="{{ route('verification.send') }}">@csrf<button class="font-semibold underline underline-offset-2">Reenviar enlace</button></form>
@@ -129,39 +130,55 @@
         @endunless
     @endauth
 
-    <main style="padding-top: var(--announce-h, 0px)" class="transition-[padding] duration-300">
+    <main style="padding-top: var(--announce-h, 0px)" class="surface-light min-h-[60vh] pb-24 transition-[padding] duration-300">
         {{ $slot }}
     </main>
 
-    {{-- Pie de página --}}
-    <footer class="relative mt-24 overflow-hidden border-t border-white/10 bg-ink-950">
-        <div class="pointer-events-none absolute -bottom-40 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-lion-500/10 blur-3xl"></div>
-        <div class="container-x relative grid gap-10 py-16 md:grid-cols-12">
-            <div class="md:col-span-5">
-                <x-brand size="lg" />
-                <p class="mt-6 max-w-sm text-sm leading-relaxed text-white/60">{{ \App\Models\Setting::get('footer_text') }}</p>
-            </div>
-            <div class="md:col-span-3">
-                <h3 class="text-sm font-semibold text-white">Explora</h3>
-                <ul class="mt-4 space-y-2 text-sm text-white/60">
-                    @foreach ($links as [$label, $url])
-                        <li><a href="{{ $url }}" class="hover:text-lion-300">{{ $label }}</a></li>
-                    @endforeach
-                    <li><a href="{{ route('register', ['perfil' => 'inversionista']) }}" class="hover:text-lion-300">Soy inversionista</a></li>
-                </ul>
-            </div>
-            <div class="md:col-span-4">
-                <h3 class="text-sm font-semibold text-white">Contacto</h3>
-                <ul class="mt-4 space-y-2 text-sm text-white/60">
-                    <li><a href="https://wa.me/{{ \App\Models\Setting::whatsapp('contact_phone') }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="whatsapp" style="brands" fw /> {{ \App\Models\Setting::get('contact_phone') }}</a></li>
-                    <li><a href="mailto:{{ \App\Models\Setting::get('contact_email') }}" class="flex items-center gap-3 break-all hover:text-lion-300"><x-icon name="envelope" fw /> {{ \App\Models\Setting::get('contact_email') }}</a></li>
-                    <li class="flex items-center gap-3"><x-icon name="location-dot" fw /> {{ \App\Models\Setting::get('contact_address') }}</li>
-                    <li><a href="{{ \App\Models\Setting::get('contact_site') }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="globe" fw /> {{ preg_replace('~^https?://(www\.)?~', '', rtrim(\App\Models\Setting::get('contact_site'), '/')) }}</a></li>
-                </ul>
+    {{-- Pie de página (blanco minimalista) --}}
+    @php
+        $site = \App\Models\Setting::get('contact_site');
+        $siteLabel = preg_replace('~^https?://(www\.)?~', '', rtrim($site, '/'));
+    @endphp
+    <footer class="surface-light relative border-t border-white/10">
+        <div class="container-x relative py-14">
+            {{-- Acceso al sitio institucional --}}
+            <a href="{{ $site }}" target="_blank" rel="noopener"
+               class="group mb-12 flex flex-col items-start justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-lion-400/40 sm:flex-row sm:items-center sm:p-8">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-lion-400"><x-icon name="graduation-cap" /> Fundación Universitaria Navarra</p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-white">Conoce los programas que ofrece UNINAVARRA</p>
+                    <p class="mt-1 text-sm text-white/60">Pregrados, posgrados y educación continua en el sitio institucional.</p>
+                </div>
+                <span class="btn-ghost shrink-0 group-hover:border-lion-400/40">{{ $siteLabel }} <x-icon name="arrow-up-right-from-square" /></span>
+            </a>
+
+            <div class="grid gap-10 md:grid-cols-12">
+                <div class="md:col-span-5">
+                    <x-brand :dark="false" size="lg" />
+                    <p class="mt-6 max-w-sm text-sm leading-relaxed text-white/60">{{ \App\Models\Setting::get('footer_text') }}</p>
+                </div>
+                <div class="md:col-span-3">
+                    <h3 class="text-sm font-semibold text-white">Explora</h3>
+                    <ul class="mt-4 space-y-2 text-sm text-white/60">
+                        @foreach ($links as [$label, $url])
+                            <li><a href="{{ $url }}" class="hover:text-lion-300">{{ $label }}</a></li>
+                        @endforeach
+                        <li><a href="{{ route('register', ['perfil' => 'inversionista']) }}" class="hover:text-lion-300">Soy inversionista</a></li>
+                    </ul>
+                </div>
+                <div class="md:col-span-4">
+                    <h3 class="text-sm font-semibold text-white">Contacto</h3>
+                    <ul class="mt-4 space-y-2 text-sm text-white/60">
+                        <li><a href="https://wa.me/{{ \App\Models\Setting::whatsapp('contact_phone') }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="whatsapp" style="brands" fw /> {{ \App\Models\Setting::get('contact_phone') }}</a></li>
+                        <li><a href="mailto:{{ \App\Models\Setting::get('contact_email') }}" class="flex items-center gap-3 break-all hover:text-lion-300"><x-icon name="envelope" fw /> {{ \App\Models\Setting::get('contact_email') }}</a></li>
+                        <li class="flex items-center gap-3"><x-icon name="location-dot" fw /> {{ \App\Models\Setting::get('contact_address') }}</li>
+                        <li><a href="{{ $site }}" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-lion-300"><x-icon name="globe" fw /> {{ $siteLabel }}</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="border-t border-white/5">
-            <div class="container-x flex flex-col items-center justify-between gap-2 py-6 text-xs text-white/40 sm:flex-row">
+        <div class="border-t border-white/10">
+            <div class="container-x flex flex-col items-center justify-between gap-2 py-6 text-xs text-white/50 sm:flex-row">
                 <p>© {{ date('Y') }} Fundación Universitaria Navarra – UNINAVARRA. Vigilada MinEducación.</p>
                 <p>Neiva, Huila · Colombia</p>
             </div>

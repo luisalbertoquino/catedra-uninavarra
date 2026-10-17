@@ -1,5 +1,5 @@
 <x-layouts.site :title="$edition->name" :description="$edition->tagline" :image="$edition->banner_url">
-    <section class="relative isolate overflow-hidden pb-14 pt-32 lg:pt-40">
+    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-14 pt-32 lg:pt-40">
         @if ($edition->banner_url)
             <img src="{{ $edition->banner_url }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover opacity-30">
         @endif
@@ -19,7 +19,7 @@
         </div>
     </section>
 
-    <section class="container-x">
+    <section class="container-x pt-12">
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($ventures as $v)
                 <x-venture-card :venture="$v" class="reveal" />

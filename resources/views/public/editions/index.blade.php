@@ -1,5 +1,5 @@
 <x-layouts.site title="Ediciones">
-    <section class="relative overflow-hidden pb-10 pt-32 lg:pt-40">
+    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-12 pt-32 lg:pt-40">
         <img src="{{ asset('images/catedra-banner.jpg') }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover opacity-25">
         <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/50 via-ink-950/70 to-ink-950"></div>
         <div class="container-x">
@@ -9,7 +9,7 @@
         </div>
     </section>
 
-    <section class="container-x space-y-6">
+    <section class="container-x space-y-6 pt-12">
         @foreach ($editions as $e)
             <a href="{{ route('editions.show', $e) }}" class="card-dark card-dark-hover reveal group grid gap-6 overflow-hidden p-6 sm:p-8 lg:grid-cols-12 lg:items-center">
                 <div class="lg:col-span-3">
