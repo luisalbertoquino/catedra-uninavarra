@@ -16,6 +16,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public const ROLES = [
         'comunidad' => 'Comunidad',
         'inversionista' => 'Inversionista / Aliado',
+        'jurado' => 'Jurado',
         'admin' => 'Administrador',
     ];
 
@@ -24,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'is_expert',
+        'show_in_investor_ranking',
         'phone',
         'organization',
         'academic_program',
@@ -37,6 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_expert' => 'boolean',
+        'show_in_investor_ranking' => 'boolean',
     ];
 
     public function votes(): HasMany
@@ -52,6 +57,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function pledges(): HasMany
     {
         return $this->hasMany(SupportPledge::class);
+    }
+
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(Evaluation::class);
+    }
+
+    public function isJury(): bool
+    {
+        return $this->role === 'jurado';
     }
 
     public function isAdmin(): bool

@@ -125,7 +125,7 @@ class DatabaseSeeder extends Seeder
         ];
         $start = Carbon::parse('2026-10-01');
         foreach ($community as $user) {
-            $picked = collect($ventures)->keys()->shuffle()->sortByDesc(fn ($k) => $weights[$k] * mt_rand(1, 10))->take(mt_rand(1, 3));
+            $picked = collect($ventures)->keys()->shuffle()->sortByDesc(fn ($k) => $weights[$k] * mt_rand(1, 10))->take(1); // un voto por persona
             foreach ($picked as $k) {
                 $date = $start->copy()->addDays(mt_rand(0, 9))->addHours(mt_rand(7, 22))->addMinutes(mt_rand(0, 59))->min(now()->subMinutes(mt_rand(5, 300)));
                 Vote::create(['user_id' => $user->id, 'venture_id' => $ventures[$k]->id, 'edition_id' => $current->id, 'created_at' => $date, 'updated_at' => $date]);
@@ -160,6 +160,9 @@ class DatabaseSeeder extends Seeder
         }
 
         $ventures->each(fn ($v) => $v->update(['views' => mt_rand(40, 900)]));
+
+        // Jurados, rúbrica, evaluaciones y ranking de inversionistas
+        $this->call(JuryDemoSeeder::class);
     }
 
     private function edition(string $name, int $year, int $period, string $tagline, string $votingStart, string $votingEnd, string $final, bool $results, bool $active = false): Edition
@@ -170,7 +173,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'La Cátedra UNINAVARRA desarrolla las competencias emprendedoras de los estudiantes Navarristas mediante el aprender haciendo y pedagogías activas. Los equipos construyen propuestas de negocio basadas en innovación y sostenibilidad, y las presentan a la comunidad y a un jurado de expertos inversionistas.',
             'voting_starts_at' => $votingStart, 'voting_ends_at' => $votingEnd, 'final_at' => $final,
             'final_location' => 'Auditorio Ciudad Universitaria UNINAVARRA, Neiva',
-            'community_weight' => 30, 'max_votes_per_user' => 3, 'finalists_count' => 5,
+            'community_weight' => 30, 'max_votes_per_user' => 1, 'finalists_count' => 5,
             'is_active' => $active, 'is_published' => true, 'results_published' => $results,
         ]);
     }

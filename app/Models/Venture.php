@@ -64,6 +64,11 @@ class Venture extends Model
         return $this->comments()->where('is_approved', true)->latest();
     }
 
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(Evaluation::class);
+    }
+
     public function pledges(): HasMany
     {
         return $this->hasMany(SupportPledge::class);

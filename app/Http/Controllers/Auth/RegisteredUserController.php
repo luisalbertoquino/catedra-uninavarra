@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
+use App\Rules\HumanVerification;
+use App\Rules\NotDisposableEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +27,8 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class, new NotDisposableEmail],
+            'cf-turnstile-response' => [new HumanVerification],
             'role' => ['required', Rule::in(['comunidad', 'inversionista'])],
             'phone' => ['nullable', 'string', 'max:30', 'required_if:role,inversionista'],
             'organization' => ['nullable', 'string', 'max:255'],

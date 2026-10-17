@@ -66,7 +66,7 @@ Alpine.data('voteButton', ({ url, voted, count, loginUrl, blocked }) => ({
             this.count = data.count;
             window.dispatchEvent(new CustomEvent('vote-updated', { detail: data.count }));
             if (data.voted) { this.pulse = true; setTimeout(() => (this.pulse = false), 500); window.confetti?.(); }
-            window.toast(data.message + (data.left !== null && data.voted ? ` Te quedan ${data.left} voto(s).` : ''), data.voted ? 'success' : 'info');
+            window.toast(data.message + (data.left > 0 && data.voted ? ` Te quedan ${data.left} voto(s).` : ''), data.voted ? 'success' : 'info');
         } catch (e) {
             window.toast(e.response?.data?.message || 'No fue posible registrar el voto.', 'warning');
         } finally {

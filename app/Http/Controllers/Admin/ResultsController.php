@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
+use App\Models\User;
+use App\Services\JuryScoring;
 use App\Services\Ranking;
 use App\Support\Csv;
 use Illuminate\Http\Request;
@@ -60,16 +62,29 @@ class ResultsController extends Controller
         return back()->with('status', "Se marcaron {$ids->count()} finalistas según el puntaje ponderado.");
     }
 
+    /** Matriz de evaluaciones: emprendimientos × jurados, con el detalle por criterio. */
+    public function evaluations(Edition $edition)
+    {
+        $edition->load('criteria');
+        $juries = User::where('role', 'jurado')->orderByDesc('is_expert')->orderBy('name')->get();
+        $ventures = $edition->ventures()->orderBy('name')->get();
+        $evaluations = $edition->evaluations()->with('scores')->get()->groupBy('venture_id')->map->keyBy('user_id');
+        $scores = JuryScoring::forEdition($edition);
+
+        return view('admin.results.evaluations', compact('edition', 'juries', 'ventures', 'evaluations', 'scores'));
+    }
+
     public function export(Edition $edition)
     {
         $rows = Ranking::for($edition, false)->values()->map(fn ($v, $i) => [
             $i + 1, $v->name, $v->category?->name, $v->votes_count, $v->community_score,
-            $v->committee_score, $v->final_score, $v->is_finalist ? 'Sí' : 'No', $v->final_position,
+            $v->committee_total, $v->committee_source === 'jurados' ? "Jurados ({$v->jury_count})" : ($v->committee_source === 'manual' ? 'Manual' : ''),
+            $v->final_score, $v->is_finalist ? 'Sí' : 'No', $v->final_position,
             $v->comments_count, $v->rating_avg ? round($v->rating_avg, 1) : null, $v->views,
         ]);
 
         return Csv::download("resultados-{$edition->slug}.csv",
-            ['#', 'Emprendimiento', 'Categoría', 'Votos', 'Puntaje comunidad', 'Puntaje comité', 'Puntaje final', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
+            ['#', 'Emprendimiento', 'Categoría', 'Votos', 'Puntaje comunidad', 'Puntaje comité', 'Fuente comité', 'Puntaje final', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
             $rows);
     }
 }

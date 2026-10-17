@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\EditionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\JuryController;
 use App\Http\Controllers\PledgeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RankingController;
@@ -47,6 +48,17 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Panel del jurado
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'jury'])->prefix('jurado')->name('jury.')->group(function () {
+    Route::get('/', [JuryController::class, 'index'])->name('index');
+    Route::get('/evaluar/{venture}', [JuryController::class, 'show'])->name('show');
+    Route::post('/evaluar/{venture}', [JuryController::class, 'store'])->middleware('throttle:60,1')->name('store');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Panel de administración
 |--------------------------------------------------------------------------
 */
@@ -78,6 +90,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('apoyos', [Admin\PledgeController::class, 'index'])->name('pledges.index');
     Route::get('apoyos/exportar', [Admin\PledgeController::class, 'export'])->name('pledges.export');
     Route::patch('apoyos/{pledge}', [Admin\PledgeController::class, 'update'])->name('pledges.update');
+
+    Route::get('jurados', [Admin\JuryController::class, 'index'])->name('juries.index');
+    Route::post('jurados', [Admin\JuryController::class, 'store'])->name('juries.store');
+    Route::put('jurados/{user}', [Admin\JuryController::class, 'update'])->name('juries.update');
+    Route::delete('jurados/{user}', [Admin\JuryController::class, 'destroy'])->name('juries.destroy');
+    Route::get('resultados/{edition}/evaluaciones', [Admin\ResultsController::class, 'evaluations'])->name('results.evaluations');
 
     Route::get('usuarios', [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('usuarios/exportar', [Admin\UserController::class, 'export'])->name('users.export');

@@ -8,6 +8,7 @@
 
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
+        <x-honeypot />
 
         <!-- Email Address -->
         <div>
@@ -16,6 +17,7 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <x-captcha />
         <div class="flex items-center justify-end mt-4">
             <x-primary-button>
                 {{ __('Email Password Reset Link') }}

@@ -60,6 +60,12 @@
                 <x-input-label for="academic_program" value="Programa académico (si eres Navarrista)" />
                 <x-text-input id="academic_program" name="academic_program" type="text" class="mt-1" :value="old('academic_program', $user->academic_program)" />
             </div>
+            <label class="flex items-start gap-3 text-sm text-white/70 sm:col-span-2">
+                <input type="hidden" name="show_in_investor_ranking" value="0">
+                <input type="checkbox" name="show_in_investor_ranking" value="1" @checked(old('show_in_investor_ranking', $user->show_in_investor_ranking))
+                       class="mt-0.5 rounded border-white/20 bg-white/5 text-lion-400 focus:ring-lion-400 focus:ring-offset-ink-950">
+                <span>Aparecer en el ranking público de inversionistas con mi nombre u organización.</span>
+            </label>
         </div>
 
         <div class="flex items-center gap-4">

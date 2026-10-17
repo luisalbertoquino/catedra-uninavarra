@@ -10,26 +10,38 @@
         <div class="container-x">
             <span class="eyebrow"><x-icon name="ranking-star" /> {{ $edition?->name }}</span>
             <h1 class="mt-3 page-title">
-                {{ $byScore ? 'Resultados oficiales' : 'Ranking de la comunidad' }}
+                @if ($tab === 'inversionistas') Ranking de inversionistas @else {{ $byScore ? 'Resultados oficiales' : 'Ranking de la comunidad' }} @endif
             </h1>
             <p class="mx-auto mt-4 max-w-2xl text-white/60">
-                @if ($byScore)
+                @if ($tab === 'inversionistas')
+                    Aliados que más le apuestan al talento Navarrista, según el monto comprometido en inversiones y donaciones.
+                @elseif ($byScore)
                     Puntaje final = comité técnico ({{ 100 - $edition->community_weight }}%) + votación de la comunidad ({{ $edition->community_weight }}%).
                 @else
                     Así va la votación en tiempo real. La comunidad aporta el {{ $edition?->community_weight ?? 30 }}% de la evaluación; el resto lo define el comité técnico.
                 @endif
             </p>
+            <div class="mt-8 inline-flex rounded-xl border border-white/10 bg-white/[.03] p-1">
+                @foreach (['emprendimientos' => ['lightbulb', 'Emprendimientos'], 'inversionistas' => ['hand-holding-dollar', 'Inversionistas']] as $key => [$icon, $label])
+                    <a href="{{ route('ranking', array_filter(['edicion' => request('edicion'), 'vista' => $key === 'emprendimientos' ? null : $key])) }}"
+                       @class(['inline-flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold transition', 'ico-inherit bg-lion-400 text-ink-950' => $tab === $key, 'text-white/70 hover:text-white' => $tab !== $key])>
+                        <x-icon :name="$icon" /> {{ $label }}
+                    </a>
+                @endforeach
+            </div>
             @if ($editions->count() > 1)
-                <div class="mt-6 flex flex-wrap justify-center gap-2">
+                <div class="mt-4 flex flex-wrap justify-center gap-2">
                     @foreach ($editions as $e)
-                        <a href="{{ route('ranking', ['edicion' => $e->slug]) }}" @class(['rounded-lg px-4 py-1.5 text-sm font-medium', 'bg-white text-ink-950' => $edition?->id === $e->id, 'border border-white/10 text-white/70 hover:text-white' => $edition?->id !== $e->id])>{{ $e->period_label }}</a>
+                        <a href="{{ route('ranking', array_filter(['edicion' => $e->slug, 'vista' => $tab === 'inversionistas' ? $tab : null])) }}" @class(['rounded-lg px-4 py-1.5 text-sm font-medium', 'bg-white text-ink-950' => $edition?->id === $e->id, 'border border-white/10 text-white/70 hover:text-white' => $edition?->id !== $e->id])>{{ $e->period_label }}</a>
                     @endforeach
                 </div>
             @endif
         </div>
     </section>
 
-    @if ($ranking->isEmpty())
+    @if ($tab === 'inversionistas')
+        @include('public.partials.investor-ranking')
+    @elseif ($ranking->isEmpty())
         <p class="container-x py-20 text-center text-white/50">Aún no hay emprendimientos en esta edición.</p>
     @else
         {{-- Podio --}}

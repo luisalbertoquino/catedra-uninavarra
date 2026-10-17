@@ -23,6 +23,9 @@ class VotingGate
         if (! $user) {
             return 'Inicia sesión para votar.';
         }
+        if ($user->isJury() || $user->isAdmin()) {
+            return 'Los jurados y administradores no participan en la votación de la comunidad.';
+        }
         if (config('catedra.require_verified_to_vote') && ! $user->hasVerifiedEmail()) {
             return 'Verifica tu correo electrónico para poder votar.';
         }

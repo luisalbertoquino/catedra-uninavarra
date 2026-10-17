@@ -22,7 +22,13 @@
                             @break
                     @endswitch
                     @if ($votesLeft !== null && $edition->isVotingOpen())
-                        <span class="chip"><x-icon name="check-to-slot" /> Te quedan <b class="text-lion-300">{{ $votesLeft }}</b> de {{ $edition->max_votes_per_user }} votos</span>
+                        <span class="chip"><x-icon name="check-to-slot" />
+                            @if ($edition->max_votes_per_user === 1)
+                                {{ $votesLeft ? 'Tienes 1 voto disponible' : 'Ya usaste tu voto' }}
+                            @else
+                                Te quedan <b class="text-lion-300">{{ $votesLeft }}</b> de {{ $edition->max_votes_per_user }} votos
+                            @endif
+                        </span>
                     @endif
                 </div>
             @endif

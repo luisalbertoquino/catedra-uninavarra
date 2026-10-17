@@ -23,8 +23,9 @@
         <div class="container-x">
             <div class="mx-auto max-w-6xl text-center">
                 <h1 class="hero-title animate-fade-up">
-                    Ideas que <span class="text-gradient">rugen</span><br class="hidden sm:block">
-                    desde el Huila
+                    Ideas que <span class="text-gradient">rugen</span><br>
+                    desde UNINAVARRA<br class="hidden sm:block">
+                    para el mundo
                 </h1>
 
                 <p class="mx-auto mt-8 max-w-3xl animate-fade-up text-lg font-light italic leading-relaxed text-lion-300 [animation-delay:.2s] sm:text-2xl">
@@ -148,7 +149,9 @@
 
         <div class="mt-14 grid gap-6 lg:grid-cols-3">
             @foreach ([
-                ['check-to-slot', 'Vota', 'Regístrate y elige hasta '.($edition?->max_votes_per_user ?? 3).' emprendimientos favoritos. Puedes cambiar tu voto mientras la votación esté abierta.', route('ventures.index'), 'Ir a votar'],
+                ['check-to-slot', 'Vota', (($edition?->max_votes_per_user ?? 1) === 1
+                    ? 'Regístrate y elige tu emprendimiento favorito: hay un voto por persona. Puedes cambiarlo mientras la votación esté abierta.'
+                    : 'Regístrate y elige hasta '.$edition->max_votes_per_user.' emprendimientos favoritos. Puedes cambiar tu voto mientras la votación esté abierta.'), route('ventures.index'), 'Ir a votar'],
                 ['comments', 'Opina', 'Califica de 1 a 5 y deja tu retroalimentación. Los equipos la usan para mejorar su pitch antes de la gran final.', route('ranking'), 'Ver ranking'],
                 ['briefcase', 'Invierte o apoya', 'Si eres empresario, inversionista o mentor, registra tu intención de apoyo y la Cátedra te conecta con el equipo.', route('register', ['perfil' => 'inversionista']), 'Registrarme como aliado'],
             ] as $i => [$icon, $title, $text, $url, $cta])

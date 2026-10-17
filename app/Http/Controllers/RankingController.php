@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Edition;
+use App\Services\InvestorRanking;
 use App\Services\Ranking;
 use Illuminate\Http\Request;
 
@@ -24,6 +25,10 @@ class RankingController extends Controller
         $editions = Edition::published()->orderByDesc('year')->orderByDesc('period')->get();
         $totalVotes = $ranking->sum('votes_count');
 
-        return view('public.ranking', compact('edition', 'ranking', 'editions', 'totalVotes'));
+        $tab = $request->get('vista') === 'inversionistas' ? 'inversionistas' : 'emprendimientos';
+        $investors = $edition ? InvestorRanking::for($edition) : collect();
+        $hiddenInvestors = $edition ? InvestorRanking::hiddenCount($edition) : 0;
+
+        return view('public.ranking', compact('edition', 'ranking', 'editions', 'totalVotes', 'tab', 'investors', 'hiddenInvestors'));
     }
 }

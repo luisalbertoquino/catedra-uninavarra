@@ -27,7 +27,14 @@ class VoteController extends Controller
                 return ['voted' => false, 'message' => 'Retiraste tu voto.'];
             }
             if (VotingGate::votesLeft($user, $venture) <= 0) {
-                return ['error' => "Ya usaste tus {$venture->edition->max_votes_per_user} votos. Retira uno para votar por este emprendimiento."];
+                $max = $venture->edition->max_votes_per_user;
+                if ($max === 1) {
+                    $current = $user->votes()->where('edition_id', $venture->edition_id)->with('venture')->first()?->venture;
+
+                    return ['error' => "Ya votaste por {$current?->name}. Solo hay un voto por persona: retíralo allí si quieres votar por este emprendimiento."];
+                }
+
+                return ['error' => "Ya usaste tus {$max} votos. Retira uno para votar por este emprendimiento."];
             }
             $venture->votes()->create([
                 'user_id' => $user->id,

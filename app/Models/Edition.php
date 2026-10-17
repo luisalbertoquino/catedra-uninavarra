@@ -12,7 +12,7 @@ class Edition extends Model
     protected $fillable = [
         'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner', 'promo_video_url',
         'voting_starts_at', 'voting_ends_at', 'final_at', 'final_location',
-        'community_weight', 'max_votes_per_user', 'finalists_count', 'voting_email_domain',
+        'community_weight', 'max_votes_per_user', 'finalists_count', 'voting_email_domain', 'expert_title', 'expert_weight',
         'is_active', 'is_published', 'results_published',
     ];
 
@@ -23,6 +23,7 @@ class Edition extends Model
         'is_active' => 'boolean',
         'is_published' => 'boolean',
         'results_published' => 'boolean',
+        'expert_weight' => 'decimal:2',
     ];
 
     public function getRouteKeyName(): string
@@ -43,6 +44,22 @@ class Edition extends Model
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
+    }
+
+    public function criteria(): HasMany
+    {
+        return $this->hasMany(RubricCriterion::class)->orderBy('sort');
+    }
+
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(Evaluation::class);
+    }
+
+    /** Los jurados pueden evaluar mientras la edición esté activa y no se hayan publicado resultados. */
+    public function isJuryOpen(): bool
+    {
+        return $this->is_active && ! $this->results_published;
     }
 
     public function scopePublished(Builder $q): Builder

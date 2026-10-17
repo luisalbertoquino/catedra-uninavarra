@@ -44,5 +44,20 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Tope general por IP para todo el sitio: frena scrapers y ráfagas que saturen el servidor
+        RateLimiter::for('global', function (Request $request) {
+            return Limit::perMinute((int) config('catedra.rate_limit_per_minute', 180))
+                ->by($request->ip())
+                ->response(fn () => response()->view('errors.429', [], 429));
+        });
+
+        // Registro y recuperación de contraseña: pocas veces por IP para evitar creación masiva de cuentas
+        RateLimiter::for('register', function (Request $request) {
+            return [
+                Limit::perMinute(3)->by('min:'.$request->ip()),
+                Limit::perDay(10)->by('day:'.$request->ip()),
+            ];
+        });
     }
 }

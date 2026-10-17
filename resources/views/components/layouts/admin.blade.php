@@ -12,6 +12,7 @@
             ['Ediciones', 'admin.editions.index', 'admin.editions.*', 'calendar-days'],
             ['Emprendimientos', 'admin.ventures.index', 'admin.ventures.*', 'lightbulb'],
             ['Resultados', 'admin.results.index', 'admin.results.*', 'ranking-star'],
+            ['Jurados', 'admin.juries.index', 'admin.juries.*', 'gavel'],
             ['Intenciones de apoyo', 'admin.pledges.index', 'admin.pledges.*', 'hand-holding-dollar'],
             ['Comentarios', 'admin.comments.index', 'admin.comments.*', 'comments'],
             ['Usuarios', 'admin.users.index', 'admin.users.*', 'users'],

@@ -21,6 +21,7 @@ class ProfileUpdateRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:30'],
             'organization' => ['nullable', 'string', 'max:255'],
             'academic_program' => ['nullable', 'string', 'max:255'],
+            'show_in_investor_ranking' => ['boolean'],
         ];
     }
 }

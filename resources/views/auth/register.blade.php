@@ -4,6 +4,7 @@
 
     <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-5" x-data="{ role: @js(old('role', $role)) }">
         @csrf
+        <x-honeypot />
 
         <fieldset>
             <legend class="mb-2 text-sm font-medium text-white/80">¿Cómo quieres participar?</legend>
@@ -70,6 +71,7 @@
         </label>
         <x-input-error :messages="$errors->get('terms')" />
 
+        <x-captcha />
         <button class="btn-lion w-full py-3.5 text-base">Crear cuenta</button>
     </form>
 

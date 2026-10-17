@@ -18,6 +18,35 @@
     <header x-data="{ open: false, scrolled: false }" @scroll.window="scrolled = window.scrollY > 10"
             class="fixed inset-x-0 top-0 z-50 transition duration-300"
             :class="scrolled || open ? 'border-b border-white/10 bg-ink-950/80 backdrop-blur-xl' : 'border-b border-transparent'">
+        {{-- Anuncio: votación abierta con cuenta regresiva (se puede cerrar; se recuerda por votación) --}}
+        @if ($siteEdition?->isVotingOpen())
+            @php $announceKey = 'aviso-votacion-'.$siteEdition->id.'-'.$siteEdition->voting_ends_at->timestamp; @endphp
+            <div x-data="{ show: true }"
+                 x-init="
+                    try { show = localStorage.getItem('{{ $announceKey }}') !== '1' } catch (e) {}
+                    $watch('show', v => document.documentElement.style.setProperty('--announce-h', v ? $el.offsetHeight + 'px' : '0px'));
+                    $nextTick(() => document.documentElement.style.setProperty('--announce-h', show ? $el.offsetHeight + 'px' : '0px'));
+                 "
+                 x-show="show" x-cloak
+                 class="relative bg-gradient-to-r from-lion-500 via-lion-400 to-lion-500 text-ink-950">
+                <div class="container-x flex min-h-[2.5rem] items-center justify-center gap-x-4 gap-y-1 py-1.5 pr-10 text-xs font-semibold sm:text-sm">
+                    <span class="inline-flex items-center gap-2"><i class="fa-solid fa-check-to-slot" aria-hidden="true"></i> ¡La votación está abierta!</span>
+                    <span class="inline-flex items-center gap-1.5 tabular-nums" x-data="countdown('{{ $siteEdition->voting_ends_at->toIso8601String() }}')">
+                        <span class="hidden font-medium sm:inline">Cierra en</span>
+                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="d + 'd'"></span>
+                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="h + 'h'"></span>
+                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="m + 'm'"></span>
+                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="s + 's'"></span>
+                    </span>
+                    <a href="{{ route('ventures.index') }}" class="hidden items-center gap-1.5 underline underline-offset-2 hover:no-underline sm:inline-flex">Vota ahora <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <button type="button" @click="show = false; try { localStorage.setItem('{{ $announceKey }}', '1') } catch (e) {}"
+                        class="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md hover:bg-ink-950/10 sm:right-4" aria-label="Cerrar anuncio">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+        @endif
+
         <nav class="container-x flex h-16 items-center justify-between lg:h-20">
             <a href="{{ route('home') }}" class="shrink-0"><x-brand /></a>
 
@@ -35,6 +64,8 @@
                 @auth
                     @if (auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}" class="btn-ghost !px-4"><x-icon name="gauge-high" /> Panel admin</a>
+                    @elseif (auth()->user()->isJury())
+                        <a href="{{ route('jury.index') }}" class="btn-ghost !px-4"><x-icon name="gavel" /> Panel del jurado</a>
                     @endif
                     <div x-data="{ menu: false }" class="relative">
                         <button @click="menu = !menu" @click.outside="menu = false" class="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 py-1 pl-1 pr-3 text-sm hover:bg-white/10">
@@ -72,6 +103,8 @@
                         <a href="{{ route('dashboard') }}" class="btn-ghost">Mi actividad</a>
                         @if (auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="btn-ghost">Admin</a>
+                        @elseif (auth()->user()->isJury())
+                            <a href="{{ route('jury.index') }}" class="btn-ghost">Panel jurado</a>
                         @else
                             <a href="{{ route('profile.edit') }}" class="btn-ghost">Mi perfil</a>
                         @endif
@@ -87,7 +120,7 @@
 
     @auth
         @unless (auth()->user()->hasVerifiedEmail())
-            <div class="fixed inset-x-0 top-16 z-40 border-b border-lion-400/20 bg-lion-400/10 text-center text-xs text-lion-200 backdrop-blur lg:top-20">
+            <div class="fixed inset-x-0 top-[calc(4rem+var(--announce-h,0px))] z-40 border-b border-lion-400/20 bg-lion-400/10 text-center text-xs text-lion-200 backdrop-blur lg:top-[calc(5rem+var(--announce-h,0px))]">
                 <div class="container-x flex flex-wrap items-center justify-center gap-2 py-2">
                     <span><x-icon name="envelope-circle-check" class="mr-1" /> Verifica tu correo para que tus votos cuenten.</span>
                     <form method="POST" action="{{ route('verification.send') }}">@csrf<button class="font-semibold underline underline-offset-2">Reenviar enlace</button></form>
@@ -96,7 +129,7 @@
         @endunless
     @endauth
 
-    <main>
+    <main style="padding-top: var(--announce-h, 0px)" class="transition-[padding] duration-300">
         {{ $slot }}
     </main>
 

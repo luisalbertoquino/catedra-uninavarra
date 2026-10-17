@@ -84,6 +84,38 @@
                     <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">Sin fases. Agrega la primera.</p>
                 </div>
             </section>
+
+            {{-- Rúbrica de evaluación del jurado --}}
+            <section class="a-card p-6" x-data="{ rows: @js(array_values(old('criteria', $criteria ?? []))), get sum() { return this.rows.reduce((a, r) => a + (parseInt(r.weight) || 0), 0) } }">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h2 class="font-semibold text-ink-900">Rúbrica de evaluación del jurado</h2>
+                        <p class="text-sm text-slate-500">Cada jurado califica estos criterios al ver el video. El puntaje se convierte a una escala de 0 a 100.</p>
+                    </div>
+                    <button type="button" class="a-btn-light shrink-0" @click="rows.push({ name: '', description: '', weight: 10, max_score: 5 })"><x-icon name="plus" /> Criterio</button>
+                </div>
+                @if ($hasEvaluations ?? false)
+                    <p class="mt-4 rounded-xl border border-lion-200 bg-lion-50 p-3 text-xs text-lion-900"><x-icon name="triangle-exclamation" /> Ya hay evaluaciones. Si agregas criterios, los jurados deberán calificarlos; si eliminas uno, se borran sus puntajes. Los totales se recalculan al guardar.</p>
+                @endif
+                <div class="mt-5 space-y-3">
+                    <template x-for="(row, i) in rows" :key="i">
+                        <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+                            <input type="hidden" :name="`criteria[${i}][id]`" :value="row.id" x-bind:disabled="!row.id">
+                            <div class="grid gap-3 sm:grid-cols-12">
+                                <input class="a-input sm:col-span-6" :name="`criteria[${i}][name]`" x-model="row.name" placeholder="Criterio (ej. Innovación)" required>
+                                <label class="text-xs text-slate-500 sm:col-span-3">Peso %<input type="number" min="1" max="100" class="a-input mt-1" :name="`criteria[${i}][weight]`" x-model="row.weight" required></label>
+                                <label class="text-xs text-slate-500 sm:col-span-3">Escala 1 a<input type="number" min="2" max="10" class="a-input mt-1" :name="`criteria[${i}][max_score]`" x-model="row.max_score" required></label>
+                                <textarea class="a-input sm:col-span-11" rows="2" :name="`criteria[${i}][description]`" x-model="row.description" placeholder="Qué debe valorar el jurado (opcional)"></textarea>
+                                <button type="button" class="self-start rounded-lg p-2 text-rose-400 hover:bg-rose-50 hover:text-rose-600 sm:col-span-1" @click="rows.splice(i, 1)" title="Eliminar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                    </template>
+                    <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">Sin criterios. Los jurados no podrán evaluar hasta definir la rúbrica.</p>
+                </div>
+                <p class="mt-3 text-sm" :class="sum === 100 ? 'text-emerald-700' : 'text-lion-700'">
+                    Suma de pesos: <b x-text="sum"></b>% <span x-show="sum !== 100">· Se recomienda que sume 100% (si no, se normaliza automáticamente).</span>
+                </p>
+            </section>
         </div>
 
         <div class="space-y-6">
@@ -101,7 +133,7 @@
                     <div><label class="a-label" for="final_location">Lugar de la final</label><input id="final_location" name="final_location" class="a-input" value="{{ old('final_location', $edition->final_location) }}"></div>
                     <div class="grid grid-cols-3 gap-3">
                         <div><label class="a-label" for="community_weight">% comunidad</label><input id="community_weight" type="number" min="0" max="100" name="community_weight" class="a-input" value="{{ old('community_weight', $edition->community_weight ?? 30) }}"></div>
-                        <div><label class="a-label" for="max_votes_per_user">Votos/persona</label><input id="max_votes_per_user" type="number" min="1" name="max_votes_per_user" class="a-input" value="{{ old('max_votes_per_user', $edition->max_votes_per_user ?? 3) }}"></div>
+                        <div><label class="a-label" for="max_votes_per_user">Votos/persona</label><input id="max_votes_per_user" type="number" min="1" name="max_votes_per_user" class="a-input" value="{{ old('max_votes_per_user', $edition->max_votes_per_user ?? 1) }}"></div>
                         <div><label class="a-label" for="finalists_count">Finalistas</label><input id="finalists_count" type="number" min="1" name="finalists_count" class="a-input" value="{{ old('finalists_count', $edition->finalists_count ?? 5) }}"></div>
                     </div>
                     <div>
@@ -111,6 +143,16 @@
                         <p class="mt-1 text-xs text-slate-500">Vacío = cualquier persona registrada y verificada puede votar.</p>
                     </div>
                 </div>
+            </section>
+
+            <section id="jurado" class="a-card scroll-mt-24 p-6">
+                <h2 class="font-semibold text-ink-900"><x-icon name="award" /> Jurado experto</h2>
+                <p class="mt-1 text-sm text-slate-500">Jurado especial con más peso en el puntaje del comité técnico.</p>
+                <div class="mt-4 grid grid-cols-3 gap-3">
+                    <div class="col-span-2"><label class="a-label" for="expert_title">Nombre del rol</label><input id="expert_title" name="expert_title" required maxlength="60" class="a-input" value="{{ old('expert_title', $edition->expert_title ?? 'Profesor experto') }}"></div>
+                    <div><label class="a-label" for="expert_weight">Peso ×</label><input id="expert_weight" type="number" step="0.5" min="1" max="10" name="expert_weight" required class="a-input" value="{{ old('expert_weight', $edition->expert_weight ?? 2) }}"></div>
+                </div>
+                <p class="mt-2 text-xs text-slate-500">Ej.: con peso ×2, su evaluación cuenta como la de dos jurados. Los jurados se gestionan en <a href="{{ route('admin.juries.index') }}" class="font-medium text-ink-700 underline">Jurados</a>.</p>
             </section>
 
             <section class="a-card p-6">

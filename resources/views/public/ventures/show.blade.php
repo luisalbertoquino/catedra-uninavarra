@@ -302,6 +302,11 @@
                                     <x-input-error :messages="$errors->get('message')" class="mt-2" />
                                     <x-input-error :messages="$errors->get('type')" class="mt-2" />
                                 </div>
+                                <label class="flex items-start gap-3 text-sm text-white/70">
+                                    <input type="checkbox" name="public_ranking" value="1" @checked(old('public_ranking', auth()->user()->show_in_investor_ranking))
+                                           class="mt-0.5 rounded border-white/20 bg-white/5 text-lion-400 focus:ring-lion-400 focus:ring-offset-ink-950">
+                                    <span>Mostrar mi nombre u organización en el <a href="{{ route('ranking', ['vista' => 'inversionistas']) }}" class="font-semibold text-lion-300 hover:text-lion-200">ranking de inversionistas</a>.</span>
+                                </label>
                                 <button class="btn-lion px-7 py-3.5 text-base">Enviar intención de apoyo <x-icon name="paper-plane" /></button>
                             </form>
                         @else
@@ -339,7 +344,9 @@
                         @if ($status === 'abierta')
                             <p class="flex items-center gap-2 font-semibold text-white"><x-icon name="circle-check" /> Votación abierta</p>
                             <p class="mt-1 text-white/60">Cierra el {{ $venture->edition->voting_ends_at->translatedFormat('j \d\e F, g:i a') }}.
-                                @if ($votesLeft !== null) Te quedan <b class="text-white">{{ $votesLeft }}</b> voto(s).@endif
+                                @if ($votesLeft !== null && ! $votingBlocked)
+                                    {{ $hasVoted ? 'Ya votaste por este emprendimiento.' : ($votesLeft ? 'Tienes tu voto disponible.' : 'Ya usaste tu voto en otro emprendimiento.') }}
+                                @endif
                             </p>
                         @elseif ($status === 'proxima')
                             <p class="flex items-center gap-2 font-semibold text-white"><x-icon name="hourglass-half" /> Votación próximamente</p>
