@@ -10,7 +10,8 @@ lsb_release -a; ls /usr/local/lsws/; ls /usr/local/lsws/ | grep lsphp
 mysql --version; git --version; node -v; composer -V
 ```
 
-## 2. PHP 8.3 para LiteSpeed (si no está)
+## 2. PHP 8.3 para LiteSpeed
+> Usa **lsphp83**: Laravel 10 es compatible con PHP 8.1–8.3 (no con 8.4). MariaDB 10.6+ / 11.x funciona igual que MySQL.
 ```bash
 wget -O - https://repo.litespeed.sh | bash          # repositorio de LiteSpeed (si no está agregado)
 apt install -y lsphp83 lsphp83-common lsphp83-mysql lsphp83-curl lsphp83-intl lsphp83-opcache
@@ -99,11 +100,21 @@ php artisan catedra:crear-admin tu-correo@uninavarra.edu.co --nombre="Tu nombre"
 Prueba: `http://IP-O-DOMINIO/` debe mostrar la portada y `/login` el ingreso.
 
 ## 9. Cargar los emprendimientos reales
-1. Ingresa al admin con tu cuenta.
-2. Quita los emprendimientos ficticios de la edición activa:
-   `php artisan catedra:limpiar-demo`
-3. **Admin → Importar Excel:** sube el Excel del portafolio y los logos. El Excel no está en GitHub porque tiene datos personales; súbelo desde tu equipo.
+Los datos reales (nombres de estudiantes y logos) **no están en GitHub**. Se generan en el equipo de desarrollo y se copian al servidor:
 
+```bash
+# En el equipo de desarrollo (carpeta del proyecto): genera database/data/ con el JSON y los logos
+php artisan catedra:exportar-portafolio
+scp -r database/data root@SERVIDOR:/var/www/catedra-uninavarra/database/
+
+# En el servidor
+cd /var/www/catedra-uninavarra
+php artisan db:seed --class=PortafolioRealSeeder --force
+chown -R nobody:nogroup storage
+```
+El seeder crea o actualiza la edición con su configuración, las categorías, los 15 emprendimientos con equipos y logos, y elimina los emprendimientos ficticios de esa edición. Se puede ejecutar varias veces sin duplicar.
+
+Alternativa desde el navegador: `php artisan catedra:limpiar-demo` y luego **Admin → Importar Excel** con el Excel y los logos.
 ## 10. Actualizaciones
 Después de cada `git push`:
 ```bash

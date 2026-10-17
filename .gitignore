@@ -17,3 +17,6 @@ yarn-error.log
 /.idea
 /.vscode
 .phpunit.result.cache
+
+# Datos reales exportados (nombres de estudiantes y logos): no se suben a git mientras el repositorio sea público
+/database/data/
