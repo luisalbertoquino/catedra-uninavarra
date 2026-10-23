@@ -22,12 +22,18 @@
         {{-- Anuncio: votación abierta con cuenta regresiva (se puede cerrar; se recuerda por votación) --}}
         @if ($siteEdition?->isVotingOpen())
             @php $announceKey = 'aviso-votacion-'.$siteEdition->id.'-'.$siteEdition->voting_ends_at->timestamp; @endphp
-            <div x-data="{ show: true }"
-                 x-init="
-                    try { show = localStorage.getItem('{{ $announceKey }}') !== '1' } catch (e) {}
-                    $watch('show', v => document.documentElement.style.setProperty('--announce-h', v ? $el.offsetHeight + 'px' : '0px'));
-                    $nextTick(() => document.documentElement.style.setProperty('--announce-h', show ? $el.offsetHeight + 'px' : '0px'));
-                 "
+            {{-- --announce-h: alto del anuncio, para que el contenido y la franja de verificación no queden debajo --}}
+            <div x-data="{
+                    show: true,
+                    sync() { document.documentElement.style.setProperty('--announce-h', this.show ? this.$el.offsetHeight + 'px' : '0px') },
+                    close() { this.show = false; try { localStorage.setItem('{{ $announceKey }}', '1') } catch (e) {} },
+                    init() {
+                        try { this.show = localStorage.getItem('{{ $announceKey }}') !== '1' } catch (e) {}
+                        this.$watch('show', () => this.$nextTick(() => this.sync()));
+                        this.$nextTick(() => this.sync());
+                    },
+                 }"
+                 @resize.window.debounce.150ms="sync()"
                  x-show="show" x-cloak
                  class="relative bg-gradient-to-r from-lion-500 via-lion-400 to-lion-500 text-ink-950">
                 <div class="container-x flex min-h-[2.5rem] items-center justify-center gap-x-4 gap-y-1 py-1.5 pr-10 text-xs font-semibold sm:text-sm">
@@ -41,7 +47,7 @@
                     </span>
                     <a href="{{ route('ventures.index') }}" class="hidden items-center gap-1.5 underline underline-offset-2 hover:no-underline sm:inline-flex">Vota ahora <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
-                <button type="button" @click="show = false; try { localStorage.setItem('{{ $announceKey }}', '1') } catch (e) {}"
+                <button type="button" @click="close()"
                         class="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md hover:bg-ink-950/10 sm:right-4" aria-label="Cerrar anuncio">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
