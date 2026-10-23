@@ -144,17 +144,34 @@
                 </div>
             </section>
 
-            @php $th = $edition->exists ? $edition->voteThresholds() : (new \App\Models\Edition(['vote_grade_thresholds' => $edition->vote_grade_thresholds]))->voteThresholds(); @endphp
+            @php
+                $ranges = old('vote_grade_thresholds') ?: (new \App\Models\Edition(['vote_grade_thresholds' => $edition->vote_grade_thresholds]))->voteRanges();
+                $ranges = collect($ranges)->map(fn ($r) => ['min' => $r['min'] ?? '', 'grade' => $r['grade'] ?? ''])->values();
+            @endphp
             <section id="calificacion" class="a-card scroll-mt-24 p-6"
-                     x-data="{ c: {{ (int) old('community_weight', $edition->community_weight ?? 30) }}, j: {{ (int) old('jury_weight', $edition->jury_weight ?? 40) }}, e: {{ (int) old('expert_score_weight', $edition->expert_score_weight ?? 30) }}, mode: @js(old('vote_grade_mode', $edition->vote_grade_mode ?? 'relativo')) }">
+                     x-data="{ c: {{ (int) old('community_weight', $edition->community_weight ?? 30) }}, j: {{ (int) old('jury_weight', $edition->jury_weight ?? 70) }}, e: {{ (int) old('expert_score_weight', $edition->expert_score_weight ?? 0) }},
+                               committee: @js(old('committee_mode', $edition->committee_mode ?? 'promedio')), mode: @js(old('vote_grade_mode', $edition->vote_grade_mode ?? 'rangos')),
+                               ranges: @js($ranges),
+                               get sum() { return this.c + this.j + (this.committee === 'promedio' ? 0 : this.e) } }">
                 <h2 class="font-semibold text-ink-900"><x-icon name="scale-balanced" /> Calificación (nota de 1 a 5)</h2>
-                <p class="mt-1 text-sm text-slate-500">Peso de cada componente en la nota final. Debe sumar 100%.</p>
-                <div class="mt-4 grid grid-cols-3 gap-3">
-                    <div><label class="a-label" for="community_weight">% Comunidad</label><input id="community_weight" type="number" min="0" max="100" name="community_weight" x-model.number="c" required class="a-input"></div>
-                    <div><label class="a-label" for="jury_weight">% Jurados</label><input id="jury_weight" type="number" min="0" max="100" name="jury_weight" x-model.number="j" required class="a-input"></div>
-                    <div><label class="a-label" for="expert_score_weight">% Experto</label><input id="expert_score_weight" type="number" min="0" max="100" name="expert_score_weight" x-model.number="e" required class="a-input"></div>
+
+                <div class="mt-4">
+                    <span class="a-label">Comité técnico</span>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-2 text-sm"><input type="radio" name="committee_mode" value="promedio" x-model="committee" class="mt-0.5 border-slate-300 text-ink-700 focus:ring-ink-500">
+                            <span><b>Promedio del comité</b>: la nota del comité es el promedio de los jurados y el experto; el experto pesa igual que cada jurado.</span></label>
+                        <label class="flex items-start gap-2 text-sm"><input type="radio" name="committee_mode" value="separado" x-model="committee" class="mt-0.5 border-slate-300 text-ink-700 focus:ring-ink-500">
+                            <span><b>Experto con peso propio</b>: el experto tiene su propio porcentaje, aparte del de los jurados.</span></label>
+                    </div>
                 </div>
-                <p class="mt-2 text-sm font-medium" :class="c + j + e === 100 ? 'text-emerald-700' : 'text-rose-600'">Suma: <span x-text="c + j + e"></span>%</p>
+
+                <p class="mt-5 text-sm text-slate-500">Peso de cada componente en la nota final. Debe sumar 100%.</p>
+                <div class="mt-2 grid gap-3" :class="committee === 'promedio' ? 'grid-cols-2' : 'grid-cols-3'">
+                    <div><label class="a-label" for="community_weight">% Comunidad</label><input id="community_weight" type="number" min="0" max="100" name="community_weight" x-model.number="c" required class="a-input"></div>
+                    <div><label class="a-label" for="jury_weight" x-text="committee === 'promedio' ? '% Comité técnico' : '% Jurados'">% Jurados</label><input id="jury_weight" type="number" min="0" max="100" name="jury_weight" x-model.number="j" required class="a-input"></div>
+                    <div x-show="committee === 'separado'"><label class="a-label" for="expert_score_weight">% Experto</label><input id="expert_score_weight" type="number" min="0" max="100" name="expert_score_weight" x-model.number="e" :disabled="committee === 'promedio'" class="a-input"></div>
+                </div>
+                <p class="mt-2 text-sm font-medium" :class="sum === 100 ? 'text-emerald-700' : 'text-rose-600'">Suma: <span x-text="sum"></span>%</p>
 
                 <div class="mt-5">
                     <label class="a-label" for="expert_title">Nombre del jurado experto</label>
@@ -165,17 +182,23 @@
                 <div class="mt-5">
                     <span class="a-label">Nota de la comunidad según los votos</span>
                     <div class="space-y-2">
+                        <label class="flex items-start gap-2 text-sm"><input type="radio" name="vote_grade_mode" value="rangos" x-model="mode" class="mt-0.5 border-slate-300 text-ink-700 focus:ring-ink-500">
+                            <span><b>Por rangos</b>: defines desde cuántos votos se obtiene cada nota.</span></label>
                         <label class="flex items-start gap-2 text-sm"><input type="radio" name="vote_grade_mode" value="relativo" x-model="mode" class="mt-0.5 border-slate-300 text-ink-700 focus:ring-ink-500">
                             <span><b>Relativa</b>: el emprendimiento más votado obtiene 5,0 y los demás en proporción (0 votos = 1,0).</span></label>
-                        <label class="flex items-start gap-2 text-sm"><input type="radio" name="vote_grade_mode" value="rangos" x-model="mode" class="mt-0.5 border-slate-300 text-ink-700 focus:ring-ink-500">
-                            <span><b>Por rangos</b>: defines cuántos votos se necesitan para cada nota.</span></label>
                     </div>
-                    <div x-show="mode === 'rangos'" x-collapse class="mt-3 grid grid-cols-4 gap-2">
-                        @foreach (['2', '3', '4', '5'] as $grade)
-                            <label class="text-xs text-slate-500">Nota {{ $grade }} desde
-                                <input type="number" min="0" name="vote_grade_thresholds[{{ $grade }}]" value="{{ old("vote_grade_thresholds.$grade", $th[$grade]) }}" class="a-input mt-1"> votos</label>
-                        @endforeach
-                        <p class="col-span-4 text-xs text-slate-500">Menos votos que el mínimo de la nota 2 = nota 1.</p>
+                    <div x-show="mode === 'rangos'" x-collapse class="mt-3">
+                        <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs font-medium text-slate-500"><span>Desde (votos)</span><span>Nota</span><span class="w-8"></span></div>
+                        <template x-for="(r, i) in ranges" :key="i">
+                            <div class="mt-1.5 grid grid-cols-[1fr_1fr_auto] items-center gap-2">
+                                <input type="number" min="0" :name="`vote_grade_thresholds[${i}][min]`" x-model="r.min" required class="a-input">
+                                <input type="number" min="1" max="5" step="0.1" :name="`vote_grade_thresholds[${i}][grade]`" x-model="r.grade" required class="a-input">
+                                <button type="button" @click="ranges.splice(i, 1)" class="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Quitar rango"><x-icon name="xmark" /></button>
+                            </div>
+                        </template>
+                        <button type="button" @click="ranges.push({ min: '', grade: '' })" class="mt-2 text-sm font-medium text-ink-700 hover:underline"><x-icon name="plus" /> Agregar rango</button>
+                        <p class="mt-1 text-xs text-slate-500">Cada emprendimiento recibe la nota del rango más alto que alcanza. Con menos votos que el primer rango, la nota es 1.</p>
+                        <x-input-error :messages="$errors->get('vote_grade_thresholds')" class="mt-1" />
                     </div>
                 </div>
             </section>

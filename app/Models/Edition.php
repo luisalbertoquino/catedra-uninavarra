@@ -9,10 +9,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Edition extends Model
 {
+    /** Likes/votos mínimos para cada nota (consolidado de calificación video pitch 2026-1) */
+    public const DEFAULT_VOTE_RANGES = [
+        ['min' => 0, 'grade' => 3],
+        ['min' => 15, 'grade' => 3.5],
+        ['min' => 50, 'grade' => 4],
+        ['min' => 120, 'grade' => 4.5],
+        ['min' => 198, 'grade' => 5],
+    ];
+
     protected $fillable = [
         'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner', 'promo_video_url',
         'voting_starts_at', 'voting_ends_at', 'final_at', 'final_location',
-        'community_weight', 'jury_weight', 'expert_score_weight', 'vote_grade_mode', 'vote_grade_thresholds',
+        'community_weight', 'jury_weight', 'expert_score_weight', 'committee_mode', 'vote_grade_mode', 'vote_grade_thresholds',
         'max_votes_per_user', 'finalists_count', 'voting_email_domain', 'expert_title',
         'is_active', 'is_published', 'results_published',
     ];
@@ -60,33 +69,64 @@ class Edition extends Model
     /** Pesos de la nota final (comunidad, jurados, experto) en porcentaje */
     public function gradeWeights(): array
     {
+        if ($this->expertCountsAsJury()) {
+            return ['community' => (int) $this->community_weight, 'jury' => (int) $this->jury_weight + (int) $this->expert_score_weight, 'expert' => 0];
+        }
+
         return ['community' => (int) $this->community_weight, 'jury' => (int) $this->jury_weight, 'expert' => (int) $this->expert_score_weight];
     }
 
-    /** Votos mínimos para obtener nota 2, 3, 4 y 5 en el modo "por rangos" */
-    public function voteThresholds(): array
+    /** En modo "promedio" el comité técnico es el promedio de jurados y experto: el experto pesa igual que un jurado. */
+    public function expertCountsAsJury(): bool
     {
-        $t = $this->vote_grade_thresholds ?: [];
+        return ($this->committee_mode ?? 'promedio') === 'promedio';
+    }
 
-        return ['2' => (int) ($t['2'] ?? 5), '3' => (int) ($t['3'] ?? 15), '4' => (int) ($t['4'] ?? 30), '5' => (int) ($t['5'] ?? 50)];
+    public function committeeLabel(): string
+    {
+        return $this->expertCountsAsJury() ? 'Comité técnico' : 'Jurados';
+    }
+
+    /** Cuánto pesa la evaluación del experto, para mostrarlo a jurados y administradores */
+    public function expertWeightText(): string
+    {
+        return $this->expertCountsAsJury()
+            ? 'pesa lo mismo que la de cada jurado dentro del comité técnico ('.$this->gradeWeights()['jury'].'% de la nota final)'
+            : 'vale el '.$this->expert_score_weight.'% de la nota final';
+    }
+
+    /**
+     * Rangos del modo "por rangos": [['min' => votos mínimos, 'grade' => nota], ...] ordenados por votos.
+     * Acepta también el formato anterior {"2": 5, "3": 15, ...} (votos mínimos para cada nota entera).
+     */
+    public function voteRanges(): array
+    {
+        $t = $this->vote_grade_thresholds ?: self::DEFAULT_VOTE_RANGES;
+        if (! array_is_list($t)) {
+            $t = collect($t)->map(fn ($min, $grade) => ['min' => (int) $min, 'grade' => (float) $grade])->values()->prepend(['min' => 0, 'grade' => 1])->all();
+        }
+
+        return collect($t)
+            ->map(fn ($r) => ['min' => (int) $r['min'], 'grade' => (float) $r['grade']])
+            ->sortBy('min')->values()->all();
     }
 
     /**
      * Nota de 1 a 5 según los votos de la comunidad.
      *  - relativo: el emprendimiento más votado obtiene 5 y los demás en proporción (0 votos = 1).
-     *  - rangos: nota según los votos mínimos configurados para cada nota.
+     *  - rangos: la nota del rango más alto alcanzado (por debajo del primer rango = 1).
      */
     public function voteGrade(int $votes, int $maxVotes): float
     {
         if ($this->vote_grade_mode === 'rangos') {
-            $grade = 1;
-            foreach ($this->voteThresholds() as $g => $min) {
-                if ($votes >= $min) {
-                    $grade = (int) $g;
+            $grade = 1.0;
+            foreach ($this->voteRanges() as $r) {
+                if ($votes >= $r['min']) {
+                    $grade = $r['grade'];
                 }
             }
 
-            return (float) $grade;
+            return $grade;
         }
 
         return $maxVotes > 0 ? round(1 + 4 * $votes / $maxVotes, 2) : 1.0;

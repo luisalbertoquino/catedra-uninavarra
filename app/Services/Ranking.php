@@ -8,10 +8,12 @@ use Illuminate\Support\Collection;
 /**
  * Ranking de una edición. Nota final de 1 a 5 =
  *   nota comunidad × peso comunidad + nota jurados × peso jurados + nota experto × peso experto
- * (pesos configurables en la edición; por defecto 30 % / 40 % / 30 %).
+ * (pesos configurables en la edición).
  *
  * - Nota comunidad: Edition::voteGrade() a partir de los votos.
  * - Notas de jurados y experto: JuryScoring a partir de las evaluaciones con la rúbrica.
+ * - Modo "promedio" (por defecto, como en el consolidado 2026-1): la nota de jurados es el promedio del
+ *   comité técnico completo (jurados + experto, cada uno pesa igual) y lleva el peso de jurados + experto.
  * - Si aún falta algún componente, su peso se reparte proporcionalmente entre los disponibles
  *   y la nota se marca como parcial.
  * - Respaldo: si no hay ninguna evaluación y el admin registró un puntaje manual (0-100),
@@ -33,14 +35,15 @@ class Ranking
         $weights = $edition->gradeWeights();
 
         return $ventures->map(function ($v) use ($edition, $scores, $maxVotes, $weights) {
-            $s = $scores->get($v->id, ['jury' => null, 'jury_count' => 0, 'expert' => null, 'expert_count' => 0]);
+            $s = $scores->get($v->id, ['jury' => null, 'jury_count' => 0, 'expert' => null, 'expert_count' => 0, 'committee' => null]);
+            $combined = $edition->expertCountsAsJury();
 
             $manual = $s['jury'] === null && $s['expert'] === null && $v->committee_score !== null
                 ? JuryScoring::toGrade((float) $v->committee_score)
                 : null;
 
             $v->community_grade = $edition->voteGrade($v->votes_count, $maxVotes);
-            $v->jury_grade = $s['jury'] ?? $manual;
+            $v->jury_grade = ($combined ? $s['committee'] : $s['jury']) ?? $manual;
             $v->expert_grade = $s['expert'] ?? $manual;
             $v->jury_count = $s['jury_count'];
             $v->expert_count = $s['expert_count'];
@@ -49,7 +52,7 @@ class Ranking
             $parts = collect([
                 ['community', $v->community_grade],
                 ['jury', $v->jury_grade],
-                ['expert', $v->expert_grade],
+                ['expert', $combined ? null : $v->expert_grade],
             ])->filter(fn ($p) => $p[1] !== null && $weights[$p[0]] > 0);
 
             $available = $parts->sum(fn ($p) => $weights[$p[0]]);

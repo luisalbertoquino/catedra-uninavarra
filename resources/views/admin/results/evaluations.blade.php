@@ -6,8 +6,12 @@
     @php $fmt = fn ($n) => $n === null ? '—' : number_format($n, 2, ',', '.'); @endphp
 
     <p class="mb-6 max-w-3xl text-sm text-slate-500">
-        Nota de cada jurado (1 a 5) por emprendimiento según la rúbrica. Las columnas finales muestran el promedio de los
-        <b>jurados</b> ({{ $edition->jury_weight }}% de la nota final) y del <b>{{ $edition->expert_title }}</b> ({{ $edition->expert_score_weight }}%).
+        Nota de cada jurado (1 a 5) por emprendimiento según la rúbrica.
+        @if ($edition->expertCountsAsJury())
+            La columna <b>Comité</b> es el promedio de todos los evaluadores (el {{ $edition->expert_title }} pesa igual que cada jurado) y vale el {{ $edition->gradeWeights()['jury'] }}% de la nota final.
+        @else
+            Las columnas finales muestran el promedio de los <b>jurados</b> ({{ $edition->jury_weight }}% de la nota final) y del <b>{{ $edition->expert_title }}</b> ({{ $edition->expert_score_weight }}%).
+        @endif
         Pasa el mouse sobre una celda para ver el detalle por criterio.
     </p>
 
@@ -28,6 +32,7 @@
                             @endforeach
                             <th class="bg-lion-50 text-center">Jurados</th>
                             <th class="bg-lion-50 text-center">Experto</th>
+                            @if ($edition->expertCountsAsJury())<th class="bg-lion-100 text-center">Comité</th>@endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -51,6 +56,7 @@
                                 @endforeach
                                 <td class="bg-lion-50/60 text-center font-display text-base font-semibold text-ink-900">{{ $fmt($scores->get($v->id)['jury'] ?? null) }}</td>
                                 <td class="bg-lion-50/60 text-center font-display text-base font-semibold text-ink-900">{{ $fmt($scores->get($v->id)['expert'] ?? null) }}</td>
+                                @if ($edition->expertCountsAsJury())<td class="bg-lion-100/60 text-center font-display text-base font-semibold text-ink-900">{{ $fmt($scores->get($v->id)['committee'] ?? null) }}</td>@endif
                             </tr>
                         @endforeach
                     </tbody>
@@ -61,7 +67,7 @@
                                 @php $n = $evaluations->filter(fn ($r) => $r->has($j->id))->count(); @endphp
                                 <td class="text-center">{{ $n }}/{{ $ventures->count() }}</td>
                             @endforeach
-                            <td></td><td></td>
+                            <td></td><td></td>@if ($edition->expertCountsAsJury())<td></td>@endif
                         </tr>
                     </tfoot>
                 </table>

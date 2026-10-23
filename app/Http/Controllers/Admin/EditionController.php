@@ -49,10 +49,11 @@ class EditionController extends Controller
             'community_weight' => $template->community_weight ?? 30,
             'max_votes_per_user' => $template->max_votes_per_user ?? 1,
             'expert_title' => $template->expert_title ?? 'Profesor experto',
-            'jury_weight' => $template->jury_weight ?? 40,
-            'expert_score_weight' => $template->expert_score_weight ?? 30,
-            'vote_grade_mode' => $template->vote_grade_mode ?? 'relativo',
-            'vote_grade_thresholds' => $template->vote_grade_thresholds ?? null,
+            'jury_weight' => $template->jury_weight ?? 70,
+            'expert_score_weight' => $template->expert_score_weight ?? 0,
+            'committee_mode' => $template->committee_mode ?? 'promedio',
+            'vote_grade_mode' => $template->vote_grade_mode ?? 'rangos',
+            'vote_grade_thresholds' => $template?->voteRanges() ?? Edition::DEFAULT_VOTE_RANGES,
             'finalists_count' => $template->finalists_count ?? 5,
             'voting_email_domain' => $template->voting_email_domain ?? null,
             'promo_video_url' => $template->promo_video_url ?? null,
@@ -150,10 +151,12 @@ class EditionController extends Controller
             'voting_email_domain' => ['nullable', 'string', 'max:100', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i'],
             'expert_title' => ['required', 'string', 'max:60'],
             'jury_weight' => ['required', 'integer', 'between:0,100'],
-            'expert_score_weight' => ['required', 'integer', 'between:0,100'],
+            'expert_score_weight' => ['nullable', 'integer', 'between:0,100'],
+            'committee_mode' => ['required', 'in:promedio,separado'],
             'vote_grade_mode' => ['required', 'in:relativo,rangos'],
-            'vote_grade_thresholds' => ['nullable', 'array'],
-            'vote_grade_thresholds.*' => ['nullable', 'integer', 'min:0'],
+            'vote_grade_thresholds' => ['nullable', 'array', 'max:20'],
+            'vote_grade_thresholds.*.min' => ['nullable', 'integer', 'min:0', 'max:10000000'],
+            'vote_grade_thresholds.*.grade' => ['nullable', 'numeric', 'between:1,5'],
             'criteria' => ['array', 'max:15'],
             'criteria.*.id' => ['nullable', 'integer'],
             'criteria.*.name' => ['required', 'string', 'max:120'],
@@ -165,12 +168,23 @@ class EditionController extends Controller
             'milestones.*.description' => ['nullable', 'string', 'max:1000'],
             'milestones.*.starts_at' => ['nullable', 'date'],
             'milestones.*.ends_at' => ['nullable', 'date'],
-        ], ['promo_video_url.regex' => 'El video promocional debe ser un enlace de YouTube.'], ['milestones.*.title' => 'título de la fase', 'promo_video_url' => 'video promocional', 'criteria.*.name' => 'nombre del criterio', 'criteria.*.weight' => 'peso del criterio', 'criteria.*.max_score' => 'puntaje máximo', 'expert_title' => 'nombre del jurado experto', 'jury_weight' => '% jurados', 'expert_score_weight' => '% experto', 'community_weight' => '% comunidad']);
+        ], ['promo_video_url.regex' => 'El video promocional debe ser un enlace de YouTube.'], ['milestones.*.title' => 'título de la fase', 'promo_video_url' => 'video promocional', 'criteria.*.name' => 'nombre del criterio', 'criteria.*.weight' => 'peso del criterio', 'criteria.*.max_score' => 'puntaje máximo', 'expert_title' => 'nombre del jurado experto', 'jury_weight' => '% jurados', 'expert_score_weight' => '% experto', 'community_weight' => '% comunidad', 'vote_grade_thresholds.*.min' => 'votos del rango', 'vote_grade_thresholds.*.grade' => 'nota del rango']);
 
-        if ($data['community_weight'] + $data['jury_weight'] + $data['expert_score_weight'] !== 100) {
-            throw \Illuminate\Validation\ValidationException::withMessages(['community_weight' => 'Los porcentajes de comunidad, jurados y experto deben sumar 100%.']);
+        // En modo promedio el experto es un jurado más: todo el peso del comité queda en "jurados"
+        if ($data['committee_mode'] === 'promedio') {
+            $data['expert_score_weight'] = 0;
         }
-        $data['vote_grade_thresholds'] = collect($data['vote_grade_thresholds'] ?? [])->only(['2', '3', '4', '5'])->map(fn ($v) => (int) $v)->all() ?: null;
+        $data['expert_score_weight'] = (int) ($data['expert_score_weight'] ?? 0);
+        if ($data['community_weight'] + $data['jury_weight'] + $data['expert_score_weight'] !== 100) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['community_weight' => 'Los porcentajes de la nota final deben sumar 100%.']);
+        }
+        $data['vote_grade_thresholds'] = collect($data['vote_grade_thresholds'] ?? [])
+            ->filter(fn ($r) => isset($r['min'], $r['grade']) && $r['min'] !== '' && $r['grade'] !== '')
+            ->map(fn ($r) => ['min' => (int) $r['min'], 'grade' => round((float) $r['grade'], 2)])
+            ->unique('min')->sortBy('min')->values()->all() ?: null;
+        if ($data['vote_grade_mode'] === 'rangos' && ! $data['vote_grade_thresholds']) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['vote_grade_thresholds' => 'Define al menos un rango de votos.']);
+        }
 
         $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
         $data['is_published'] = $request->boolean('is_published');

@@ -62,7 +62,7 @@ class ExportPortfolio extends Command
             'exported_at' => now()->toIso8601String(),
             'edition' => array_merge($edition->only([
                 'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'promo_video_url',
-                'final_location', 'community_weight', 'jury_weight', 'expert_score_weight', 'vote_grade_mode', 'vote_grade_thresholds',
+                'final_location', 'community_weight', 'jury_weight', 'expert_score_weight', 'committee_mode', 'vote_grade_mode', 'vote_grade_thresholds',
                 'max_votes_per_user', 'finalists_count', 'voting_email_domain', 'expert_title', 'is_active', 'is_published',
             ]), [
                 'voting_starts_at' => $edition->voting_starts_at?->toDateTimeString(),

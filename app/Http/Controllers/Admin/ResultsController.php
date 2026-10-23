@@ -85,7 +85,7 @@ class ResultsController extends Controller
         ]);
 
         return Csv::download("resultados-{$edition->slug}.csv",
-            ['#', 'Emprendimiento', 'Grupo', 'Categoría', 'Votos', 'Nota comunidad', 'Nota jurados', 'N.º jurados', "Nota {$edition->expert_title}", 'N.º expertos',
+            ['#', 'Emprendimiento', 'Grupo', 'Categoría', 'Votos', 'Nota comunidad', 'Nota '.mb_strtolower($edition->committeeLabel()), 'N.º jurados', "Nota {$edition->expert_title}", 'N.º expertos',
                 'Nota final', 'Estado', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
             $rows);
     }

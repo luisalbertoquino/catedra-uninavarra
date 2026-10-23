@@ -67,13 +67,14 @@ class JuryController extends Controller
 
         $rules = ['comment' => ['nullable', 'string', 'max:3000']];
         foreach ($edition->criteria as $c) {
-            $rules["scores.{$c->id}"] = ['required', 'integer', 'between:1,'.$c->max_score];
+            $rules["scores.{$c->id}"] = ['required', 'numeric', 'between:0,'.$c->max_score, 'regex:/^\d+(\.\d)?$/'];
         }
         $data = $request->validate($rules, [
             'scores.*.required' => 'Califica todos los criterios de la rúbrica.',
             'scores.*.between' => 'Puntaje fuera de la escala permitida.',
+            'scores.*.regex' => 'Usa máximo un decimal (ej. 4.2).',
         ]);
-        $scores = array_map('intval', $data['scores']);
+        $scores = array_map(fn ($v) => round((float) $v, 1), $data['scores']);
 
         DB::transaction(function () use ($request, $venture, $edition, $data, $scores) {
             $evaluation = Evaluation::updateOrCreate(

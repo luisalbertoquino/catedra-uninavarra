@@ -115,6 +115,12 @@ chown -R nobody:nogroup storage
 El seeder crea o actualiza la edición con su configuración, las categorías, los 15 emprendimientos con equipos y logos, y elimina los emprendimientos ficticios de esa edición. Se puede ejecutar varias veces sin duplicar.
 
 Alternativa desde el navegador: `php artisan catedra:limpiar-demo` y luego **Admin → Importar Excel** con el Excel y los logos.
+## 9.1 Jurados y práctica de evaluación
+```bash
+php artisan catedra:jurados-prueba --quitar-demo   # crea los 2 jurados y el Profesor experto (muestra las contraseñas una vez)
+php artisan catedra:jurados-prueba --limpiar       # al terminar la práctica: quita el video de ejemplo y las evaluaciones de práctica
+```
+
 ## 10. Actualizaciones
 Después de cada `git push`:
 ```bash

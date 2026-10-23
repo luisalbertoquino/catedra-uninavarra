@@ -27,8 +27,8 @@ class JuryAndVotingTest extends TestCase
         $this->edition = Edition::create([
             'name' => 'Edición de prueba', 'slug' => 'edicion-prueba', 'year' => 2026, 'period' => 2,
             'voting_starts_at' => now()->subDay(), 'voting_ends_at' => now()->addDays(10),
-            'community_weight' => 30, 'jury_weight' => 40, 'expert_score_weight' => 30, 'max_votes_per_user' => 1, 'expert_title' => 'Profesor experto',
-            'is_active' => true, 'is_published' => true,
+            'community_weight' => 30, 'jury_weight' => 40, 'expert_score_weight' => 30, 'committee_mode' => 'separado',
+            'max_votes_per_user' => 1, 'expert_title' => 'Profesor experto', 'is_active' => true, 'is_published' => true,
         ]);
         foreach (RubricCriterion::DEFAULTS as $i => [$name]) {
             $this->edition->criteria()->create(['name' => $name, 'weight' => 20, 'max_score' => 5, 'sort' => $i]);
@@ -45,10 +45,10 @@ class JuryAndVotingTest extends TestCase
         return User::factory()->create(['role' => 'jurado', 'is_expert' => $expert]);
     }
 
-    /** Envía una evaluación con el mismo puntaje en todos los criterios. */
-    private function evaluate(User $jury, Venture $venture, int $score)
+    /** Envía una evaluación: un puntaje para todos los criterios o uno por criterio (en orden). */
+    private function evaluate(User $jury, Venture $venture, int|float|array $score)
     {
-        $scores = $this->edition->criteria->mapWithKeys(fn ($c) => [$c->id => $score])->all();
+        $scores = $this->edition->criteria->values()->mapWithKeys(fn ($c, $i) => [$c->id => is_array($score) ? $score[$i] : $score])->all();
 
         return $this->actingAs($jury)->post(route('jury.store', $venture), ['scores' => $scores, 'comment' => 'ok']);
     }
@@ -125,7 +125,7 @@ class JuryAndVotingTest extends TestCase
         $this->assertTrue($row->is_partial);
     }
 
-    public function test_vote_grade_by_ranges_is_configurable(): void
+    public function test_legacy_vote_thresholds_still_work(): void
     {
         $this->edition->update(['vote_grade_mode' => 'rangos', 'vote_grade_thresholds' => ['2' => 2, '3' => 4, '4' => 6, '5' => 8]]);
 
@@ -137,11 +137,110 @@ class JuryAndVotingTest extends TestCase
         $this->assertEquals(3.0, $this->edition->fresh()->voteGrade(5, 10)); // 1 + 4 × 5/10
     }
 
+    public function test_likes_ranges_of_the_2026_1_consolidated_sheet(): void
+    {
+        $this->edition->update(['vote_grade_mode' => 'rangos', 'vote_grade_thresholds' => Edition::DEFAULT_VOTE_RANGES]);
+
+        foreach ([0 => 3, 14 => 3, 15 => 3.5, 49 => 3.5, 50 => 4, 119 => 4, 120 => 4.5, 197 => 4.5, 198 => 5, 1527 => 5] as $likes => $grade) {
+            $this->assertEquals($grade, $this->edition->voteGrade($likes, 1527), "{$likes} likes");
+        }
+    }
+
+    /** Reproduce dos filas del consolidado de video pitch 2026-1: comité (experto + 2 jurados) / 3 × 70 % + likes × 30 % */
+    public function test_final_grade_matches_the_2026_1_consolidated_sheet(): void
+    {
+        $this->edition->update([
+            'committee_mode' => 'promedio', 'community_weight' => 30, 'jury_weight' => 70, 'expert_score_weight' => 0,
+            'vote_grade_mode' => 'rangos', 'vote_grade_thresholds' => Edition::DEFAULT_VOTE_RANGES,
+        ]);
+        $expert = $this->jury(expert: true);
+        [$tn, $vice] = [$this->jury(), $this->jury()];
+
+        $neiva = $this->venture('Neiva Charge');      // experto 4 · jurados 5 y 4,2 · 4 likes (nota 3) → 3,98
+        $this->evaluate($expert, $neiva, 4);
+        $this->evaluate($tn, $neiva, 5);
+        $this->evaluate($vice, $neiva, 4.2)->assertSessionHasNoErrors();
+        User::factory()->count(4)->create()->each(fn ($u) => $neiva->votes()->create(['user_id' => $u->id, 'edition_id' => $this->edition->id]));
+
+        $health = $this->venture('Health Life');      // experto 4,2 · 4 · 3,5 · 3,5 · 4 = 3,84 · jurados 3 y 3,8 · sin likes (nota 3) → 3,38
+        $this->evaluate($expert, $health, [4.2, 4, 3.5, 3.5, 4])->assertSessionHasNoErrors();
+        $this->evaluate($tn, $health, 3);
+        $this->evaluate($vice, $health, 3.8);
+
+        $ranking = Ranking::for($this->edition->fresh())->keyBy('slug');
+        $this->assertEqualsWithDelta(4.4, $ranking['neiva-charge']->jury_grade, 0.001);
+        $this->assertEquals(3.98, $ranking['neiva-charge']->final_grade);
+        $this->assertEqualsWithDelta(3.84, $ranking['health-life']->expert_grade, 0.001);
+        $this->assertEquals(3.38, $ranking['health-life']->final_grade);
+        $this->assertFalse($ranking['health-life']->is_partial);
+    }
+
+    public function test_scores_allow_a_single_decimal(): void
+    {
+        $venture = $this->venture('Decimal');
+        $this->evaluate($this->jury(), $venture, 4.25)->assertSessionHasErrors();
+        $this->assertDatabaseCount('evaluations', 0);
+    }
+
+    /** Restaurante Internacional (2026-1): 3,5 · 3,5 · 3 · 3 · 0 = 2,6 — un criterio puede calificarse con 0 */
+    public function test_a_criterion_can_be_scored_with_zero(): void
+    {
+        $venture = $this->venture('Restaurante');
+        $this->evaluate($this->jury(expert: true), $venture, [3.5, 3.5, 3, 3, 0])->assertSessionHasNoErrors();
+        $this->assertEqualsWithDelta(2.6, JuryScoring::forEdition($this->edition)->get($venture->id)['expert'], 0.001);
+        $this->evaluate($this->jury(), $venture, -1)->assertSessionHasErrors();
+    }
+
+    public function test_admin_configures_committee_average_and_vote_ranges(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->get(route('admin.editions.edit', $this->edition))->assertOk()->assertSee('Promedio del comité');
+
+        $this->actingAs($admin)->put(route('admin.editions.update', $this->edition), [
+            'name' => $this->edition->name, 'year' => 2026, 'community_weight' => 30, 'jury_weight' => 70, 'expert_score_weight' => 30,
+            'committee_mode' => 'promedio', 'vote_grade_mode' => 'rangos', 'max_votes_per_user' => 1, 'finalists_count' => 5, 'expert_title' => 'Profesor experto',
+            'vote_grade_thresholds' => [['min' => 50, 'grade' => 4], ['min' => 0, 'grade' => 3], ['min' => 198, 'grade' => 5]],
+        ])->assertSessionHasNoErrors();
+
+        $e = $this->edition->fresh();
+        $this->assertSame(0, (int) $e->expert_score_weight); // en modo promedio el experto no tiene peso aparte
+        $this->assertSame(['community' => 30, 'jury' => 70, 'expert' => 0], $e->gradeWeights());
+        $this->assertSame([0, 50, 198], array_column($e->voteRanges(), 'min'));
+        $this->assertEquals(4.0, $e->voteGrade(60, 100));
+
+        $venture = $this->venture('Pantallas');
+        $this->evaluate($expert = $this->jury(expert: true), $venture, 4.5);
+        $this->actingAs($expert)->get(route('jury.show', $venture))->assertOk()->assertSee('pesa lo mismo que la de cada jurado');
+        $this->actingAs($admin)->get(route('admin.results.index', ['edicion' => $e->id]))->assertOk()->assertSee('Comité técnico');
+        $this->actingAs($admin)->get(route('admin.results.evaluations', $e))->assertOk();
+        $this->get(route('ranking'))->assertOk();
+    }
+
+    public function test_jury_trial_command_creates_accounts_and_example_videos(): void
+    {
+        $withVideo = Venture::create(['edition_id' => $this->edition->id, 'name' => 'Con video', 'slug' => 'con-video', 'is_published' => true, 'video_url' => 'https://youtu.be/abcdefghijk']);
+        $noVideo = $this->venture('Sin video');
+        $demo = User::factory()->create(['role' => 'jurado', 'email' => 'jurado1@uninavarra.edu.co']);
+
+        $this->artisan('catedra:jurados-prueba', ['--quitar-demo' => true, '--forzar' => true])->assertSuccessful();
+
+        $this->assertModelMissing($demo);
+        $this->assertSame(3, User::where('role', 'jurado')->count());
+        $this->assertTrue(User::firstWhere('email', 'profesor.experto@uninavarra.edu.co')->is_expert);
+        $this->assertSame(\App\Console\Commands\PrepareJuryTrial::VIDEO, $noVideo->fresh()->video_url);
+        $this->assertSame('https://youtu.be/abcdefghijk', $withVideo->fresh()->video_url); // los videos reales no se tocan
+
+        $this->evaluate(User::firstWhere('email', 'jurado.tn@uninavarra.edu.co'), $noVideo, 0)->assertSessionHasNoErrors();
+        $this->artisan('catedra:jurados-prueba', ['--limpiar' => true, '--forzar' => true])->assertSuccessful();
+        $this->assertNull($noVideo->fresh()->video_url);
+        $this->assertDatabaseCount('evaluations', 0);
+    }
+
     public function test_grade_weights_must_add_up_to_100(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin)->put(route('admin.editions.update', $this->edition), [
-            'name' => $this->edition->name, 'year' => 2026, 'community_weight' => 30, 'jury_weight' => 50, 'expert_score_weight' => 30,
+            'name' => $this->edition->name, 'year' => 2026, 'community_weight' => 30, 'jury_weight' => 50, 'expert_score_weight' => 30, 'committee_mode' => 'separado',
             'vote_grade_mode' => 'relativo', 'max_votes_per_user' => 1, 'finalists_count' => 5, 'expert_title' => 'Profesor experto',
         ])->assertSessionHasErrors('community_weight');
     }
@@ -158,7 +257,7 @@ class JuryAndVotingTest extends TestCase
 
         $this->actingAs($admin)->put(route('admin.editions.update', $this->edition), [
             'name' => $this->edition->name, 'year' => 2026, 'community_weight' => 30, 'max_votes_per_user' => 1,
-            'finalists_count' => 5, 'expert_title' => 'Mentor senior', 'jury_weight' => 40, 'expert_score_weight' => 30, 'vote_grade_mode' => 'relativo', 'is_published' => 1,
+            'finalists_count' => 5, 'expert_title' => 'Mentor senior', 'jury_weight' => 40, 'expert_score_weight' => 30, 'committee_mode' => 'separado', 'vote_grade_mode' => 'relativo', 'is_published' => 1,
             'criteria' => $rows,
         ])->assertSessionHasNoErrors();
 

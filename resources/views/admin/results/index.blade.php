@@ -14,13 +14,23 @@
     @if ($edition)
         @php
             $w = $edition->gradeWeights();
+            $combined = $edition->expertCountsAsJury();
             $g = fn ($n) => $n === null ? '—' : number_format($n, 2, ',', '.');
         @endphp
         <div class="mb-6 grid gap-4 lg:grid-cols-3">
             <div class="a-card p-5 lg:col-span-2">
                 <h2 class="font-semibold text-ink-900">¿Cómo se calcula la nota final? (escala 1 a 5)</h2>
-                <div class="mt-3 grid gap-3 sm:grid-cols-3">
-                    @foreach ([['users', 'Comunidad', $w['community'], $edition->vote_grade_mode === 'rangos' ? 'Nota por rangos de votos' : 'El más votado = 5; los demás en proporción'], ['gavel', 'Jurados', $w['jury'], 'Promedio de la rúbrica de los jurados'], ['award', $edition->expert_title, $w['expert'], 'Promedio de la rúbrica del experto']] as [$icon, $label, $pct, $hint])
+                <div @class(['mt-3 grid gap-3', 'sm:grid-cols-2' => $combined, 'sm:grid-cols-3' => ! $combined])>
+                    @php
+                        $components = array_filter([
+                            ['users', 'Comunidad', $w['community'], $edition->vote_grade_mode === 'rangos' ? 'Nota por rangos de votos' : 'El más votado = 5; los demás en proporción'],
+                            $combined
+                                ? ['gavel', 'Comité técnico', $w['jury'], 'Promedio de los jurados y el '.$edition->expert_title.': cada uno pesa igual']
+                                : ['gavel', 'Jurados', $w['jury'], 'Promedio de la rúbrica de los jurados'],
+                            $combined ? null : ['award', $edition->expert_title, $w['expert'], 'Promedio de la rúbrica del experto'],
+                        ]);
+                    @endphp
+                    @foreach ($components as [$icon, $label, $pct, $hint])
                         <div class="rounded-xl bg-slate-50 p-3">
                             <div class="flex items-center justify-between text-sm"><span class="font-medium text-slate-700"><x-icon :name="$icon" /> {{ $label }}</span><b class="text-lg text-ink-900">{{ $pct }}%</b></div>
                             <p class="mt-1 text-xs text-slate-500">{{ $hint }}</p>
@@ -51,8 +61,8 @@
                             <tr>
                                 <th>#</th><th>Emprendimiento</th><th class="text-center">Votos</th>
                                 <th class="text-center">Comunidad<br><span class="font-normal normal-case">{{ $w['community'] }}%</span></th>
-                                <th class="text-center">Jurados<br><span class="font-normal normal-case">{{ $w['jury'] }}%</span></th>
-                                <th class="text-center">{{ Str::limit($edition->expert_title, 16) }}<br><span class="font-normal normal-case">{{ $w['expert'] }}%</span></th>
+                                <th class="text-center">{{ $edition->committeeLabel() }}<br><span class="font-normal normal-case">{{ $w['jury'] }}%</span></th>
+                                <th class="text-center">{{ Str::limit($edition->expert_title, 16) }}<br><span class="font-normal normal-case">{{ $combined ? 'en el comité' : $w['expert'].'%' }}</span></th>
                                 <th class="bg-lion-50 text-center">Nota final</th>
                                 <th class="text-center">Manual<br><span class="font-normal normal-case">0-100</span></th>
                                 <th class="text-center">Finalista</th><th class="text-center">Posición</th>
@@ -70,7 +80,8 @@
                                     <td class="text-center tabular-nums">{{ $g($v->community_grade) }}</td>
                                     <td class="text-center tabular-nums">
                                         {{ $g($v->jury_grade) }}
-                                        @if ($v->jury_count)<div class="text-[11px] text-slate-400"><x-icon name="gavel" /> {{ $v->jury_count }}</div>@endif
+                                        @php $n = $v->jury_count + ($combined ? $v->expert_count : 0); @endphp
+                                        @if ($n)<div class="text-[11px] text-slate-400"><x-icon name="gavel" /> {{ $n }}</div>@endif
                                     </td>
                                     <td class="text-center tabular-nums">
                                         {{ $g($v->expert_grade) }}

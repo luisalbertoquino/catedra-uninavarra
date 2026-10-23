@@ -2,7 +2,7 @@
     @php
         $open = $edition->isJuryOpen();
         $criteria = $edition->criteria->map(fn ($c) => ['id' => $c->id, 'weight' => $c->weight, 'max' => $c->max_score])->values();
-        $initial = $edition->criteria->mapWithKeys(fn ($c) => [$c->id => (int) old("scores.{$c->id}", $scores[$c->id] ?? 0)]);
+        $initial = $edition->criteria->mapWithKeys(fn ($c) => [$c->id => is_numeric($v = old("scores.{$c->id}", $scores[$c->id] ?? null)) ? (float) $v : null]);
         $isExpert = auth()->user()->is_expert;
     @endphp
 
@@ -103,7 +103,7 @@
                       x-data="{
                           criteria: @js($criteria),
                           scores: @js($initial),
-                          get complete() { return this.criteria.every(c => this.scores[c.id] > 0) },
+                          get complete() { return this.criteria.every(c => typeof this.scores[c.id] === 'number') },
                           get total() {
                               const w = this.criteria.reduce((a, c) => a + c.weight, 0) || 1;
                               const s = this.criteria.reduce((a, c) => a + ((this.scores[c.id] || 0) / c.max) * c.weight, 0);
@@ -114,7 +114,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <h2 class="font-display text-2xl font-semibold">Rúbrica</h2>
-                            <p class="text-sm text-white/50">Califica cada criterio de 1 a su máximo.</p>
+                            <p class="text-sm text-white/50">Califica cada criterio de 0 a su máximo; puedes usar decimales (ej. 4,2).</p>
                         </div>
                         <div class="text-right">
                             <div class="countdown-num font-display text-4xl font-semibold leading-none tabular-nums" x-text="total">0</div>
@@ -124,7 +124,7 @@
 
                     @if ($isExpert)
                         <p class="mt-4 rounded-lg border border-lion-400/30 bg-lion-400/10 px-3 py-2 text-sm text-lion-100">
-                            <x-icon name="award" /> Evalúas como <b>{{ $edition->expert_title }}</b>: tu nota vale el {{ $edition->expert_score_weight }}% de la nota final del emprendimiento.
+                            <x-icon name="award" /> Evalúas como <b>{{ $edition->expert_title }}</b>: tu evaluación {{ $edition->expertWeightText() }}.
                         </p>
                     @endif
 
@@ -139,13 +139,17 @@
                                         <span class="shrink-0 text-xs text-white/40">{{ $c->weight }}%</span>
                                     </div>
                                     @if ($c->description)<p class="mt-0.5 text-xs text-white/50">{{ $c->description }}</p>@endif
-                                    <div class="mt-2 grid gap-1.5" style="grid-template-columns: repeat({{ $c->max_score }}, minmax(0, 1fr))">
-                                        @for ($n = 1; $n <= $c->max_score; $n++)
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="scores[{{ $c->id }}]" value="{{ $n }}" class="peer sr-only" x-model.number="scores[{{ $c->id }}]" @disabled(! $open)>
-                                                <span class="grid h-10 place-items-center rounded-lg border border-white/10 bg-white/[.03] text-sm font-semibold text-white/70 transition peer-checked:border-lion-400 peer-checked:bg-lion-400 peer-checked:text-ink-950 peer-focus-visible:ring-2 peer-focus-visible:ring-lion-400 hover:border-white/30">{{ $n }}</span>
-                                            </label>
-                                        @endfor
+                                    <div class="mt-2 flex gap-1.5">
+                                        <div class="grid flex-1 gap-1.5" style="grid-template-columns: repeat({{ $c->max_score + 1 }}, minmax(0, 1fr))">
+                                            @for ($n = 0; $n <= $c->max_score; $n++)
+                                                <button type="button" @click="scores[{{ $c->id }}] = {{ $n }}" @disabled(! $open) aria-label="{{ $n }}"
+                                                        :class="scores[{{ $c->id }}] === {{ $n }} ? 'border-lion-400 bg-lion-400 text-ink-950' : 'border-white/10 bg-white/[.03] text-white/70 hover:border-white/30'"
+                                                        class="grid h-10 place-items-center rounded-lg border text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lion-400">{{ $n }}</button>
+                                            @endfor
+                                        </div>
+                                        <input type="number" name="scores[{{ $c->id }}]" min="0" max="{{ $c->max_score }}" step="0.1" required inputmode="decimal"
+                                               x-model.number="scores[{{ $c->id }}]" @disabled(! $open)
+                                               class="input-dark h-10 w-20 shrink-0 !px-2 text-center tabular-nums" aria-label="Nota de {{ $c->name }}" placeholder="–">
                                     </div>
                                     <x-input-error :messages="$errors->get('scores.'.$c->id)" class="mt-1" />
                                 </fieldset>

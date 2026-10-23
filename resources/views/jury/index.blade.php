@@ -18,7 +18,7 @@
                     <p class="mt-3 max-w-2xl text-white/60">
                         Mira el video pitch de cada equipo y califícalo con la rúbrica. Puedes ajustar tus calificaciones hasta que se publiquen los resultados.
                         @if (auth()->user()->is_expert)
-                            <span class="text-lion-300">Como {{ $edition->expert_title }}, tu evaluación vale el {{ $edition->expert_score_weight }}% de la nota final.</span>
+                            <span class="text-lion-300">Como {{ $edition->expert_title }}, tu evaluación {{ $edition->expertWeightText() }}.</span>
                         @endif
                     </p>
                 </div>

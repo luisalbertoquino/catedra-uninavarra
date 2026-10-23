@@ -174,6 +174,10 @@ class DatabaseSeeder extends Seeder
             'voting_starts_at' => $votingStart, 'voting_ends_at' => $votingEnd, 'final_at' => $final,
             'final_location' => 'Auditorio Ciudad Universitaria UNINAVARRA, Neiva',
             'community_weight' => 30, 'max_votes_per_user' => 1, 'finalists_count' => 5,
+            // Ediciones anteriores con el esquema 30/40/30; las nuevas con el del consolidado 2026-1 (comité 70 %, likes por rangos)
+            ...($results
+                ? ['jury_weight' => 40, 'expert_score_weight' => 30, 'committee_mode' => 'separado', 'vote_grade_mode' => 'relativo']
+                : ['jury_weight' => 70, 'expert_score_weight' => 0, 'committee_mode' => 'promedio', 'vote_grade_mode' => 'rangos', 'vote_grade_thresholds' => Edition::DEFAULT_VOTE_RANGES]),
             'is_active' => $active, 'is_published' => true, 'results_published' => $results,
         ]);
     }

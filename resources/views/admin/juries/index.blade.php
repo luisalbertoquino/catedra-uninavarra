@@ -29,7 +29,7 @@
             </div>
             <label class="flex items-start gap-3 rounded-xl border border-lion-200 bg-lion-50/60 p-3">
                 <input type="checkbox" name="is_expert" value="1" @checked(old('is_expert')) class="mt-0.5 rounded border-slate-300 text-lion-600 focus:ring-lion-500">
-                <span class="text-sm"><b>{{ $expertTitle }}</b><br><span class="text-slate-500">Su evaluación vale el {{ $edition?->expert_score_weight ?? 30 }}% de la nota final; la de los demás jurados, el {{ $edition?->jury_weight ?? 40 }}%.</span></span>
+                <span class="text-sm"><b>{{ $expertTitle }}</b><br><span class="text-slate-500">@if ($edition)Su evaluación {{ $edition->expertWeightText() }}.@endif</span></span>
             </label>
             <button class="a-btn-primary w-full"><x-icon name="user-plus" /> Crear jurado</button>
             <p class="text-xs text-slate-500">El nombre "{{ $expertTitle }}" y los porcentajes se configuran en <a href="{{ $edition ? route('admin.editions.edit', $edition) : route('admin.editions.index') }}#calificacion" class="font-medium text-ink-700 underline">la edición</a>.</p>

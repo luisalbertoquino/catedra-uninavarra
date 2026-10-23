@@ -16,7 +16,11 @@
                 @if ($tab === 'inversionistas')
                     Aliados que más le apuestan al talento Navarrista, según el monto de inversiones y donaciones ya concretadas.
                 @elseif ($byScore)
-                    Nota final de 1 a 5: comunidad {{ $edition->community_weight }}% + jurados {{ $edition->jury_weight }}% + {{ $edition->expert_title }} {{ $edition->expert_score_weight }}%.
+                    @if ($edition->expertCountsAsJury())
+                        Nota final de 1 a 5: comunidad {{ $edition->community_weight }}% + comité técnico (jurados y {{ $edition->expert_title }}) {{ $edition->gradeWeights()['jury'] }}%.
+                    @else
+                        Nota final de 1 a 5: comunidad {{ $edition->community_weight }}% + jurados {{ $edition->jury_weight }}% + {{ $edition->expert_title }} {{ $edition->expert_score_weight }}%.
+                    @endif
                 @else
                     Así va la votación en tiempo real. La comunidad aporta el {{ $edition?->community_weight ?? 30 }}% de la nota final; el resto lo definen los jurados y el {{ $edition?->expert_title ?? 'Profesor experto' }}.
                 @endif

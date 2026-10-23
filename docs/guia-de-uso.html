@@ -125,7 +125,7 @@
           <tr><td><b>Comunidad</b></td><td>Se registra eligiendo "Comunidad"</td><td>Votar (1 voto por convocatoria), calificar y comentar, registrar apoyos (mentoría, cliente…), ver "Mi actividad".</td><td>Entrar a los paneles de jurado o admin.</td></tr>
           <tr><td><b>Inversionista / Aliado</b></td><td>Se registra eligiendo "Inversionista / Aliado" (teléfono obligatorio)</td><td>Todo lo de comunidad, y registrar intenciones de inversión o donación. Aparecer en el ranking de inversionistas si lo autoriza.</td><td>Entrar a los paneles de jurado o admin.</td></tr>
           <tr><td><b>Jurado</b></td><td>Lo crea el administrador</td><td>Entrar a <code>/jurado</code>, ver el video de cada equipo y calificarlo con la rúbrica.</td><td>Votar como comunidad ni ver el panel admin.</td></tr>
-          <tr><td><b>Profesor experto</b> <span class="tag">jurado especial</span></td><td>Jurado marcado como experto por el administrador (el nombre del rol es configurable)</td><td>Lo mismo que un jurado; su nota es un componente aparte de la nota final (30 % por defecto).</td><td>Votar como comunidad.</td></tr>
+          <tr><td><b>Profesor experto</b> <span class="tag">jurado especial</span></td><td>Jurado marcado como experto por el administrador (el nombre del rol es configurable)</td><td>Lo mismo que un jurado; dentro del comité técnico su nota pesa igual que la de cada jurado (configurable).</td><td>Votar como comunidad.</td></tr>
           <tr><td><b>Administrador</b></td><td>Lo asigna otro administrador en Usuarios</td><td>Gestionar todo: convocatorias, emprendimientos, jurados, resultados, apoyos, comentarios, usuarios, categorías, importación y configuración.</td><td>Votar como comunidad (para evitar conflicto de interés).</td></tr>
         </tbody>
       </table>
@@ -134,17 +134,18 @@
 
     <section id="credenciales">
       <h2><span class="n">3</span> Credenciales de prueba</h2>
-      <p class="lead">Ingreso en <a href="https://lionhub.uninavarra.edu.co/login"><code>https://lionhub.uninavarra.edu.co/login</code></a>. Las cuentas de prueba tienen el correo ya verificado y la contraseña <code>password</code>, excepto la del administrador.</p>
+      <p class="lead">Ingreso en <a href="https://lionhub.uninavarra.edu.co/login"><code>https://lionhub.uninavarra.edu.co/login</code></a>. Las cuentas de prueba tienen el correo ya verificado y la contraseña <code>password</code>, excepto las del administrador y del comité técnico, que se entregan por separado.</p>
       <table>
         <thead><tr><th>Rol</th><th>Correo</th><th>Al ingresar llega a</th><th>Para probar</th></tr></thead>
         <tbody>
           <tr><td>Administrador</td><td><code>admin@uninavarra.edu.co</code></td><td>Panel admin</td><td>Todo el panel de gestión. <b>Su contraseña se entrega por separado.</b></td></tr>
-          <tr><td>Profesor experto</td><td><code>experto@uninavarra.edu.co</code></td><td>Panel del jurado</td><td>Evaluar con la rúbrica como experto.</td></tr>
-          <tr><td>Jurados</td><td><code>jurado1@uninavarra.edu.co</code> a <code>jurado4@uninavarra.edu.co</code></td><td>Panel del jurado</td><td>Evaluar como jurado normal.</td></tr>
+          <tr><td>Profesor experto</td><td><code>profesor.experto@uninavarra.edu.co</code></td><td>Panel del jurado</td><td>Evaluar con la rúbrica como experto. <b>Contraseña por separado.</b></td></tr>
+          <tr><td>Jurados</td><td><code>jurado.tn@uninavarra.edu.co</code> y <code>jurado.vice@uninavarra.edu.co</code></td><td>Panel del jurado</td><td>Evaluar como jurado. <b>Contraseña por separado.</b></td></tr>
           <tr><td>Inversionista</td><td><code>inversionista@demo.co</code></td><td>Mi actividad</td><td>Registrar intenciones de apoyo.</td></tr>
           <tr><td>Comunidad</td><td><code>estudiante1@uninavarra.edu.co</code> a <code>estudiante70@uninavarra.edu.co</code></td><td>Mi actividad</td><td>Votar, cambiar el voto, calificar y comentar.</td></tr>
         </tbody>
       </table>
+      <div class="note">Para practicar, todos los emprendimientos sin video tienen por ahora un <b>video de ejemplo</b>. Las evaluaciones de práctica se borran antes de la calificación real, cuando se carguen los videos de los equipos.</div>
       <div class="note warn">Estas cuentas son solo para pruebas. <b>Antes de abrir el sitio al público</b> se eliminarán o se les cambiará la contraseña.</div>
       <p>Los 15 emprendimientos de la convocatoria 2026-2 son <b>reales</b> (cargados desde el Excel del portafolio, con sus logos). Las convocatorias 2025-2 y 2026-1 contienen datos <b>ficticios</b> de demostración.</p>
     </section>
@@ -213,25 +214,27 @@
         <li>El administrador crea las cuentas en <b>Admin → Jurados</b> (puede marcar a una o más personas como <b>Profesor experto</b>). Si no escribe contraseña, la plataforma genera una y la muestra una sola vez para copiarla y enviarla.</li>
         <li>El jurado ingresa en <code>/login</code> y llega a su <b>Panel del jurado</b>: lista de emprendimientos, su avance (por ejemplo 7/15) y filtros Pendientes / Evaluados.</li>
         <li>Al abrir un emprendimiento ve el <b>video pitch de YouTube</b> embebido, la información del equipo (problema, solución, misión, visión, montos, integrantes) y la <b>rúbrica</b>.</li>
-        <li>Califica cada criterio (1 a 5 por defecto), escribe retroalimentación opcional y pulsa <b>Guardar</b> o <b>Guardar y siguiente</b>. La nota se calcula en vivo.</li>
+        <li>Califica cada criterio (0 a 5 por defecto, con un decimal si lo necesita, ej. 4,2; 0 = no cumple), escribe retroalimentación opcional y pulsa <b>Guardar</b> o <b>Guardar y siguiente</b>. La nota se calcula en vivo.</li>
         <li>Puede ajustar sus calificaciones hasta que el administrador <b>publica los resultados</b>; en ese momento la evaluación se cierra.</li>
       </ol>
       <h3>Rúbrica por defecto</h3>
-      <p>Innovación · Viabilidad comercial · Viabilidad técnica · Proyección · Sostenibilidad — 20 % cada uno, escala 1 a 5. El admin puede cambiar criterios, pesos y escala en cada convocatoria.</p>
+      <p>Innovación · Viabilidad comercial · Viabilidad técnica · Proyección · Sostenibilidad — 20 % cada uno, escala 0 a 5. El admin puede cambiar criterios, pesos y escala en cada convocatoria.</p>
     </section>
 
     <section id="nota">
       <h2><span class="n">9</span> Cómo se calcula la nota final (1 a 5)</h2>
-      <div class="formula">Nota final = Comunidad × 30 % + Jurados × 40 % + Profesor experto × 30 %</div>
+      <p>Es el mismo cálculo del consolidado de calificación de video pitch 2026-1 de la Cátedra.</p>
+      <div class="formula">Nota final = Comité técnico × 70 % + Comunidad (votos) × 30 %</div>
       <div class="grid" style="margin-top:14px">
-        <div class="card"><h4>Nota de la comunidad (votos)</h4><p><b>Relativa</b> (por defecto): el más votado obtiene 5,0 y los demás en proporción; 0 votos = 1,0.<br><b>Por rangos</b>: el admin define cuántos votos se necesitan para nota 2, 3, 4 y 5.</p></div>
-        <div class="card"><h4>Nota de los jurados</h4><p>Promedio de las rúbricas de los jurados normales, convertido a 1-5.</p></div>
-        <div class="card"><h4>Nota del Profesor experto</h4><p>Promedio de las rúbricas de los expertos, convertido a 1-5.</p></div>
+        <div class="card"><h4>Comité técnico</h4><p>Promedio simple de los dos jurados y el Profesor experto: <b>(experto + jurado 1 + jurado 2) ÷ 3</b>. El experto <b>no tiene peso adicional</b>, cuenta igual que cada jurado. Cada uno califica la rúbrica de 0 a 5.</p></div>
+        <div class="card"><h4>Nota de la comunidad (votos)</h4>
+          <table><tr><th>Votos</th><th>Nota</th></tr>
+            <tr><td>0 a 14</td><td>3,0</td></tr><tr><td>15 a 49</td><td>3,5</td></tr><tr><td>50 a 119</td><td>4,0</td></tr><tr><td>120 a 197</td><td>4,5</td></tr><tr><td>198 o más</td><td>5,0</td></tr></table></div>
       </div>
-      <h3>Ejemplo</h3>
-      <p>Un emprendimiento es el más votado (comunidad 5,0), los jurados le dan en promedio 4,0 y el experto 5,0:<br>
-      <code>5,0 × 0,30 + 4,0 × 0,40 + 5,0 × 0,30 = 1,5 + 1,6 + 1,5 = 4,6</code></p>
-      <div class="note">Si a un emprendimiento le falta un componente (por ejemplo, el experto aún no lo evalúa), su peso se reparte entre los demás y la nota se marca como <b>Parcial</b>. Los tres porcentajes (deben sumar 100 %), el nombre del experto y la forma de calcular la nota de votos se configuran en <b>Admin → Ediciones → Editar → Calificación</b>.</div>
+      <h3>Ejemplo (Neiva Charge, 2026-1)</h3>
+      <p>Experto 4,0 · jurados 5,0 y 4,2 · 4 likes (nota 3,0):<br>
+      <code>Comité = (4,0 + 5,0 + 4,2) ÷ 3 = 4,40 → 4,40 × 0,70 + 3,0 × 0,30 = 3,08 + 0,90 = 3,98</code></p>
+      <div class="note">Todo se configura en <b>Admin → Ediciones → Editar → Calificación</b>: los porcentajes (deben sumar 100 %), los rangos de votos (o una nota relativa en la que el más votado obtiene 5) y si el experto cuenta como un jurado más (<b>Promedio del comité</b>) o tiene su propio porcentaje (<b>Experto con peso propio</b>). Si a un emprendimiento aún le falta un componente, su peso se reparte entre los demás y la nota se marca como <b>Parcial</b>.</div>
       <p>Con la nota final, el administrador marca los <b>5 finalistas</b> (botón automático en Resultados), asigna las posiciones tras la gran final y publica los resultados oficiales.</p>
     </section>
 
@@ -286,7 +289,7 @@
         <div class="card"><h4>Comunidad · estudiante5</h4><ul class="check"><li>Votar por un emprendimiento.</li><li>Intentar votar por otro (debe indicar el voto actual).</li><li>Retirar el voto y votar por otro.</li><li>Calificar con estrellas y comentar.</li><li>Revisar "Mi actividad".</li></ul></div>
         <div class="card"><h4>Inversionista</h4><ul class="check"><li>Apoyar un emprendimiento con inversión y monto.</li><li>Marcar "Mostrar en el ranking".</li><li>Ver el estado "Pendiente" en "Mi actividad".</li><li>Comprobar que aún no aparece en el ranking.</li></ul></div>
         <div class="card"><h4>Administrador</h4><ul class="check"><li>En Intenciones de apoyo, pasar ese apoyo a "Concretado".</li><li>Ver al inversionista en Ranking → Inversionistas.</li><li>Cambiar porcentajes o modo de nota de votos en la edición.</li><li>Editar textos en Configuración.</li><li>Probar "Siguiente convocatoria" (sin guardar).</li></ul></div>
-        <div class="card"><h4>Jurados</h4><ul class="check"><li>Evaluar con jurado1 y con experto el mismo emprendimiento.</li><li>Ver en Resultados la nota de jurados, experto y final.</li><li>Abrir la matriz de evaluaciones.</li><li>Marcar finalistas y publicar resultados.</li></ul></div>
+        <div class="card"><h4>Jurados</h4><ul class="check"><li>Evaluar el mismo emprendimiento con los dos jurados y con el experto.</li><li>Ver en Resultados la nota de jurados, experto y final.</li><li>Abrir la matriz de evaluaciones.</li><li>Marcar finalistas y publicar resultados.</li></ul></div>
       </div>
     </section>
 

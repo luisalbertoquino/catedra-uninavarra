@@ -7,7 +7,7 @@ Vitrina pública de los emprendimientos de la Cátedra UNINAVARRA / LION HUB EVE
 - **Público:** inicio con video promocional, anuncio de votación con cuenta regresiva y cronograma; listado con búsqueda y filtros; ficha de cada emprendimiento (video pitch, galería, equipo, contacto, compartir); ranking de emprendimientos y de inversionistas; archivo de ediciones.
 - **Comunidad:** registro, **un voto por persona** en cada edición (se puede cambiar mientras la votación esté abierta), calificación de 1 a 5 y comentarios.
 - **Inversionistas / aliados:** registran *intenciones de apoyo* (inversión, donación, mentoría, alianza o compra). **No se maneja dinero en línea.** Aparecen en el ranking público solo si lo autorizan.
-- **Jurados:** panel propio (`/jurado`) para ver el video de cada equipo y calificarlo con la rúbrica de la edición. El **Profesor experto** (nombre configurable) es un componente aparte de la nota (30 %).
+- **Jurados:** panel propio (`/jurado`) para ver el video de cada equipo y calificarlo con la rúbrica de la edición. El **Profesor experto** (nombre configurable) forma parte del comité técnico y pesa igual que cada jurado (o, si se configura, con un porcentaje propio).
 - **Admin:** dashboard, ediciones (con rúbrica y jurado experto), emprendimientos, jurados, resultados (comité + comunidad, finalistas automáticos, matriz de evaluaciones), apoyos, comentarios, usuarios, categorías y exportes CSV.
 
 ## Stack
@@ -26,7 +26,8 @@ php artisan serve    # o: virtual host apuntando a /public
 
 Usuarios de demo (contraseña `password`):
 - `admin@uninavarra.edu.co`: administrador
-- `experto@uninavarra.edu.co`: jurado Profesor experto · `jurado1..4@uninavarra.edu.co`: jurados
+- `experto@uninavarra.edu.co`: jurado Profesor experto · `jurado1..4@uninavarra.edu.co`: jurados (solo en la demo local)
+- Comité técnico real: `php artisan catedra:jurados-prueba [--quitar-demo]` crea `jurado.tn@`, `jurado.vice@` y `profesor.experto@uninavarra.edu.co` con contraseña aleatoria y pone un video de ejemplo a los emprendimientos sin video; `--limpiar` lo quita junto con las evaluaciones de práctica
 - `inversionista@demo.co`: inversionista
 - `estudiante1..70@uninavarra.edu.co`: comunidad
 
@@ -34,10 +35,10 @@ Usuarios de demo (contraseña `password`):
 > Para agregar solo los datos de jurados a una base existente: `php artisan db:seed --class=JuryDemoSeeder`.
 
 ## Nota final (escala 1 a 5)
-**Nota final = comunidad × 30 % + jurados × 40 % + Profesor experto × 30 %** (porcentajes configurables por edición; deben sumar 100 %).
-1. **Comunidad:** nota de 1 a 5 según los votos, *relativa* (el más votado = 5) o *por rangos* (votos mínimos para cada nota), configurable.
-2. **Jurados:** promedio de las rúbricas de los jurados normales. **Experto:** promedio de las rúbricas del Profesor experto (nombre configurable).
-3. Rúbrica por edición (por defecto 5 criterios de 20 %, escala 1 a 5), editable en *Admin → Ediciones*.
+**Nota final = comité técnico × 70 % + comunidad × 30 %**, como en el consolidado de calificación de video pitch 2026-1 (porcentajes configurables por edición; deben sumar 100 %).
+1. **Comité técnico:** promedio simple de los jurados y el Profesor experto (el experto pesa igual que cada jurado). Alternativa configurable: experto con porcentaje propio.
+2. **Comunidad:** nota según los votos *por rangos* (0-14 = 3 · 15-49 = 3,5 · 50-119 = 4 · 120-197 = 4,5 · 198+ = 5) o *relativa* (el más votado = 5).
+3. Rúbrica por edición (por defecto 5 criterios de 20 %, escala 0 a 5 con un decimal), editable en *Admin → Ediciones*.
 4. Si falta un componente, su peso se reparte entre los demás y la nota se marca como *parcial*. Sin evaluaciones, el admin puede escribir un puntaje manual.
 
 ## Inversionistas
@@ -66,7 +67,7 @@ Las personas registran *intenciones de apoyo*; el Centro de Emprendimiento (dato
 
 En producción: `APP_ENV=production`, `APP_DEBUG=false`, HTTPS y `SESSION_SECURE_COOKIE=true`.
 
-Cada edición define en el admin: fechas de votación y final, video promocional, % de peso de la comunidad (30 %), votos por persona (1), número de finalistas, rúbrica, nombre y peso del jurado experto y, opcionalmente, un dominio de correo para restringir el voto (ej. `uninavarra.edu.co`).
+Cada edición define en el admin: fechas de votación y final, video promocional, pesos de la nota (comité 70 % · comunidad 30 %), rangos de votos, votos por persona (1), número de finalistas, rúbrica, nombre del jurado experto y si pesa igual que un jurado y, opcionalmente, un dominio de correo para restringir el voto (ej. `uninavarra.edu.co`).
 
 ## Flujo semestral
 1. **Admin → Ediciones → Siguiente convocatoria** (se copian cronograma corrido 6 meses, rúbrica, porcentajes y configuración; revisar fechas).
