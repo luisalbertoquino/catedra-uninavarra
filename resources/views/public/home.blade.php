@@ -20,7 +20,7 @@
     </section>
 
     {{-- ================= CIFRAS ================= --}}
-    <section class="container-x -mt-10 pb-6">
+    <section class="container-x relative z-10 -mt-10 pb-6">
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             @foreach ([
                 ['ventures', 'Emprendimientos en competencia', 'rocket'],
