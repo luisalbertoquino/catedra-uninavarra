@@ -27,7 +27,7 @@
     <div x-data="{ open: false }" class="flex min-h-screen">
         {{-- Sidebar --}}
         <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-40 bg-ink-950/60 lg:hidden" @click="open = false"></div>
-        <aside :class="open ? 'translate-x-0' : '-translate-x-full'" class="ecos-g-violeta-menta fixed inset-y-0 left-0 z-50 flex w-72 flex-col text-white transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
+        <aside :class="open ? 'translate-x-0' : '-translate-x-full'" class="ecos-g-profundo fixed inset-y-0 left-0 z-50 flex w-72 flex-col text-white transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
             <div class="flex h-20 items-center px-6"><a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3"><x-brand size="sm" /><span class="border-l border-white/40 pl-3 text-xs font-semibold uppercase tracking-widest text-white/90">Admin</span></a></div>
             <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
                 @foreach ($nav as [$label, $route, $pattern, $icon])

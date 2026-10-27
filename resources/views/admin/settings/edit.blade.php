@@ -14,7 +14,7 @@
                                 @else
                                     <input id="{{ $key }}" type="{{ $type }}" name="{{ $key }}" class="a-input" value="{{ old($key, \App\Models\Setting::get($key)) }}">
                                 @endif
-                                @if ($hint)<p class="mt-1 text-xs text-slate-500">{{ $hint }}</p>@endif
+                                @if ($hint)<p class="mt-1 text-xs text-slate-600">{{ $hint }}</p>@endif
                             </div>
                         @endforeach
                     </div>

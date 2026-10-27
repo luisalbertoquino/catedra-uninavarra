@@ -5,7 +5,7 @@
 
     @php $fmt = fn ($n) => $n === null ? '—' : number_format($n, 2, ',', '.'); @endphp
 
-    <p class="mb-6 max-w-3xl text-sm text-slate-500">
+    <p class="mb-6 max-w-3xl text-sm text-slate-600">
         Nota de cada jurado (1 a 5) por emprendimiento según la rúbrica.
         @if ($edition->expertCountsAsJury())
             La columna <b>Comité</b> es el promedio de todos los evaluadores (el {{ $edition->expert_title }} pesa igual que cada jurado) y vale el {{ $edition->gradeWeights()['jury'] }}% de la nota final.
@@ -16,7 +16,7 @@
     </p>
 
     @if ($juries->isEmpty())
-        <div class="a-card p-12 text-center text-slate-400">No hay jurados creados. <a href="{{ route('admin.juries.index') }}" class="font-semibold text-ink-700">Crear jurados <x-icon name="arrow-right" /></a></div>
+        <div class="a-card p-12 text-center text-slate-500">No hay jurados creados. <a href="{{ route('admin.juries.index') }}" class="font-semibold text-ink-700">Crear jurados <x-icon name="arrow-right" /></a></div>
     @else
         <div class="a-card overflow-hidden">
             <div class="overflow-x-auto">
@@ -48,9 +48,9 @@
                                     <td class="text-center" title="{{ $detail }}">
                                         @if ($e)
                                             <span class="inline-block min-w-[3rem] rounded-md bg-slate-100 px-2 py-1 font-semibold tabular-nums text-slate-800">{{ $fmt(\App\Services\JuryScoring::toGrade((float) $e->total_score)) }}</span>
-                                            @if ($e->comment)<i class="fa-regular fa-comment ml-1 text-slate-400" aria-hidden="true"></i>@endif
+                                            @if ($e->comment)<i class="fa-regular fa-comment ml-1 text-slate-500" aria-hidden="true"></i>@endif
                                         @else
-                                            <span class="text-slate-300">—</span>
+                                            <span class="text-slate-400">—</span>
                                         @endif
                                     </td>
                                 @endforeach
@@ -60,7 +60,7 @@
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="border-t border-slate-200 bg-slate-50 text-xs text-slate-500">
+                    <tfoot class="border-t border-slate-200 bg-slate-50 text-xs text-slate-600">
                         <tr>
                             <td class="sticky left-0 bg-slate-50 font-semibold">Avance</td>
                             @foreach ($juries as $j)

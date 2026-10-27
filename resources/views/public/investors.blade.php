@@ -40,10 +40,10 @@
     </section>
 
     {{-- ================= CÓMO FUNCIONA ================= --}}
-    <section class="ecos-g-violeta-menta ecos-band py-20">
+    <section class="ecos-g-profundo py-20">
         <div class="container-x">
             <div class="surface-dark reveal mx-auto max-w-2xl text-center text-white">
-                <span class="text-xs font-semibold uppercase tracking-[.16em] text-white/85">Paso a paso</span>
+                <span class="text-sm font-semibold uppercase tracking-[.06em] text-white">Paso a paso</span>
                 <h2 class="mt-3 font-display text-4xl font-medium sm:text-5xl">Así funciona</h2>
             </div>
             <div class="mt-12 grid gap-6 md:grid-cols-3">
@@ -81,7 +81,7 @@
                     <a href="{{ route('ventures.show', $venture) }}#apoyar" class="btn-lion mt-3 w-full">
                         <x-icon name="hand-holding-heart" /> Apoyar a {{ Str::limit($venture->name, 22) }}
                         @if ($venture->funding_goal || $venture->startup_amount)
-                            <span class="rounded-full bg-white/20 px-2 py-0.5 text-xs">${{ number_format($venture->funding_goal ?: $venture->startup_amount, 0, ',', '.') }}</span>
+                            <span class="rounded-full bg-ink-950/30 px-2 py-0.5 text-xs">${{ number_format($venture->funding_goal ?: $venture->startup_amount, 0, ',', '.') }}</span>
                         @endif
                     </a>
                 </div>
@@ -101,7 +101,7 @@
                 <div class="mt-6 space-y-2">
                     @forelse ($investors as $i => $inv)
                         <div class="flex items-center gap-4 rounded-ecos bg-white p-4">
-                            <span class="grid h-9 w-9 place-items-center rounded-full bg-lion-500 font-semibold text-white">{{ $i + 1 }}</span>
+                            <span class="grid h-9 w-9 place-items-center rounded-full bg-lion-600 font-semibold text-white">{{ $i + 1 }}</span>
                             <div class="min-w-0 flex-1">
                                 <div class="truncate font-semibold text-ink-900">{{ $inv->organization ?: $inv->name }}</div>
                                 <div class="text-xs text-ink-500">{{ $inv->completed_count }} apoyo(s) · {{ $inv->ventures_count }} emprendimiento(s)</div>

@@ -63,14 +63,14 @@
                                 <span class="absolute -right-3 -top-3 grid h-9 w-9 place-items-center rounded-full bg-white shadow-md sm:h-10 sm:w-10"><x-icon :name="$idx === 0 ? 'crown' : 'medal'" /></span>
                             </div>
                             <div class="truncate px-1 text-sm font-bold group-hover:text-lion-300 sm:text-lg">{{ $v->name }}</div>
-                            <div class="text-xs text-white/50 sm:text-sm">
+                            <div class="text-xs text-white/70 sm:text-sm">
                                 {{ $byScore && $v->final_grade !== null ? 'Nota '.number_format($v->final_grade, 2, ',', '.') : number_format($v->votes_count, 0, ',', '.').' votos' }}
                             </div>
                             <div @class([
-                                'mt-3 rounded-t-2xl border border-b-0 border-white/10 font-display text-4xl font-semibold sm:text-6xl',
-                                'h-40 bg-gradient-to-b from-lion-400 to-lion-600 pt-6 text-ink-950 sm:h-56' => $place === 1,
-                                'h-28 bg-gradient-to-b from-slate-300 to-slate-100 pt-5 text-ink-700 sm:h-40' => $place === 2,
-                                'h-20 bg-gradient-to-b from-orange-700/60 to-orange-900/20 pt-3 text-white/80 sm:h-28' => $place === 3,
+                                'surface-dark mt-3 rounded-t-ecos font-display text-4xl font-medium text-white sm:text-6xl',
+                                'h-40 bg-gradient-to-b from-lion-600 to-lion-800 pt-6 sm:h-56' => $place === 1,
+                                'h-28 bg-gradient-to-b from-volt-600 to-[#3d4aa0] pt-5 sm:h-40' => $place === 2,
+                                'h-20 bg-gradient-to-b from-naranja-600 to-[#b04f0c] pt-3 sm:h-28' => $place === 3,
                             ])>{{ $place }}</div>
                         </a>
                     @endif

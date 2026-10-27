@@ -25,14 +25,14 @@
             <div>
                 <label class="a-label" for="j-pass">Contraseña</label>
                 <input id="j-pass" type="text" name="password" class="a-input" autocomplete="new-password" placeholder="Vacío = se genera una automáticamente">
-                <p class="mt-1 text-xs text-slate-500">Mínimo 8 caracteres con letras y números.</p>
+                <p class="mt-1 text-xs text-slate-600">Mínimo 8 caracteres con letras y números.</p>
             </div>
             <label class="flex items-start gap-3 rounded-xl border border-lion-200 bg-lion-50/60 p-3">
                 <input type="checkbox" name="is_expert" value="1" @checked(old('is_expert')) class="mt-0.5 rounded border-slate-300 text-lion-600 focus:ring-lion-500">
-                <span class="text-sm"><b>{{ $expertTitle }}</b><br><span class="text-slate-500">@if ($edition)Su evaluación {{ $edition->expertWeightText() }}.@endif</span></span>
+                <span class="text-sm"><b>{{ $expertTitle }}</b><br><span class="text-slate-600">@if ($edition)Su evaluación {{ $edition->expertWeightText() }}.@endif</span></span>
             </label>
             <button class="a-btn-primary w-full"><x-icon name="user-plus" /> Crear jurado</button>
-            <p class="text-xs text-slate-500">El nombre "{{ $expertTitle }}" y los porcentajes se configuran en <a href="{{ $edition ? route('admin.editions.edit', $edition) : route('admin.editions.index') }}#calificacion" class="font-medium text-ink-700 underline">la edición</a>.</p>
+            <p class="text-xs text-slate-600">El nombre "{{ $expertTitle }}" y los porcentajes se configuran en <a href="{{ $edition ? route('admin.editions.edit', $edition) : route('admin.editions.index') }}#calificacion" class="font-medium text-ink-700 underline">la edición</a>.</p>
         </form>
 
         {{-- Lista de jurados --}}
@@ -54,10 +54,10 @@
                                 <span class="font-semibold text-ink-900">{{ $j->name }}</span>
                                 @if ($j->is_expert)<span class="a-badge gap-1 bg-lion-100 text-lion-800"><i class="fa-solid fa-award" aria-hidden="true"></i> {{ $expertTitle }}</span>@endif
                             </div>
-                            <div class="text-xs text-slate-500">{{ $j->email }}@if ($j->organization) · {{ $j->organization }}@endif</div>
+                            <div class="text-xs text-slate-600">{{ $j->email }}@if ($j->organization) · {{ $j->organization }}@endif</div>
                             <div class="mt-2 flex items-center gap-3">
                                 <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-lion-500" style="width: {{ $pct }}%"></div></div>
-                                <span class="shrink-0 text-xs text-slate-500">{{ $j->evaluations_count }}/{{ $total }} evaluados @if ($j->evaluations_avg_total_score) · nota prom. {{ number_format($j->evaluations_avg_total_score / 20, 2, ',', '.') }} @endif</span>
+                                <span class="shrink-0 text-xs text-slate-600">{{ $j->evaluations_count }}/{{ $total }} evaluados @if ($j->evaluations_avg_total_score) · nota prom. {{ number_format($j->evaluations_avg_total_score / 20, 2, ',', '.') }} @endif</span>
                             </div>
                         </div>
                         <div class="flex shrink-0 gap-2">
@@ -79,7 +79,7 @@
                     </form>
                 </div>
             @empty
-                <div class="a-card p-12 text-center text-slate-400">Aún no hay jurados. Crea el primero con el formulario.</div>
+                <div class="a-card p-12 text-center text-slate-500">Aún no hay jurados. Crea el primero con el formulario.</div>
             @endforelse
         </div>
     </div>

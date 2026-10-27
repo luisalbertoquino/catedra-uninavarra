@@ -35,7 +35,7 @@
                                 <a href="{{ route('ventures.show', $p->venture) }}" target="_blank" class="font-semibold text-ink-700 hover:underline">{{ $p->venture->name }}</a>
                                 <x-admin.status :status="$p->status" />
                             </div>
-                            <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+                            <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
                                 <span>{{ $p->type_label }}@if ($p->amount) · <b class="text-slate-700">${{ number_format($p->amount, 0, ',', '.') }}</b>@endif</span>
                                 <a href="mailto:{{ $p->user->email }}" class="inline-flex items-center gap-1.5 hover:text-ink-700"><x-icon name="envelope" /> {{ $p->user->email }}</a>
                                 @if ($p->user->phone)<a href="https://wa.me/{{ (strlen($d = preg_replace('/\D/', '', $p->user->phone)) === 10 ? '57' : '').$d }}" target="_blank" class="inline-flex items-center gap-1.5 hover:text-ink-700"><x-icon name="whatsapp" style="brands" /> {{ $p->user->phone }}</a>@endif
@@ -43,7 +43,7 @@
                                 <span>{{ $p->created_at->translatedFormat('j M Y, g:i a') }}</span>
                             </div>
                             <p class="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">{{ $p->message }}</p>
-                            @if ($p->admin_notes)<p class="mt-2 text-sm text-slate-500"><b>Notas:</b> {{ $p->admin_notes }}</p>@endif
+                            @if ($p->admin_notes)<p class="mt-2 text-sm text-slate-600"><b>Notas:</b> {{ $p->admin_notes }}</p>@endif
                         </div>
                     </div>
                     <button type="button" @click="edit = !edit" class="a-btn-light shrink-0"><x-icon name="pen-to-square" /> Gestionar</button>
@@ -58,7 +58,7 @@
                 </form>
             </div>
         @empty
-            <div class="a-card p-12 text-center text-slate-400">No hay intenciones de apoyo con estos filtros.</div>
+            <div class="a-card p-12 text-center text-slate-500">No hay intenciones de apoyo con estos filtros.</div>
         @endforelse
     </div>
     <div class="mt-6">{{ $pledges->links() }}</div>

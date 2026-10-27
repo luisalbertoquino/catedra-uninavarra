@@ -18,7 +18,7 @@
 
         <div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
             @if ($venture->final_position === 1)
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-lion-500 px-3 py-1 text-xs font-bold text-white ico-inherit"><x-icon name="trophy" /> Ganador</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-lion-600 px-3 py-1 text-xs font-bold text-white ico-inherit"><x-icon name="trophy" /> Ganador</span>
             @elseif ($venture->final_position)
                 <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700 shadow-sm"><x-icon name="medal" /> Puesto {{ $venture->final_position }}</span>
             @elseif ($venture->is_finalist)
@@ -30,7 +30,7 @@
         </div>
 
         @if ($rank)
-            <span class="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-lion-500 font-display text-sm font-semibold text-white shadow-lg">#{{ $rank }}</span>
+            <span class="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-lion-600 font-display text-sm font-semibold text-white shadow-lg">#{{ $rank }}</span>
         @endif
 
         <div @class(['absolute bottom-3 left-4 flex items-center gap-3', 'hidden' => $logoAsCover])>

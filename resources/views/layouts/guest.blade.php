@@ -6,7 +6,7 @@
 <body class="min-h-screen bg-white font-sans text-ink-900 antialiased">
     <div class="grid min-h-screen lg:grid-cols-2">
         {{-- Panel visual --}}
-        <div class="surface-dark ecos-g-violeta-menta ecos-band hidden lg:block">
+        <div class="surface-dark ecos-g-profundo hidden lg:block">
             <div class="flex h-full flex-col items-center justify-between p-12 text-white">
                 <a href="{{ route('home') }}"><x-brand /></a>
                 <div class="tarjeta-ecos w-full max-w-lg text-left">
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                 </div>
-                <p class="text-xs text-white/85">© {{ date('Y') }} UNINAVARRA · Neiva, Huila</p>
+                <p class="text-sm text-white">© {{ date('Y') }} UNINAVARRA · Neiva, Huila</p>
             </div>
         </div>
 

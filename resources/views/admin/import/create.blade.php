@@ -3,9 +3,9 @@
         <div class="a-card mb-6 p-6">
             <h2 class="font-semibold text-ink-900"><x-icon name="circle-check" /> Resultado de la importación · {{ $report['edition'] }}</h2>
             <div class="mt-4 grid gap-4 sm:grid-cols-3">
-                <div class="rounded-xl bg-slate-50 p-4"><div class="text-xs text-slate-500">Creados</div><div class="text-2xl font-bold">{{ count($report['created']) }}</div></div>
-                <div class="rounded-xl bg-slate-50 p-4"><div class="text-xs text-slate-500">Actualizados</div><div class="text-2xl font-bold">{{ count($report['updated']) }}</div></div>
-                <div class="rounded-xl bg-slate-50 p-4"><div class="text-xs text-slate-500">Logos asignados</div><div class="text-2xl font-bold">{{ $report['logos'] }}</div></div>
+                <div class="rounded-xl bg-slate-50 p-4"><div class="text-xs text-slate-600">Creados</div><div class="text-2xl font-bold">{{ count($report['created']) }}</div></div>
+                <div class="rounded-xl bg-slate-50 p-4"><div class="text-xs text-slate-600">Actualizados</div><div class="text-2xl font-bold">{{ count($report['updated']) }}</div></div>
+                <div class="rounded-xl bg-slate-50 p-4"><div class="text-xs text-slate-600">Logos asignados</div><div class="text-2xl font-bold">{{ $report['logos'] }}</div></div>
             </div>
             @if ($report['created'] || $report['updated'])
                 <p class="mt-4 text-sm text-slate-600">{{ implode(' · ', array_merge($report['created'], $report['updated'])) }}</p>
@@ -37,7 +37,7 @@
                 <label class="a-label" for="logos">Logos (opcional, puedes seleccionar varios)</label>
                 <input id="logos" type="file" name="logos[]" accept="image/*" multiple @change="logos = [...$event.target.files].map(f => f.name)"
                        class="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold">
-                <p class="mt-1 text-xs text-slate-500">Nombra cada archivo como el emprendimiento (ej. <code>Rayvix.png</code>). Se asignan por nombre aproximado. Si no subes logos se usan las imágenes pegadas en la columna "Logo" del Excel.</p>
+                <p class="mt-1 text-xs text-slate-600">Nombra cada archivo como el emprendimiento (ej. <code>Rayvix.png</code>). Se asignan por nombre aproximado. Si no subes logos se usan las imágenes pegadas en la columna "Logo" del Excel.</p>
                 <p class="mt-2 text-xs text-slate-600" x-show="logos.length" x-text="logos.length + ' logo(s): ' + logos.join(', ')"></p>
             </div>
             <label class="flex items-center gap-3 text-sm"><input type="checkbox" name="publish" value="1" checked class="rounded border-slate-300 text-ink-700 focus:ring-ink-500"> Publicar los emprendimientos nuevos en el sitio</label>

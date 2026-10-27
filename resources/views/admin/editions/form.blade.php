@@ -47,8 +47,8 @@
                         <textarea id="description" name="description" rows="4" class="a-input">{{ old('description', $edition->description) }}</textarea>
                     </div>
                     <div class="sm:col-span-6">
-                        <label class="a-label" for="slug">URL amigable <span class="font-normal text-slate-400">(se genera sola si la dejas vacía)</span></label>
-                        <div class="flex rounded-xl shadow-sm"><span class="inline-flex items-center rounded-l-xl border border-r-0 border-slate-300 bg-slate-50 px-3 text-sm text-slate-500">/ediciones/</span>
+                        <label class="a-label" for="slug">URL amigable <span class="font-normal text-slate-500">(se genera sola si la dejas vacía)</span></label>
+                        <div class="flex rounded-xl shadow-sm"><span class="inline-flex items-center rounded-l-xl border border-r-0 border-slate-300 bg-slate-50 px-3 text-sm text-slate-600">/ediciones/</span>
                             <input id="slug" name="slug" class="a-input !rounded-l-none" value="{{ old('slug', $edition->slug) }}"></div>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="font-semibold text-ink-900">Cronograma / fases</h2>
-                        <p class="text-sm text-slate-500">Se muestra como línea de tiempo en la página de inicio.</p>
+                        <p class="text-sm text-slate-600">Se muestra como línea de tiempo en la página de inicio.</p>
                     </div>
                     <button type="button" class="a-btn-light" @click="rows.push({ title: '', description: '', starts_at: '', ends_at: '' })"><x-icon name="plus" /> Fase</button>
                 </div>
@@ -70,18 +70,18 @@
                                 <div class="grid flex-1 gap-3 sm:grid-cols-6">
                                     <input class="a-input sm:col-span-6" :name="`milestones[${i}][title]`" x-model="row.title" placeholder="Título de la fase" required>
                                     <textarea class="a-input sm:col-span-6" rows="2" :name="`milestones[${i}][description]`" x-model="row.description" placeholder="Descripción breve (opcional)"></textarea>
-                                    <label class="text-xs text-slate-500 sm:col-span-3">Inicio<input type="date" class="a-input mt-1" :name="`milestones[${i}][starts_at]`" x-model="row.starts_at"></label>
-                                    <label class="text-xs text-slate-500 sm:col-span-3">Fin<input type="date" class="a-input mt-1" :name="`milestones[${i}][ends_at]`" x-model="row.ends_at"></label>
+                                    <label class="text-xs text-slate-600 sm:col-span-3">Inicio<input type="date" class="a-input mt-1" :name="`milestones[${i}][starts_at]`" x-model="row.starts_at"></label>
+                                    <label class="text-xs text-slate-600 sm:col-span-3">Fin<input type="date" class="a-input mt-1" :name="`milestones[${i}][ends_at]`" x-model="row.ends_at"></label>
                                 </div>
                                 <div class="flex flex-col gap-1">
-                                    <button type="button" class="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700" @click="i > 0 && rows.splice(i - 1, 0, rows.splice(i, 1)[0])" title="Subir"><x-icon name="arrow-up" /></button>
-                                    <button type="button" class="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700" @click="i < rows.length - 1 && rows.splice(i + 1, 0, rows.splice(i, 1)[0])" title="Bajar"><x-icon name="arrow-down" /></button>
+                                    <button type="button" class="rounded-lg p-1.5 text-slate-500 hover:bg-white hover:text-slate-700" @click="i > 0 && rows.splice(i - 1, 0, rows.splice(i, 1)[0])" title="Subir"><x-icon name="arrow-up" /></button>
+                                    <button type="button" class="rounded-lg p-1.5 text-slate-500 hover:bg-white hover:text-slate-700" @click="i < rows.length - 1 && rows.splice(i + 1, 0, rows.splice(i, 1)[0])" title="Bajar"><x-icon name="arrow-down" /></button>
                                     <button type="button" class="rounded-lg p-1.5 text-rose-400 hover:bg-rose-50 hover:text-rose-600" @click="rows.splice(i, 1)" title="Eliminar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
                     </template>
-                    <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">Sin fases. Agrega la primera.</p>
+                    <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Sin fases. Agrega la primera.</p>
                 </div>
             </section>
 
@@ -90,7 +90,7 @@
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <h2 class="font-semibold text-ink-900">Rúbrica de evaluación del jurado</h2>
-                        <p class="text-sm text-slate-500">Cada jurado califica estos criterios al ver el video. El puntaje se convierte a una escala de 0 a 100.</p>
+                        <p class="text-sm text-slate-600">Cada jurado califica estos criterios al ver el video. El puntaje se convierte a una escala de 0 a 100.</p>
                     </div>
                     <button type="button" class="a-btn-light shrink-0" @click="rows.push({ name: '', description: '', weight: 10, max_score: 5 })"><x-icon name="plus" /> Criterio</button>
                 </div>
@@ -103,14 +103,14 @@
                             <input type="hidden" :name="`criteria[${i}][id]`" :value="row.id" x-bind:disabled="!row.id">
                             <div class="grid gap-3 sm:grid-cols-12">
                                 <input class="a-input sm:col-span-6" :name="`criteria[${i}][name]`" x-model="row.name" placeholder="Criterio (ej. Innovación)" required>
-                                <label class="text-xs text-slate-500 sm:col-span-3">Peso %<input type="number" min="1" max="100" class="a-input mt-1" :name="`criteria[${i}][weight]`" x-model="row.weight" required></label>
-                                <label class="text-xs text-slate-500 sm:col-span-3">Escala 1 a<input type="number" min="2" max="10" class="a-input mt-1" :name="`criteria[${i}][max_score]`" x-model="row.max_score" required></label>
+                                <label class="text-xs text-slate-600 sm:col-span-3">Peso %<input type="number" min="1" max="100" class="a-input mt-1" :name="`criteria[${i}][weight]`" x-model="row.weight" required></label>
+                                <label class="text-xs text-slate-600 sm:col-span-3">Escala 1 a<input type="number" min="2" max="10" class="a-input mt-1" :name="`criteria[${i}][max_score]`" x-model="row.max_score" required></label>
                                 <textarea class="a-input sm:col-span-11" rows="2" :name="`criteria[${i}][description]`" x-model="row.description" placeholder="Qué debe valorar el jurado (opcional)"></textarea>
                                 <button type="button" class="self-start rounded-lg p-2 text-rose-400 hover:bg-rose-50 hover:text-rose-600 sm:col-span-1" @click="rows.splice(i, 1)" title="Eliminar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                             </div>
                         </div>
                     </template>
-                    <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">Sin criterios. Los jurados no podrán evaluar hasta definir la rúbrica.</p>
+                    <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Sin criterios. Los jurados no podrán evaluar hasta definir la rúbrica.</p>
                 </div>
                 <p class="mt-3 text-sm" :class="sum === 100 ? 'text-emerald-700' : 'text-lion-700'">
                     Suma de pesos: <b x-text="sum"></b>% <span x-show="sum !== 100">· Se recomienda que sume 100% (si no, se normaliza automáticamente).</span>
@@ -124,7 +124,7 @@
                 <div class="mt-5">
                     <label class="a-label" for="promo_video_url"><x-icon name="youtube" style="brands" /> Video promocional (YouTube)</label>
                     <input id="promo_video_url" type="url" name="promo_video_url" class="a-input" value="{{ old('promo_video_url', $edition->promo_video_url) }}" placeholder="https://www.youtube.com/watch?v=…">
-                    <p class="mt-1 text-xs text-slate-500">Se reproduce en bucle, sin sonido y oscurecido de fondo en la portada.</p>
+                    <p class="mt-1 text-xs text-slate-600">Se reproduce en bucle, sin sonido y oscurecido de fondo en la portada.</p>
                 </div>
                 <div class="mt-5 space-y-4">
                     <div><label class="a-label" for="voting_starts_at">Inicio de votación</label><input id="voting_starts_at" type="datetime-local" name="voting_starts_at" class="a-input" value="{{ $dt('voting_starts_at') }}"></div>
@@ -137,9 +137,9 @@
                     </div>
                     <div>
                         <label class="a-label" for="voting_email_domain">Restringir votos al dominio</label>
-                        <div class="flex rounded-xl shadow-sm"><span class="inline-flex items-center rounded-l-xl border border-r-0 border-slate-300 bg-slate-50 px-3 text-sm text-slate-500">@</span>
+                        <div class="flex rounded-xl shadow-sm"><span class="inline-flex items-center rounded-l-xl border border-r-0 border-slate-300 bg-slate-50 px-3 text-sm text-slate-600">@</span>
                             <input id="voting_email_domain" name="voting_email_domain" class="a-input !rounded-l-none" value="{{ old('voting_email_domain', $edition->voting_email_domain) }}" placeholder="uninavarra.edu.co"></div>
-                        <p class="mt-1 text-xs text-slate-500">Vacío = cualquier persona registrada y verificada puede votar.</p>
+                        <p class="mt-1 text-xs text-slate-600">Vacío = cualquier persona registrada y verificada puede votar.</p>
                     </div>
                 </div>
             </section>
@@ -165,7 +165,7 @@
                     </div>
                 </div>
 
-                <p class="mt-5 text-sm text-slate-500">Peso de cada componente en la nota final. Debe sumar 100%.</p>
+                <p class="mt-5 text-sm text-slate-600">Peso de cada componente en la nota final. Debe sumar 100%.</p>
                 <div class="mt-2 grid gap-3" :class="committee === 'promedio' ? 'grid-cols-2' : 'grid-cols-3'">
                     <div><label class="a-label" for="community_weight">% Comunidad</label><input id="community_weight" type="number" min="0" max="100" name="community_weight" x-model.number="c" required class="a-input"></div>
                     <div><label class="a-label" for="jury_weight" x-text="committee === 'promedio' ? '% Comité técnico' : '% Jurados'">% Jurados</label><input id="jury_weight" type="number" min="0" max="100" name="jury_weight" x-model.number="j" required class="a-input"></div>
@@ -176,7 +176,7 @@
                 <div class="mt-5">
                     <label class="a-label" for="expert_title">Nombre del jurado experto</label>
                     <input id="expert_title" name="expert_title" required maxlength="60" class="a-input" value="{{ old('expert_title', $edition->expert_title ?? 'Profesor experto') }}">
-                    <p class="mt-1 text-xs text-slate-500">Las cuentas se crean en <a href="{{ route('admin.juries.index') }}" class="font-medium text-ink-700 underline">Jurados</a> marcando la casilla de experto.</p>
+                    <p class="mt-1 text-xs text-slate-600">Las cuentas se crean en <a href="{{ route('admin.juries.index') }}" class="font-medium text-ink-700 underline">Jurados</a> marcando la casilla de experto.</p>
                 </div>
 
                 <div class="mt-5">
@@ -188,16 +188,16 @@
                             <span><b>Relativa</b>: el emprendimiento más votado obtiene 5,0 y los demás en proporción (0 votos = 1,0).</span></label>
                     </div>
                     <div x-show="mode === 'rangos'" x-collapse class="mt-3">
-                        <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs font-medium text-slate-500"><span>Desde (votos)</span><span>Nota</span><span class="w-8"></span></div>
+                        <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs font-medium text-slate-600"><span>Desde (votos)</span><span>Nota</span><span class="w-8"></span></div>
                         <template x-for="(r, i) in ranges" :key="i">
                             <div class="mt-1.5 grid grid-cols-[1fr_1fr_auto] items-center gap-2">
                                 <input type="number" min="0" :name="`vote_grade_thresholds[${i}][min]`" x-model="r.min" required class="a-input">
                                 <input type="number" min="1" max="5" step="0.1" :name="`vote_grade_thresholds[${i}][grade]`" x-model="r.grade" required class="a-input">
-                                <button type="button" @click="ranges.splice(i, 1)" class="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Quitar rango"><x-icon name="xmark" /></button>
+                                <button type="button" @click="ranges.splice(i, 1)" class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-rose-50 hover:text-rose-600" title="Quitar rango"><x-icon name="xmark" /></button>
                             </div>
                         </template>
                         <button type="button" @click="ranges.push({ min: '', grade: '' })" class="mt-2 text-sm font-medium text-ink-700 hover:underline"><x-icon name="plus" /> Agregar rango</button>
-                        <p class="mt-1 text-xs text-slate-500">Cada emprendimiento recibe la nota del rango más alto que alcanza. Con menos votos que el primer rango, la nota es 1.</p>
+                        <p class="mt-1 text-xs text-slate-600">Cada emprendimiento recibe la nota del rango más alto que alcanza. Con menos votos que el primer rango, la nota es 1.</p>
                         <x-input-error :messages="$errors->get('vote_grade_thresholds')" class="mt-1" />
                     </div>
                 </div>

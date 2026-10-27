@@ -16,23 +16,23 @@
         </div>
     @else
         {{-- Estado de la edición --}}
-        <div class="ecos-g-violeta-menta ecos-band mb-6 rounded-ecos p-6 text-white sm:p-8">
+        <div class="ecos-g-profundo mb-6 rounded-ecos p-6 text-white sm:p-8">
             <div class="relative flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                     <div class="flex flex-wrap items-center gap-2 text-xs">
                         @if ($edition->is_active)<span class="rounded-full bg-white px-2.5 py-1 font-semibold text-lion-700"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Edición activa</span>@endif
                         @php $vs = $edition->votingStatus(); @endphp
-                        <span class="rounded-full bg-white/10 px-2.5 py-1">Votación: {{ ['abierta' => 'abierta', 'proxima' => 'próxima', 'cerrada' => 'cerrada', 'sin_fecha' => 'sin fechas'][$vs] }}</span>
-                        <span class="rounded-full bg-white/10 px-2.5 py-1">Resultados {{ $edition->results_published ? 'publicados' : 'ocultos' }}</span>
+                        <span class="rounded-full bg-white/20 px-2.5 py-1">Votación: {{ ['abierta' => 'abierta', 'proxima' => 'próxima', 'cerrada' => 'cerrada', 'sin_fecha' => 'sin fechas'][$vs] }}</span>
+                        <span class="rounded-full bg-white/20 px-2.5 py-1">Resultados {{ $edition->results_published ? 'publicados' : 'ocultos' }}</span>
                     </div>
                     <h2 class="mt-3 font-display text-2xl font-semibold sm:text-3xl">{{ $edition->name }}</h2>
-                    <p class="text-white/60">{{ $edition->event_name }} · {{ $edition->tagline }}</p>
+                    <p class="text-white/90">{{ $edition->event_name }} · {{ $edition->tagline }}</p>
                 </div>
                 @if ($edition->final_at)
                     <div class="text-left sm:text-right">
-                        <div class="text-xs uppercase tracking-wider text-white/50">Gran final</div>
-                        <div class="font-display text-2xl font-semibold text-lion-300">{{ $edition->final_at->isFuture() ? 'en '.now()->diffInDays($edition->final_at).' días' : $edition->final_at->translatedFormat('j M Y') }}</div>
-                        <div class="text-sm text-white/60">{{ $edition->final_at->translatedFormat('l j \d\e F, g:i a') }}</div>
+                        <div class="text-sm font-semibold uppercase tracking-wide text-white/90">Gran final</div>
+                        <div class="font-display text-2xl font-semibold text-white">{{ $edition->final_at->isFuture() ? 'en '.now()->diffInDays($edition->final_at).' días' : $edition->final_at->translatedFormat('j M Y') }}</div>
+                        <div class="text-sm text-white/90">{{ $edition->final_at->translatedFormat('l j \d\e F, g:i a') }}</div>
                     </div>
                 @endif
             </div>
@@ -47,9 +47,9 @@
                 ['Intenciones de apoyo', $kpis['pledges'], 'handshake', route('admin.pledges.index'), '$'.number_format($kpis['pledged_amount'], 0, ',', '.').' en intención'],
             ] as [$label, $value, $icon, $url, $sub])
                 <a href="{{ $url }}" class="a-card group p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="flex items-center justify-between"><span class="text-sm text-slate-500">{{ $label }}</span><span class="grid h-10 w-10 place-items-center rounded-xl bg-lion-50"><x-icon :name="$icon" /></span></div>
+                    <div class="flex items-center justify-between"><span class="text-sm text-slate-600">{{ $label }}</span><span class="grid h-10 w-10 place-items-center rounded-xl bg-lion-50"><x-icon :name="$icon" /></span></div>
                     <div class="mt-3 font-display text-3xl font-semibold text-ink-900">{{ $value }}</div>
-                    @if ($sub)<div class="mt-1 text-xs text-slate-500">{{ $sub }}</div>@endif
+                    @if ($sub)<div class="mt-1 text-xs text-slate-600">{{ $sub }}</div>@endif
                 </a>
             @endforeach
         </div>
@@ -75,7 +75,7 @@
                 <h3 class="font-semibold text-ink-900">Tipos de apoyo</h3>
                 <div class="mt-4 h-64">
                     @if ($pledgesByType->isEmpty())
-                        <p class="grid h-full place-items-center text-sm text-slate-400">Sin intenciones aún</p>
+                        <p class="grid h-full place-items-center text-sm text-slate-500">Sin intenciones aún</p>
                     @else
                         <canvas id="chart-pledges"></canvas>
                     @endif
@@ -95,13 +95,13 @@
                         <li class="py-3 text-sm">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="truncate font-medium">{{ $c->user->name }}</span>
-                                <span class="shrink-0 text-xs text-slate-400">{{ $c->created_at->diffForHumans() }}</span>
+                                <span class="shrink-0 text-xs text-slate-500">{{ $c->created_at->diffForHumans() }}</span>
                             </div>
-                            <div class="text-xs text-slate-500">en {{ $c->venture->name }}</div>
+                            <div class="text-xs text-slate-600">en {{ $c->venture->name }}</div>
                             <p class="mt-1 line-clamp-2 text-slate-600">{{ $c->body }}</p>
                         </li>
                     @empty
-                        <li class="py-6 text-center text-sm text-slate-400">Sin comentarios</li>
+                        <li class="py-6 text-center text-sm text-slate-500">Sin comentarios</li>
                     @endforelse
                 </ul>
             </div>
@@ -118,12 +118,12 @@
                     <tbody class="divide-y divide-slate-100">
                         @foreach ($latestPledges as $p)
                             <tr>
-                                <td><div class="font-medium">{{ $p->user->name }}</div><div class="text-xs text-slate-500">{{ $p->user->organization ?? $p->user->email }}</div></td>
+                                <td><div class="font-medium">{{ $p->user->name }}</div><div class="text-xs text-slate-600">{{ $p->user->organization ?? $p->user->email }}</div></td>
                                 <td>{{ $p->venture->name }}</td>
                                 <td>{{ $p->type_label }}</td>
                                 <td>{{ $p->amount ? '$'.number_format($p->amount, 0, ',', '.') : '—' }}</td>
                                 <td><x-admin.status :status="$p->status" /></td>
-                                <td class="whitespace-nowrap text-slate-500">{{ $p->created_at->translatedFormat('j M') }}</td>
+                                <td class="whitespace-nowrap text-slate-600">{{ $p->created_at->translatedFormat('j M') }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -41,7 +41,7 @@
                         @endif
                         <div>
                             <div class="flex flex-wrap gap-2">
-                                @if ($venture->final_position === 1)<span class="inline-flex items-center gap-1.5 rounded-full bg-lion-500 px-3 py-1 text-xs font-bold text-white"><x-icon name="trophy" class="!text-white" /> Ganador {{ $venture->edition->period_label }}</span>
+                                @if ($venture->final_position === 1)<span class="inline-flex items-center gap-1.5 rounded-full bg-lion-600 px-3 py-1 text-xs font-bold text-white"><x-icon name="trophy" class="!text-white" /> Ganador {{ $venture->edition->period_label }}</span>
                                 @elseif ($venture->final_position)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700"><x-icon name="medal" /> Puesto {{ $venture->final_position }}</span>
                                 @elseif ($venture->is_finalist)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700"><x-icon name="star" /> Finalista</span>@endif
                                 @if ($venture->academic_program)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-ink-700"><x-icon name="graduation-cap" /> {{ $venture->academic_program }}</span>@endif
@@ -54,7 +54,7 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <button type="button" @click="start" :disabled="loading"
                                 class="btn px-6 py-3.5 text-base"
-                                :class="voted ? 'border border-lion-300 bg-white text-lion-700 hover:bg-lion-50' : 'bg-lion-500 text-white shadow-lg shadow-lion-500/30 hover:bg-lion-600'">
+                                :class="voted ? 'border border-lion-300 bg-white text-lion-700 hover:bg-lion-50' : 'bg-lion-600 text-white shadow-lg shadow-lion-500/30 hover:bg-lion-600'">
                             <i class="fa-heart text-lg" :class="[voted ? 'fa-solid' : 'fa-regular', pulse && 'animate-pop']" aria-hidden="true"></i>
                             <span x-text="voted ? 'Votaste' : 'Votar'"></span>
                             <span class="rounded-full bg-black/10 px-2 py-0.5 text-sm tabular-nums" x-text="count.toLocaleString('es-CO')"></span>
@@ -378,7 +378,7 @@
                     @if ($venture->contact_name)<p class="mt-1 text-sm text-white/55">{{ $venture->contact_name }}</p>@endif
                     <div class="mt-4 grid gap-2">
                         @if ($venture->whatsapp_url)
-                            <a href="{{ $venture->whatsapp_url }}" target="_blank" rel="noopener" class="btn bg-emerald-500 text-white hover:bg-emerald-400">
+                            <a href="{{ $venture->whatsapp_url }}" target="_blank" rel="noopener" class="btn bg-emerald-700 text-white hover:bg-emerald-600">
                                 <x-icon name="whatsapp" style="brands" class="text-lg" />
                                 WhatsApp
                             </a>
@@ -489,7 +489,7 @@
     @push('scripts')<style>@media (max-width: 1023px) { body > footer { padding-bottom: 4.75rem; } }</style>@endpush
     <div class="fixed inset-x-0 bottom-0 z-40 border-t border-ink-900/[.06] bg-white/95 p-3 backdrop-blur lg:hidden">
         <div class="mx-auto grid max-w-md grid-cols-2 gap-2">
-            <button type="button" @click="start" :disabled="loading" class="btn py-3" :class="voted ? 'border border-lion-300 bg-white text-lion-700' : 'bg-lion-500 text-white'">
+            <button type="button" @click="start" :disabled="loading" class="btn py-3" :class="voted ? 'border border-lion-300 bg-white text-lion-700' : 'bg-lion-600 text-white'">
                 <i class="fa-heart" :class="voted ? 'fa-solid' : 'fa-regular'" aria-hidden="true"></i> <span x-text="voted ? 'Votaste' : 'Votar'"></span>
             </button>
             <a href="#apoyar" class="btn-ghost py-3"><x-icon name="hand-holding-heart" /> Apoyar</a>

@@ -16,10 +16,10 @@
                 <div class="min-w-0 flex-1">
                     <div class="flex flex-wrap items-center gap-2 text-sm">
                         <span class="font-semibold text-ink-900">{{ $c->user->name }}</span>
-                        <span class="text-slate-400">en</span>
+                        <span class="text-slate-500">en</span>
                         <a href="{{ route('ventures.show', $c->venture) }}#opiniones" target="_blank" class="font-medium text-ink-700 hover:underline">{{ $c->venture->name }}</a>
                         @if ($c->rating)<span class="inline-flex gap-0.5 text-xs">@for ($s = 1; $s <= 5; $s++)<x-icon name="star" :style="$s <= $c->rating ? 'solid' : 'regular'" />@endfor</span>@endif
-                        <span class="text-xs text-slate-400">{{ $c->created_at->diffForHumans() }}</span>
+                        <span class="text-xs text-slate-500">{{ $c->created_at->diffForHumans() }}</span>
                         @unless ($c->is_approved)<span class="a-badge bg-rose-100 text-rose-700">Oculto</span>@endunless
                     </div>
                     <p class="mt-1 break-words text-slate-700">{{ $c->body }}</p>
@@ -34,7 +34,7 @@
                 </div>
             </div>
         @empty
-            <p class="p-12 text-center text-slate-400">No hay comentarios.</p>
+            <p class="p-12 text-center text-slate-500">No hay comentarios.</p>
         @endforelse
     </div>
     <div class="mt-6">{{ $comments->links() }}</div>

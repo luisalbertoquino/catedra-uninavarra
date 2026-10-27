@@ -32,14 +32,14 @@
                     <div class="sm:col-span-2" x-data="{ url: @js($field('video_url')) }">
                         <label class="a-label" for="video_url">Video pitch (YouTube, Vimeo o Google Drive)</label>
                         <input id="video_url" type="url" name="video_url" x-model="url" class="a-input" placeholder="https://youtu.be/…">
-                        <p class="mt-1 text-xs text-slate-500">En Drive, el archivo debe estar compartido como "Cualquier persona con el enlace".</p>
+                        <p class="mt-1 text-xs text-slate-600">En Drive, el archivo debe estar compartido como "Cualquier persona con el enlace".</p>
                     </div>
                 </div>
             </section>
 
             <section class="a-card p-6" x-data="{ rows: @js($members) }">
                 <div class="flex items-center justify-between">
-                    <div><h2 class="font-semibold text-ink-900">Equipo</h2><p class="text-sm text-slate-500">Normalmente 5 integrantes.</p></div>
+                    <div><h2 class="font-semibold text-ink-900">Equipo</h2><p class="text-sm text-slate-600">Normalmente 5 integrantes.</p></div>
                     <button type="button" class="a-btn-light" @click="rows.push({ uid: 'n' + Date.now(), name: '', role: '', academic_program: '', linkedin: '' })"><x-icon name="user-plus" /> Integrante</button>
                 </div>
                 <div class="mt-5 space-y-3">
@@ -60,7 +60,7 @@
                             <button type="button" class="self-end rounded-lg p-2 text-rose-400 hover:bg-rose-50 hover:text-rose-600 sm:self-start" @click="rows.splice(i, 1)" title="Quitar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                         </div>
                     </template>
-                    <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">Sin integrantes registrados.</p>
+                    <p x-show="!rows.length" class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Sin integrantes registrados.</p>
                 </div>
             </section>
 
@@ -80,7 +80,7 @@
                     <label class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-6 text-center hover:border-ink-400 hover:bg-slate-50">
                         <x-icon name="images" class="text-2xl" />
                         <span class="mt-1 text-sm font-medium text-slate-600">Agregar imágenes</span>
-                        <span class="text-xs text-slate-400">JPG/PNG, máx. 4 MB c/u, hasta 12</span>
+                        <span class="text-xs text-slate-500">JPG/PNG, máx. 4 MB c/u, hasta 12</span>
                         <input type="file" name="gallery[]" accept="image/*" multiple class="sr-only" @change="previews = [...$event.target.files].map(f => URL.createObjectURL(f))">
                     </label>
                     <div class="mt-3 grid grid-cols-4 gap-2" x-show="previews.length">
@@ -124,7 +124,7 @@
                             <span class="a-label">{{ $label }}</span>
                             <span class="relative grid aspect-square place-items-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:border-ink-400">
                                 <img x-show="src" :src="src" class="absolute inset-0 h-full w-full {{ $key === 'logo' ? 'object-contain p-2' : 'object-cover' }}" alt="">
-                                <span x-show="!src" class="text-xs text-slate-400">Subir</span>
+                                <span x-show="!src" class="text-xs text-slate-500">Subir</span>
                             </span>
                             <input type="file" name="{{ $key }}" accept="image/*" class="sr-only" @change="src = URL.createObjectURL($event.target.files[0])">
                         </label>

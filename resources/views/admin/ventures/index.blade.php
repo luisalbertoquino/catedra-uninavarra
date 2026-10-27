@@ -34,7 +34,7 @@
                                     @endif
                                     <div class="min-w-0">
                                         <a href="{{ route('admin.ventures.edit', $v) }}" class="font-semibold text-ink-900 hover:underline">{{ $v->name }}</a>
-                                        <div class="max-w-xs truncate text-xs text-slate-500">{{ $v->edition->period_label }} · {{ $v->tagline }}</div>
+                                        <div class="max-w-xs truncate text-xs text-slate-600">{{ $v->edition->period_label }} · {{ $v->tagline }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -44,16 +44,16 @@
                             <td class="text-center">{{ $v->comments_count }}</td>
                             <td class="text-center">{{ $v->pledges_count }}</td>
                             <td class="whitespace-nowrap">
-                                @if ($v->is_published)<span class="a-badge bg-emerald-100 text-emerald-800">Publicado</span>@else<span class="a-badge bg-slate-100 text-slate-500">Borrador</span>@endif
+                                @if ($v->is_published)<span class="a-badge bg-emerald-100 text-emerald-800">Publicado</span>@else<span class="a-badge bg-slate-100 text-slate-600">Borrador</span>@endif
                                 @if ($v->is_finalist)<span class="a-badge bg-lion-100 text-lion-800">Finalista</span>@endif
                             </td>
                             <td class="whitespace-nowrap text-right">
-                                <a href="{{ route('ventures.show', $v) }}" target="_blank" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-ink-900"><x-icon name="arrow-up-right-from-square" /> Ver</a>
+                                <a href="{{ route('ventures.show', $v) }}" target="_blank" class="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-ink-900"><x-icon name="arrow-up-right-from-square" /> Ver</a>
                                 <a href="{{ route('admin.ventures.edit', $v) }}" class="ml-3 text-sm font-semibold text-ink-700 hover:text-ink-900">Editar</a>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="py-12 text-center text-slate-400">No hay emprendimientos. <a href="{{ route('admin.ventures.create', ['edicion' => $editionId]) }}" class="font-semibold text-ink-700">Crea el primero <x-icon name="arrow-right" /></a></td></tr>
+                        <tr><td colspan="8" class="py-12 text-center text-slate-500">No hay emprendimientos. <a href="{{ route('admin.ventures.create', ['edicion' => $editionId]) }}" class="font-semibold text-ink-700">Crea el primero <x-icon name="arrow-right" /></a></td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -24,15 +24,15 @@
                                     <x-avatar :name="$u->name" size="sm" />
                                     <div>
                                         <div class="font-semibold text-ink-900">{{ $u->name }}</div>
-                                        <div class="text-xs text-slate-500">{{ $u->email }} @if ($u->email_verified_at)<span title="Verificado"><x-icon name="circle-check" /></span>@else<span class="text-slate-400" title="Sin verificar">·</span>@endif</div>
+                                        <div class="text-xs text-slate-600">{{ $u->email }} @if ($u->email_verified_at)<span title="Verificado"><x-icon name="circle-check" /></span>@else<span class="text-slate-500" title="Sin verificar">·</span>@endif</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-xs text-slate-500">{{ $u->phone }}<br>{{ $u->organization ?? $u->academic_program }}</td>
+                            <td class="text-xs text-slate-600">{{ $u->phone }}<br>{{ $u->organization ?? $u->academic_program }}</td>
                             <td class="text-center">{{ $u->votes_count }}</td>
                             <td class="text-center">{{ $u->comments_count }}</td>
                             <td class="text-center">{{ $u->pledges_count }}</td>
-                            <td class="whitespace-nowrap text-slate-500">{{ $u->created_at->translatedFormat('j M Y') }}</td>
+                            <td class="whitespace-nowrap text-slate-600">{{ $u->created_at->translatedFormat('j M Y') }}</td>
                             <td>
                                 <form method="POST" action="{{ route('admin.users.update', $u) }}">@csrf @method('PATCH')
                                     <select name="role" class="a-input !w-auto !py-1.5 pr-8 text-xs" onchange="this.form.submit()">

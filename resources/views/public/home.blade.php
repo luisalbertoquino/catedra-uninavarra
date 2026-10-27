@@ -62,10 +62,10 @@
     {{-- ================= CÓMO PARTICIPAR ================= --}}
     <section class="ecos-g-menta ecos-band py-20">
         <div class="container-x">
-            <div class="surface-dark reveal mx-auto max-w-2xl text-center text-white">
-                <span class="text-xs font-semibold uppercase tracking-[.16em] text-white/85"><x-icon name="user-group" /> Tu papel</span>
-                <h2 class="mt-3 font-display text-4xl font-medium sm:text-5xl">Tres formas de hacer parte</h2>
-                <p class="mt-4 text-white/90">La comunidad no solo mira: decide. Los votos pesan el {{ $edition?->community_weight ?? 30 }}% de la nota que define a los finalistas.</p>
+            <div class="reveal mx-auto max-w-2xl rounded-ecos bg-white/85 px-6 py-6 text-center backdrop-blur">
+                <span class="eyebrow"><x-icon name="user-group" /> Tu papel</span>
+                <h2 class="section-title mt-2">Tres formas de hacer parte</h2>
+                <p class="mt-3 text-ink-700">La comunidad no solo mira: decide. Los votos pesan el {{ $edition?->community_weight ?? 30 }}% de la nota que define a los finalistas.</p>
             </div>
             <div class="mt-12 grid gap-6 lg:grid-cols-3">
                 @foreach ([
@@ -114,7 +114,7 @@
 
     {{-- ================= EMBUDO: INVERSIONISTAS ================= --}}
     <section class="ecos-g-coral ecos-band py-20">
-        <div class="container-x grid items-start gap-8 lg:grid-cols-12">
+        <div class="container-x grid items-center gap-8 lg:grid-cols-12">
             <div class="tarjeta-ecos reveal lg:col-span-5">
                 <span class="tarjeta-ecos__tab"><x-icon name="briefcase" /> Inversionistas y aliados</span>
                 <div class="tarjeta-ecos__body">
@@ -157,9 +157,9 @@
                         <li class="reveal relative flex gap-5">
                             <span @class([
                                 'relative z-10 mt-5 grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 font-display text-sm font-semibold',
-                                'border-lion-500 bg-lion-500 text-white ico-inherit' => $st === 'completada',
+                                'border-lion-500 bg-lion-600 text-white ico-inherit' => $st === 'completada',
                                 'border-lion-500 bg-white text-lion-600 shadow-[0_0_0_6px_rgba(168,85,247,.18)]' => $st === 'en_curso',
-                                'border-ink-200 bg-white text-ink-400' => $st === 'pendiente',
+                                'border-ink-200 bg-white text-ink-600' => $st === 'pendiente',
                             ])>
                                 @if ($st === 'completada')<x-icon name="check" />@else{{ $i + 1 }}@endif
                             </span>
@@ -223,10 +223,10 @@
 
     {{-- ================= CIERRE ================= --}}
     <section class="container-x pt-8">
-        <div class="ecos-g-violeta-menta ecos-band reveal rounded-ecos px-6 py-14 text-center sm:px-14">
+        <div class="ecos-g-profundo reveal rounded-ecos px-6 py-14 text-center sm:px-14">
             <div class="surface-dark text-white">
                 <h2 class="mx-auto max-w-3xl font-display text-4xl font-medium leading-tight sm:text-5xl">Haz que una idea ruja</h2>
-                <p class="mx-auto mt-4 max-w-xl text-white/90">Vota por tu favorito o apoya a un equipo para que llegue más lejos.</p>
+                <p class="mx-auto mt-4 max-w-xl text-lg text-white">Vota por tu favorito o apoya a un equipo para que llegue más lejos.</p>
                 <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                     <a href="{{ route('ventures.index') }}" class="btn-white px-7 py-3.5 text-base">Explorar y votar <x-icon name="arrow-right" /></a>
                     <a href="{{ route('investors') }}" class="btn border border-white/60 px-7 py-3.5 text-base text-white hover:bg-white/15"><x-icon name="hand-holding-heart" /> Quiero apoyar</a>

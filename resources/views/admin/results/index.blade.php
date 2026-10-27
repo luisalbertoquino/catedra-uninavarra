@@ -33,11 +33,11 @@
                     @foreach ($components as [$icon, $label, $pct, $hint])
                         <div class="rounded-xl bg-slate-50 p-3">
                             <div class="flex items-center justify-between text-sm"><span class="font-medium text-slate-700"><x-icon :name="$icon" /> {{ $label }}</span><b class="text-lg text-ink-900">{{ $pct }}%</b></div>
-                            <p class="mt-1 text-xs text-slate-500">{{ $hint }}</p>
+                            <p class="mt-1 text-xs text-slate-600">{{ $hint }}</p>
                         </div>
                     @endforeach
                 </div>
-                <p class="mt-3 text-xs text-slate-500">
+                <p class="mt-3 text-xs text-slate-600">
                     Si a un emprendimiento le falta algún componente (por ejemplo, el experto aún no lo evalúa), su peso se reparte entre los demás y la nota aparece como <b>parcial</b>.
                     Los porcentajes y la forma de calcular la nota de los votos se cambian en <a href="{{ route('admin.editions.edit', $edition) }}#calificacion" class="font-medium text-ink-700 underline">la edición</a>.
                 </p>
@@ -48,7 +48,7 @@
                     @csrf
                     <button class="a-btn-lion w-full"><x-icon name="star" /> Marcar top {{ $edition->finalists_count }} como finalistas</button>
                 </form>
-                <p class="text-center text-xs text-slate-500">Usa la nota final actual (incluidas las parciales).</p>
+                <p class="text-center text-xs text-slate-600">Usa la nota final actual (incluidas las parciales).</p>
             </div>
         </div>
 
@@ -71,21 +71,21 @@
                         <tbody class="divide-y divide-slate-100">
                             @foreach ($ranking as $i => $v)
                                 <tr @class(['bg-lion-50/60' => $v->is_finalist])>
-                                    <td class="font-display font-semibold text-slate-400">{{ $i + 1 }}</td>
+                                    <td class="font-display font-semibold text-slate-500">{{ $i + 1 }}</td>
                                     <td>
                                         <div class="font-semibold text-ink-900">{{ $v->name }}</div>
-                                        <div class="text-xs text-slate-500">{{ $v->team_group }}@if ($v->team_group && $v->category) · @endif{{ $v->category?->name }} @unless($v->is_published)· <span class="text-rose-500">no publicado</span>@endunless</div>
+                                        <div class="text-xs text-slate-600">{{ $v->team_group }}@if ($v->team_group && $v->category) · @endif{{ $v->category?->name }} @unless($v->is_published)· <span class="text-rose-500">no publicado</span>@endunless</div>
                                     </td>
                                     <td class="text-center font-semibold">{{ $v->votes_count }}</td>
                                     <td class="text-center tabular-nums">{{ $g($v->community_grade) }}</td>
                                     <td class="text-center tabular-nums">
                                         {{ $g($v->jury_grade) }}
                                         @php $n = $v->jury_count + ($combined ? $v->expert_count : 0); @endphp
-                                        @if ($n)<div class="text-[11px] text-slate-400"><x-icon name="gavel" /> {{ $n }}</div>@endif
+                                        @if ($n)<div class="text-[11px] text-slate-500"><x-icon name="gavel" /> {{ $n }}</div>@endif
                                     </td>
                                     <td class="text-center tabular-nums">
                                         {{ $g($v->expert_grade) }}
-                                        @if ($v->expert_count)<div class="text-[11px] text-slate-400"><x-icon name="award" /> {{ $v->expert_count }}</div>@endif
+                                        @if ($v->expert_count)<div class="text-[11px] text-slate-500"><x-icon name="award" /> {{ $v->expert_count }}</div>@endif
                                     </td>
                                     <td class="bg-lion-50/40 text-center">
                                         <span class="font-display text-lg font-semibold text-ink-900">{{ $g($v->final_grade) }}</span>
@@ -94,7 +94,7 @@
                                     <td class="text-center">
                                         @if ($v->committee_source === 'jurados')
                                             <input type="hidden" name="rows[{{ $v->id }}][committee_score]" value="{{ $v->committee_score }}">
-                                            <span class="text-xs text-slate-400" title="Ya tiene evaluaciones de jurados">—</span>
+                                            <span class="text-xs text-slate-500" title="Ya tiene evaluaciones de jurados">—</span>
                                         @else
                                             <input type="number" step="0.01" min="0" max="100" name="rows[{{ $v->id }}][committee_score]" value="{{ $v->committee_score }}" class="a-input mx-auto !w-20 text-center" placeholder="—" title="Puntaje manual del comité (solo si no hay evaluaciones)">
                                         @endif

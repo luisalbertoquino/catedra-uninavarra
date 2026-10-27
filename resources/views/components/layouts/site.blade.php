@@ -33,15 +33,15 @@
                  }"
                  @resize.window.debounce.150ms="sync()"
                  x-show="show" x-cloak
-                 class="surface-dark relative bg-gradient-to-r from-lion-500 via-magenta-500 to-coral-500 text-white">
+                 class="surface-dark relative bg-gradient-to-r from-lion-700 via-lion-600 to-volt-600 text-white">
                 <div class="container-x flex min-h-[2.5rem] items-center justify-center gap-x-4 gap-y-1 py-1.5 pr-10 text-xs font-semibold sm:text-sm">
                     <span class="inline-flex items-center gap-2"><i class="fa-solid fa-check-to-slot" aria-hidden="true"></i> ¡La votación está abierta!</span>
                     <span class="inline-flex items-center gap-1.5 tabular-nums" x-data="countdown('{{ $siteEdition->voting_ends_at->toIso8601String() }}')">
                         <span class="hidden font-medium sm:inline">Cierra en</span>
-                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="d + 'd'"></span>
-                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="h + 'h'"></span>
-                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="m + 'm'"></span>
-                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="s + 's'"></span>
+                        <span class="rounded-full bg-ink-950/30 px-2 py-0.5" x-text="d + 'd'"></span>
+                        <span class="rounded-full bg-ink-950/30 px-2 py-0.5" x-text="h + 'h'"></span>
+                        <span class="rounded-full bg-ink-950/30 px-2 py-0.5" x-text="m + 'm'"></span>
+                        <span class="rounded-full bg-ink-950/30 px-2 py-0.5" x-text="s + 's'"></span>
                     </span>
                     <a href="{{ route('ventures.index') }}" class="hidden items-center gap-1.5 underline underline-offset-2 hover:no-underline sm:inline-flex">Vota ahora <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
@@ -59,7 +59,7 @@
                 @foreach ($links as [$label, $url, $pattern])
                     <a href="{{ $url }}" @class([
                         'rounded-full px-4 py-2 text-sm font-medium transition',
-                        'bg-lion-500 text-white shadow-sm' => request()->routeIs($pattern),
+                        'bg-lion-600 text-white shadow-sm' => request()->routeIs($pattern),
                         'text-ink-700 hover:text-lion-700' => ! request()->routeIs($pattern),
                     ])>{{ $label }}</a>
                 @endforeach
@@ -182,8 +182,8 @@
             </div>
         </div>
         {{-- Franja final con degradado y logo en blanco --}}
-        <div class="surface-dark ecos-g-violeta-menta ecos-band text-white">
-            <div class="container-x flex flex-col items-center justify-between gap-4 py-8 text-xs text-white/85 sm:flex-row">
+        <div class="surface-dark ecos-g-profundo text-white">
+            <div class="container-x flex flex-col items-center justify-between gap-4 py-8 text-sm text-white sm:flex-row">
                 <x-brand size="sm" />
                 <p class="text-center">© {{ date('Y') }} Fundación Universitaria Navarra – UNINAVARRA. Vigilada MinEducación.</p>
                 <p>Neiva, Huila · Colombia</p>
