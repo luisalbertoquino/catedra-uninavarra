@@ -11,14 +11,12 @@
             ['Emprendimientos', route('ventures.index'), 'ventures.*'],
             ['Ranking', route('ranking'), 'ranking'],
             ['Ediciones', route('editions.index'), 'editions.*'],
+            ['Apoya', route('investors'), 'investors'],
         ];
     @endphp
 
     {{-- Navegación --}}
-    {{-- Barra: transparente sobre el video de la portada; sólida en las demás páginas --}}
-    <header x-data="{ open: false, scrolled: false, solid: @js(! request()->routeIs('home')) }" @scroll.window="scrolled = window.scrollY > 10"
-            class="surface-dark fixed inset-x-0 top-0 z-50 text-white transition duration-300"
-            :class="scrolled || open || solid ? 'border-b border-white/10 bg-ink-950/90 backdrop-blur-xl' : 'border-b border-transparent'">
+    <header x-data="{ open: false }" class="surface-light fixed inset-x-0 top-0 z-50 border-b border-ink-900/[.06] shadow-sm shadow-ink-900/[.03]">
         {{-- Anuncio: votación abierta con cuenta regresiva (se puede cerrar; se recuerda por votación) --}}
         @if ($siteEdition?->isVotingOpen())
             @php $announceKey = 'aviso-votacion-'.$siteEdition->id.'-'.$siteEdition->voting_ends_at->timestamp; @endphp
@@ -35,34 +33,34 @@
                  }"
                  @resize.window.debounce.150ms="sync()"
                  x-show="show" x-cloak
-                 class="relative bg-gradient-to-r from-lion-500 via-lion-400 to-lion-500 text-ink-950">
+                 class="surface-dark relative bg-gradient-to-r from-lion-500 via-magenta-500 to-coral-500 text-white">
                 <div class="container-x flex min-h-[2.5rem] items-center justify-center gap-x-4 gap-y-1 py-1.5 pr-10 text-xs font-semibold sm:text-sm">
                     <span class="inline-flex items-center gap-2"><i class="fa-solid fa-check-to-slot" aria-hidden="true"></i> ¡La votación está abierta!</span>
                     <span class="inline-flex items-center gap-1.5 tabular-nums" x-data="countdown('{{ $siteEdition->voting_ends_at->toIso8601String() }}')">
                         <span class="hidden font-medium sm:inline">Cierra en</span>
-                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="d + 'd'"></span>
-                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="h + 'h'"></span>
-                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="m + 'm'"></span>
-                        <span class="rounded-md bg-ink-950/10 px-1.5 py-0.5" x-text="s + 's'"></span>
+                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="d + 'd'"></span>
+                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="h + 'h'"></span>
+                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="m + 'm'"></span>
+                        <span class="rounded-full bg-white/20 px-2 py-0.5" x-text="s + 's'"></span>
                     </span>
                     <a href="{{ route('ventures.index') }}" class="hidden items-center gap-1.5 underline underline-offset-2 hover:no-underline sm:inline-flex">Vota ahora <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
                 <button type="button" @click="close()"
-                        class="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md hover:bg-ink-950/10 sm:right-4" aria-label="Cerrar anuncio">
+                        class="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full hover:bg-white/20 sm:right-4" aria-label="Cerrar anuncio">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
         @endif
 
         <nav class="container-x flex h-16 items-center justify-between lg:h-20">
-            <a href="{{ route('home') }}" class="shrink-0"><x-brand /></a>
+            <a href="{{ route('home') }}" class="shrink-0"><x-brand :dark="false" /></a>
 
-            <div class="hidden items-center gap-1 rounded-xl border border-white/10 bg-white/[.03] p-1 backdrop-blur md:flex">
+            <div class="hidden items-center gap-1 rounded-full bg-tarjeta p-1 md:flex">
                 @foreach ($links as [$label, $url, $pattern])
                     <a href="{{ $url }}" @class([
-                        'rounded-lg px-4 py-2 text-sm font-medium transition',
-                        'bg-white text-ink-950' => request()->routeIs($pattern),
-                        'text-white/70 hover:text-white' => ! request()->routeIs($pattern),
+                        'rounded-full px-4 py-2 text-sm font-medium transition',
+                        'bg-lion-500 text-white shadow-sm' => request()->routeIs($pattern),
+                        'text-ink-700 hover:text-lion-700' => ! request()->routeIs($pattern),
                     ])>{{ $label }}</a>
                 @endforeach
             </div>
@@ -75,12 +73,12 @@
                         <a href="{{ route('jury.index') }}" class="btn-ghost !px-4"><x-icon name="gavel" /> Panel del jurado</a>
                     @endif
                     <div x-data="{ menu: false }" class="relative">
-                        <button @click="menu = !menu" @click.outside="menu = false" class="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 py-1 pl-1 pr-3 text-sm hover:bg-white/10">
+                        <button @click="menu = !menu" @click.outside="menu = false" class="flex items-center gap-2 rounded-full bg-tarjeta py-1 pl-1 pr-3 text-sm text-ink-800 hover:bg-lion-50">
                             <x-avatar :name="auth()->user()->name" size="sm" />
                             <span class="max-w-[8rem] truncate">{{ Str::before(auth()->user()->name, ' ') }}</span>
                             <x-icon name="chevron-down" class="text-xs" />
                         </button>
-                        <div x-cloak x-show="menu" x-transition.origin.top.right class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-white/10 bg-ink-900 p-1 shadow-2xl">
+                        <div x-cloak x-show="menu" x-transition.origin.top.right class="absolute right-0 mt-2 w-52 overflow-hidden rounded-ecos border border-ink-900/[.06] bg-white p-1 shadow-2xl shadow-ink-900/10">
                             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/5 hover:text-white"><x-icon name="chart-simple" fw /> Mi actividad</a>
                             <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/5 hover:text-white"><x-icon name="user-gear" fw /> Mi perfil</a>
                             <form method="POST" action="{{ route('logout') }}">@csrf
@@ -94,7 +92,7 @@
                 @endauth
             </div>
 
-            <button @click="open = !open" class="grid h-10 w-10 place-items-center rounded-lg border border-white/15 md:hidden" aria-label="Menú">
+            <button @click="open = !open" class="grid h-10 w-10 place-items-center rounded-full bg-tarjeta text-lion-700 md:hidden" aria-label="Menú">
                 <x-icon name="bars" x-show="!open" class="text-lg" />
                 <x-icon name="xmark" x-cloak x-show="open" class="text-lg" />
             </button>
@@ -136,7 +134,7 @@
         @endunless
     @endauth
 
-    <main style="padding-top: var(--announce-h, 0px)" class="surface-light min-h-[60vh] pb-24 transition-[padding] duration-300">
+    <main style="padding-top: var(--announce-h, 0px)" class="surface-light min-h-[60vh] pb-20 transition-[padding] duration-300">
         {{ $slot }}
     </main>
 
@@ -169,7 +167,7 @@
                         @foreach ($links as [$label, $url])
                             <li><a href="{{ $url }}" class="hover:text-lion-300">{{ $label }}</a></li>
                         @endforeach
-                        <li><a href="{{ route('register', ['perfil' => 'inversionista']) }}" class="hover:text-lion-300">Soy inversionista</a></li>
+                        <li><a href="{{ route('investors') }}" class="hover:text-lion-300">Soy inversionista o aliado</a></li>
                     </ul>
                 </div>
                 <div class="md:col-span-4">
@@ -183,9 +181,11 @@
                 </div>
             </div>
         </div>
-        <div class="border-t border-white/10">
-            <div class="container-x flex flex-col items-center justify-between gap-2 py-6 text-xs text-white/50 sm:flex-row">
-                <p>© {{ date('Y') }} Fundación Universitaria Navarra – UNINAVARRA. Vigilada MinEducación.</p>
+        {{-- Franja final con degradado y logo en blanco --}}
+        <div class="surface-dark ecos-g-violeta-menta ecos-band text-white">
+            <div class="container-x flex flex-col items-center justify-between gap-4 py-8 text-xs text-white/85 sm:flex-row">
+                <x-brand size="sm" />
+                <p class="text-center">© {{ date('Y') }} Fundación Universitaria Navarra – UNINAVARRA. Vigilada MinEducación.</p>
                 <p>Neiva, Huila · Colombia</p>
             </div>
         </div>

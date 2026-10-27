@@ -1,12 +1,8 @@
 <x-layouts.site :title="$edition->name" :description="$edition->tagline" :image="$edition->banner_url">
-    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-14 pt-32 lg:pt-40">
-        @if ($edition->banner_url)
-            <img src="{{ $edition->banner_url }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover opacity-30">
-        @endif
-        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/40 to-ink-950"></div>
+    <section class="ecos-soft-coral ecos-band pb-14 pt-32 lg:pt-36">
         <div class="container-x">
             <a href="{{ route('editions.index') }}" class="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white"><x-icon name="arrow-left" /> Todas las ediciones</a>
-            <div class="mt-6 font-display text-7xl font-semibold text-white/10 sm:text-9xl">{{ $edition->period_label }}</div>
+            <div class="mt-6 font-display text-7xl font-medium text-lion-200 sm:text-9xl">{{ $edition->period_label }}</div>
             <h1 class="-mt-6 page-title sm:-mt-10">{{ $edition->name }}</h1>
             <p class="mt-3 text-xl text-lion-300">{{ $edition->event_name }} · {{ $edition->tagline }}</p>
             @if ($edition->description)<p class="mt-5 max-w-3xl text-white/65">{{ $edition->description }}</p>@endif

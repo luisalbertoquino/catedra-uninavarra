@@ -16,13 +16,11 @@
         </div>
     @else
         {{-- Estado de la edición --}}
-        <div class="relative mb-6 overflow-hidden rounded-2xl bg-ink-950 p-6 text-white sm:p-8">
-            <div class="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-lion-500/30 blur-3xl"></div>
-            <div class="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-volt-600/30 blur-3xl"></div>
+        <div class="ecos-g-violeta-menta ecos-band mb-6 rounded-ecos p-6 text-white sm:p-8">
             <div class="relative flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                     <div class="flex flex-wrap items-center gap-2 text-xs">
-                        @if ($edition->is_active)<span class="rounded-full bg-lion-400/20 px-2.5 py-1 font-semibold text-lion-200"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Edición activa</span>@endif
+                        @if ($edition->is_active)<span class="rounded-full bg-white px-2.5 py-1 font-semibold text-lion-700"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Edición activa</span>@endif
                         @php $vs = $edition->votingStatus(); @endphp
                         <span class="rounded-full bg-white/10 px-2.5 py-1">Votación: {{ ['abierta' => 'abierta', 'proxima' => 'próxima', 'cerrada' => 'cerrada', 'sin_fecha' => 'sin fechas'][$vs] }}</span>
                         <span class="rounded-full bg-white/10 px-2.5 py-1">Resultados {{ $edition->results_published ? 'publicados' : 'ocultos' }}</span>

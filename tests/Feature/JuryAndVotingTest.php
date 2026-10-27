@@ -267,17 +267,41 @@ class JuryAndVotingTest extends TestCase
         $this->assertSame('Mentor senior', $this->edition->fresh()->expert_title);
     }
 
+    private const REVIEW = ['rating' => 4, 'body' => 'Muy buena idea, el pitch es claro.'];
+
     public function test_each_person_has_a_single_vote(): void
     {
         $voter = User::factory()->create();
         $a = $this->venture('Uno');
         $b = $this->venture('Dos');
 
-        $this->actingAs($voter)->postJson(route('ventures.vote', $a))->assertOk()->assertJson(['voted' => true]);
-        $this->actingAs($voter)->postJson(route('ventures.vote', $b))->assertStatus(422)->assertJsonFragment(['voted' => false]);
-        $this->actingAs($voter)->postJson(route('ventures.vote', $a))->assertJson(['voted' => false]); // retira el voto
-        $this->actingAs($voter)->postJson(route('ventures.vote', $b))->assertJson(['voted' => true]);  // y lo cambia
+        $this->actingAs($voter)->postJson(route('ventures.vote', $a), self::REVIEW)->assertOk()->assertJson(['voted' => true]);
+        $this->actingAs($voter)->postJson(route('ventures.vote', $b), self::REVIEW)->assertStatus(422)->assertJsonFragment(['voted' => false]);
+        $this->actingAs($voter)->postJson(route('ventures.vote', $a))->assertJson(['voted' => false]); // retira el voto (sin pedir nada)
+        $this->actingAs($voter)->postJson(route('ventures.vote', $b), self::REVIEW)->assertJson(['voted' => true]);  // y lo cambia
         $this->assertSame(1, $voter->votes()->count());
+    }
+
+    /** Votar es un paso a paso: estrellas y comentario son obligatorios y se guardan con el voto. */
+    public function test_voting_requires_stars_and_a_comment(): void
+    {
+        $voter = User::factory()->create();
+        $venture = $this->venture('Paso a paso');
+
+        $this->actingAs($voter)->postJson(route('ventures.vote', $venture))->assertStatus(422);
+        $this->actingAs($voter)->postJson(route('ventures.vote', $venture), ['rating' => 5])->assertStatus(422);
+        $this->actingAs($voter)->postJson(route('ventures.vote', $venture), ['rating' => 5, 'body' => 'Corto'])->assertStatus(422);
+        $this->assertDatabaseCount('votes', 0);
+        $this->assertDatabaseCount('comments', 0);
+
+        $this->actingAs($voter)->postJson(route('ventures.vote', $venture), self::REVIEW)->assertOk()->assertJson(['voted' => true]);
+        $this->assertDatabaseHas('comments', ['venture_id' => $venture->id, 'user_id' => $voter->id, 'rating' => 4]);
+
+        // Retirar y volver a votar actualiza la misma opinión en lugar de duplicarla
+        $this->actingAs($voter)->postJson(route('ventures.vote', $venture));
+        $this->actingAs($voter)->postJson(route('ventures.vote', $venture), ['rating' => 5, 'body' => 'Lo pensé mejor: excelente equipo.'])->assertOk();
+        $this->assertSame(1, $venture->comments()->count());
+        $this->assertSame(5, (int) $venture->comments()->first()->rating);
     }
 
     public function test_juries_cannot_vote_as_community(): void
@@ -290,7 +314,7 @@ class JuryAndVotingTest extends TestCase
     {
         $venture = $this->venture('Epsilon');
         $this->actingAs(User::factory()->unverified()->create(['role' => 'inversionista']))
-            ->post(route('ventures.pledge', $venture), ['type' => 'inversion', 'amount' => 1000, 'message' => 'Quiero invertir en esto']);
+            ->post(route('ventures.pledge', $venture), ['types' => ['inversion'], 'amount' => 1000, 'message' => 'Quiero invertir en esto']);
         $this->assertDatabaseCount('support_pledges', 0);
     }
 
@@ -300,8 +324,8 @@ class JuryAndVotingTest extends TestCase
         $public = User::factory()->create(['role' => 'inversionista', 'organization' => 'Fondo Visible']);
         $private = User::factory()->create(['role' => 'inversionista']);
 
-        $this->actingAs($public)->post(route('ventures.pledge', $venture), ['type' => 'inversion', 'amount' => 5000000, 'message' => 'Quiero invertir en esto', 'public_ranking' => 1]);
-        $this->actingAs($private)->post(route('ventures.pledge', $venture), ['type' => 'donacion', 'amount' => 9000000, 'message' => 'Quiero donar a este equipo']);
+        $this->actingAs($public)->post(route('ventures.pledge', $venture), ['types' => ['mercadeo', 'inversion'], 'amount' => 5000000, 'message' => 'Quiero invertir en esto', 'public_ranking' => 1]);
+        $this->actingAs($private)->post(route('ventures.pledge', $venture), ['types' => ['donacion'], 'amount' => 9000000, 'message' => 'Quiero donar a este equipo']);
 
         // Mientras sean solo intenciones, nadie aparece en el ranking
         $this->assertCount(0, InvestorRanking::for($this->edition));
@@ -312,6 +336,32 @@ class JuryAndVotingTest extends TestCase
         $this->assertEquals(5000000, (float) $ranking->first()->total_amount);
         $this->assertSame(1, InvestorRanking::hiddenCount($this->edition));
         $this->get(route('ranking', ['vista' => 'inversionistas']))->assertOk()->assertSee('Fondo Visible')->assertSee('centroemprendimiento@uninavarra.edu.co');
+    }
+
+    public function test_a_pledge_can_offer_several_kinds_of_support(): void
+    {
+        $venture = $this->venture('Eta');
+        $ally = User::factory()->create(['role' => 'inversionista']);
+
+        $this->actingAs($ally)->post(route('ventures.pledge', $venture), ['types' => [], 'message' => 'Quiero ayudar al equipo'])->assertSessionHasErrors('types');
+        $this->actingAs($ally)->post(route('ventures.pledge', $venture), ['types' => ['nave_espacial'], 'message' => 'Quiero ayudar al equipo'])->assertSessionHasErrors();
+
+        $this->actingAs($ally)->post(route('ventures.pledge', $venture), [
+            'types' => ['mercadeo', 'equipos', 'herramientas'], 'amount' => 3000000, 'message' => 'Les presto equipos y los difundo en redes',
+        ])->assertSessionHasNoErrors();
+
+        $pledge = SupportPledge::first();
+        $this->assertSame(['equipos', 'herramientas', 'mercadeo'], $pledge->types); // en el orden de TYPES
+        $this->assertSame('equipos', $pledge->type);
+        $this->assertNull($pledge->amount); // sin inversión ni donación no se guarda monto
+        $this->assertSame('Equipos · Herramientas · Mercadeo', $pledge->type_label);
+    }
+
+    public function test_investor_page_is_the_funnel_destination(): void
+    {
+        $this->venture('Theta');
+        $this->get(route('investors'))->assertOk()->assertSee('¿Qué puedes aportar?')->assertSee('Materia prima')->assertSee('Theta');
+        $this->get('/')->assertOk()->assertSee(route('investors'));
     }
 
     public function test_security_headers_are_sent(): void

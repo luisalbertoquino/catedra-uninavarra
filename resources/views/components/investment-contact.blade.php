@@ -7,7 +7,7 @@
     $email = Setting::get('investment_contact_email');
     $wa = Setting::whatsapp('investment_contact_phone');
 @endphp
-<div {{ $attributes->merge(['class' => 'rounded-2xl border border-lion-400/20 bg-lion-400/[.06] p-5']) }}>
+<div {{ $attributes->merge(['class' => 'rounded-ecos border border-lion-200 bg-white p-5']) }}>
     <p class="text-xs font-semibold uppercase tracking-widest text-lion-300"><x-icon name="handshake" /> Gestión de inversiones</p>
     <p class="mt-2 font-semibold">{{ $name }}</p>
     @unless ($compact)
@@ -18,7 +18,7 @@
             <a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener" class="btn bg-emerald-500 !px-4 !py-2 text-white hover:bg-emerald-400"><x-icon name="whatsapp" style="brands" /> {{ $phone }}</a>
         @endif
         @if ($email)
-            <a href="mailto:{{ $email }}" class="btn-ghost !px-4 !py-2"><x-icon name="envelope" /> {{ $email }}</a>
+            <a href="mailto:{{ $email }}" class="btn-ghost min-w-0 max-w-full !px-4 !py-2"><x-icon name="envelope" /> <span class="break-all">{{ $email }}</span></a>
         @endif
     </div>
 </div>

@@ -14,65 +14,64 @@
             'count' => $venture->votes_count,
             'loginUrl' => auth()->guest() && $venture->edition->isVotingOpen() ? route('login') : null,
             'blocked' => auth()->check() ? $votingBlocked : (! $venture->edition->isVotingOpen() ? $votingBlocked : null),
+            'review' => $myReview ? ['rating' => (int) $myReview->rating, 'body' => $myReview->body] : null,
+            'minChars' => \App\Http\Controllers\VoteController::MIN_COMMENT,
         ];
     @endphp
 
-    {{-- ================= HERO ================= --}}
-    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pt-16 lg:pt-20">
-        <div class="absolute inset-0 -z-10">
-            @if ($venture->cover_url)
-                <img src="{{ $venture->cover_url }}" alt="" class="h-full w-full scale-110 object-cover opacity-40 blur-sm">
-            @endif
-            <div class="absolute inset-0 bg-gradient-to-b from-ink-950/60 via-ink-950/80 to-ink-950"></div>
-        </div>
-
-        <div class="container-x pb-12 pt-10 lg:pb-16 lg:pt-16">
-            <nav class="mb-8 flex items-center gap-2 text-sm text-white/50">
-                <a href="{{ route('ventures.index', ['edicion' => $venture->edition->slug]) }}" class="inline-flex items-center gap-2 hover:text-white"><x-icon name="arrow-left" /> Emprendimientos {{ $venture->edition->period_label }}</a>
+    <div x-data="voteWizard(@js($voteProps))">
+    {{-- ================= ENCABEZADO ================= --}}
+    <section class="ecos-g-violeta ecos-band pb-12 pt-24 lg:pb-16 lg:pt-28">
+        <div class="container-x">
+            <nav class="mb-6 text-sm">
+                <a href="{{ route('ventures.index', ['edicion' => $venture->edition->slug]) }}" class="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2 font-medium text-lion-700 backdrop-blur hover:bg-white"><x-icon name="arrow-left" /> Emprendimientos {{ $venture->edition->period_label }}</a>
             </nav>
 
-            <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-                <div class="flex animate-fade-up flex-col gap-6 sm:flex-row sm:items-end">
-                    @if ($venture->logo_url)
-                        <img src="{{ $venture->logo_url }}" alt="Logo {{ $venture->name }}" class="h-28 w-28 rounded-3xl border border-white/20 bg-white object-contain p-2 shadow-2xl sm:h-32 sm:w-32">
-                    @else
-                        <span class="grid h-28 w-28 place-items-center rounded-3xl border border-white/20 bg-gradient-to-br from-lion-300 to-lion-600 font-display text-4xl font-semibold text-ink-950 shadow-2xl shadow-lion-500/20 sm:h-32 sm:w-32">{{ $venture->initials }}</span>
-                    @endif
-                    <div>
-                        <div class="flex flex-wrap gap-2">
-                            @if ($venture->final_position === 1)<span class="chip ico-inherit border-transparent bg-lion-400 font-bold text-ink-950"><x-icon name="trophy" /> Ganador {{ $venture->edition->period_label }}</span>
-                            @elseif ($venture->final_position)<span class="chip border-lion-400/40 text-lion-100"><x-icon name="medal" /> Puesto {{ $venture->final_position }}</span>
-                            @elseif ($venture->is_finalist)<span class="chip border-lion-400/40 text-lion-100"><x-icon name="star" /> Finalista</span>@endif
-                            @if ($venture->category)<a href="{{ route('ventures.index', ['categoria' => $venture->category->slug]) }}" class="chip hover:border-white/30">@if ($venture->category->icon)<x-icon :name="$venture->category->icon" />@endif {{ $venture->category->name }}</a>@endif
-                            @if ($venture->academic_program)<span class="chip"><x-icon name="graduation-cap" /> {{ $venture->academic_program }}</span>@endif
+            <div class="tarjeta-ecos animate-fade-up">
+                <span class="tarjeta-ecos__tab">
+                    @if ($venture->category?->icon)<x-icon :name="$venture->category->icon" />@endif
+                    {{ $venture->category?->name ?? 'Emprendimiento' }} · {{ $venture->edition->period_label }}
+                </span>
+                <div class="tarjeta-ecos__body flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="flex flex-col gap-6 sm:flex-row sm:items-center">
+                        @if ($venture->logo_url)
+                            <img src="{{ $venture->logo_url }}" alt="Logo {{ $venture->name }}" class="h-28 w-28 shrink-0 rounded-ecos bg-white object-contain p-2 shadow-lg shadow-lion-900/10 sm:h-32 sm:w-32">
+                        @else
+                            <span class="grid h-28 w-28 shrink-0 place-items-center rounded-ecos bg-gradient-to-br from-lion-400 to-magenta-500 font-display text-4xl font-medium text-white sm:h-32 sm:w-32">{{ $venture->initials }}</span>
+                        @endif
+                        <div>
+                            <div class="flex flex-wrap gap-2">
+                                @if ($venture->final_position === 1)<span class="inline-flex items-center gap-1.5 rounded-full bg-lion-500 px-3 py-1 text-xs font-bold text-white"><x-icon name="trophy" class="!text-white" /> Ganador {{ $venture->edition->period_label }}</span>
+                                @elseif ($venture->final_position)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700"><x-icon name="medal" /> Puesto {{ $venture->final_position }}</span>
+                                @elseif ($venture->is_finalist)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700"><x-icon name="star" /> Finalista</span>@endif
+                                @if ($venture->academic_program)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-ink-700"><x-icon name="graduation-cap" /> {{ $venture->academic_program }}</span>@endif
+                            </div>
+                            <h1 class="page-title mt-3">{{ $venture->name }}</h1>
+                            @if ($venture->tagline)<p class="mt-3 max-w-2xl text-lg text-ink-700">{{ $venture->tagline }}</p>@endif
                         </div>
-                        <h1 class="mt-4 page-title">{{ $venture->name }}</h1>
-                        @if ($venture->tagline)<p class="mt-3 max-w-2xl text-lg text-white/70 sm:text-xl">{{ $venture->tagline }}</p>@endif
                     </div>
-                </div>
 
-                <div class="flex animate-fade-up flex-wrap items-center gap-3 [animation-delay:.15s]">
-                    <div x-data="voteButton(@js($voteProps))">
-                        <button type="button" @click="toggle" :disabled="loading"
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" @click="start" :disabled="loading"
                                 class="btn px-6 py-3.5 text-base"
-                                :class="voted ? 'bg-white text-ink-950 hover:bg-white/90' : 'bg-lion-400 text-ink-950 shadow-lg shadow-lion-500/30 hover:bg-lion-300'">
+                                :class="voted ? 'border border-lion-300 bg-white text-lion-700 hover:bg-lion-50' : 'bg-lion-500 text-white shadow-lg shadow-lion-500/30 hover:bg-lion-600'">
                             <i class="fa-heart text-lg" :class="[voted ? 'fa-solid' : 'fa-regular', pulse && 'animate-pop']" aria-hidden="true"></i>
                             <span x-text="voted ? 'Votaste' : 'Votar'"></span>
-                            <span class="rounded-full bg-ink-950/10 px-2 py-0.5 text-sm tabular-nums" x-text="count.toLocaleString('es-CO')"></span>
+                            <span class="rounded-full bg-black/10 px-2 py-0.5 text-sm tabular-nums" x-text="count.toLocaleString('es-CO')"></span>
                         </button>
-                    </div>
-                    <a href="#apoyar" class="btn-ghost px-6 py-3.5 text-base"><x-icon name="hand-holding-dollar" /> Apoyar</a>
-                    <div x-data="{ open: false, copied: false }" class="relative">
-                        <button type="button" @click="navigator.share ? navigator.share({ title: @js($venture->name), text: @js($shareText), url: @js($shareUrl) }).catch(() => {}) : open = !open" @click.outside="open = false"
-                                class="grid h-[3.25rem] w-[3.25rem] place-items-center rounded-full border border-white/15 hover:bg-white/5" aria-label="Compartir">
-                            <x-icon name="share-nodes" class="text-lg" />
-                        </button>
-                        <div x-cloak x-show="open" x-transition class="absolute right-0 z-20 mt-2 w-56 rounded-2xl border border-white/10 bg-ink-900 p-1 text-sm shadow-2xl">
-                            <a target="_blank" rel="noopener" href="https://wa.me/?text={{ rawurlencode($shareText.' '.$shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-white/5"><x-icon name="whatsapp" style="brands" fw /> WhatsApp</a>
-                            <a target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u={{ rawurlencode($shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-white/5"><x-icon name="facebook" style="brands" fw /> Facebook</a>
-                            <a target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text={{ rawurlencode($shareText) }}&url={{ rawurlencode($shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-white/5"><x-icon name="x-twitter" style="brands" fw /> X</a>
-                            <a target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url={{ rawurlencode($shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-white/5"><x-icon name="linkedin" style="brands" fw /> LinkedIn</a>
-                            <button type="button" @click="navigator.clipboard.writeText(@js($shareUrl)); copied = true; setTimeout(() => copied = false, 2000)" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-white/5"><x-icon name="link" fw /><span x-text="copied ? '¡Enlace copiado!' : 'Copiar enlace'"></span></button>
+                        <a href="#apoyar" class="btn-ghost bg-white px-6 py-3.5 text-base"><x-icon name="hand-holding-heart" /> Apoyar</a>
+                        <div x-data="{ open: false, copied: false }" class="relative">
+                            <button type="button" @click="navigator.share ? navigator.share({ title: @js($venture->name), text: @js($shareText), url: @js($shareUrl) }).catch(() => {}) : open = !open" @click.outside="open = false"
+                                    class="grid h-[3.25rem] w-[3.25rem] place-items-center rounded-full bg-white hover:bg-lion-50" aria-label="Compartir">
+                                <x-icon name="share-nodes" class="text-lg" />
+                            </button>
+                            <div x-cloak x-show="open" x-transition class="absolute right-0 z-20 mt-2 w-56 rounded-ecos border border-ink-900/[.06] bg-white p-1 text-sm text-ink-800 shadow-2xl">
+                                <a target="_blank" rel="noopener" href="https://wa.me/?text={{ rawurlencode($shareText.' '.$shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-tarjeta"><x-icon name="whatsapp" style="brands" fw /> WhatsApp</a>
+                                <a target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u={{ rawurlencode($shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-tarjeta"><x-icon name="facebook" style="brands" fw /> Facebook</a>
+                                <a target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text={{ rawurlencode($shareText) }}&url={{ rawurlencode($shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-tarjeta"><x-icon name="x-twitter" style="brands" fw /> X</a>
+                                <a target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url={{ rawurlencode($shareUrl) }}" class="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-tarjeta"><x-icon name="linkedin" style="brands" fw /> LinkedIn</a>
+                                <button type="button" @click="navigator.clipboard.writeText(@js($shareUrl)); copied = true; setTimeout(() => copied = false, 2000)" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-tarjeta"><x-icon name="link" fw /><span x-text="copied ? '¡Enlace copiado!' : 'Copiar enlace'"></span></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -80,7 +79,7 @@
         </div>
     </section>
 
-    <div class="container-x grid gap-10 lg:grid-cols-12">
+    <div class="container-x mt-12 grid gap-10 lg:grid-cols-12 [&>*]:min-w-0">
         {{-- ================= CONTENIDO ================= --}}
         <div class="space-y-14 lg:col-span-8">
             {{-- Video pitch --}}
@@ -267,8 +266,7 @@
 
             {{-- Apoyar --}}
             <section id="apoyar" class="scroll-mt-28">
-                <div class="relative overflow-hidden rounded-[2rem] border border-lion-400/20 bg-gradient-to-br from-lion-400/[.14] via-white to-volt-600/[.08] p-6 sm:p-10">
-                    <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-lion-400/20 blur-3xl"></div>
+                <div class="ecos-soft-coral relative overflow-hidden rounded-ecos p-6 sm:p-10">
                     <div class="relative">
                         <span class="eyebrow"><x-icon name="rocket" /> Impulsa este emprendimiento</span>
                         <h2 class="mt-3 font-display text-3xl font-semibold sm:text-4xl">¿Quieres apoyar a {{ $venture->name }}?</h2>
@@ -279,25 +277,25 @@
                         @endif
 
                         @auth
-                            <form method="POST" action="{{ route('ventures.pledge', $venture) }}" x-data="{ type: @js(old('type', auth()->user()->isInvestor() ? 'inversion' : 'mentoria')) }" class="mt-8 space-y-5">
+                            @php $oldTypes = old('types', auth()->user()->isInvestor() ? ['inversion'] : []); @endphp
+                            <form method="POST" action="{{ route('ventures.pledge', $venture) }}" x-data="{ types: @js($oldTypes) }" class="mt-8 space-y-5">
                                 @csrf
-                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                                <p class="text-sm font-semibold text-lion-700">¿Cómo quieres apoyarlos? <span class="font-normal text-ink-500">Puedes elegir varias opciones.</span></p>
+                                <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
                                     @foreach ($pledgeTypes as $key => $t)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="type" value="{{ $key }}" x-model="type" class="peer sr-only">
-                                            <span class="flex h-full flex-col items-center rounded-2xl border border-white/10 bg-white/[.03] p-4 text-center transition peer-checked:border-lion-400 peer-checked:bg-lion-400/10 peer-focus-visible:ring-2 peer-focus-visible:ring-lion-400 hover:border-white/30">
-                                                <x-icon :name="$t['icon']" class="text-2xl" />
-                                                <span class="mt-2 text-sm font-semibold">{{ $t['label'] }}</span>
+                                        <label class="cursor-pointer" title="{{ $t['hint'] }}">
+                                            <input type="checkbox" name="types[]" value="{{ $key }}" x-model="types" class="peer sr-only">
+                                            <span class="flex h-full items-center gap-2.5 rounded-ecos border-2 border-transparent bg-white p-3 text-left transition peer-checked:border-lion-500 peer-checked:bg-lion-50 peer-focus-visible:ring-2 peer-focus-visible:ring-lion-400 hover:border-lion-200">
+                                                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-tarjeta"><x-icon :name="$t['icon']" /></span>
+                                                <span class="text-sm font-semibold leading-tight text-ink-800">{{ $t['label'] }}</span>
                                             </span>
                                         </label>
                                     @endforeach
                                 </div>
-                                @foreach ($pledgeTypes as $key => $t)
-                                    <p x-cloak x-show="type === '{{ $key }}'" class="text-sm text-white/55">{{ $t['hint'] }}</p>
-                                @endforeach
+                                <x-input-error :messages="$errors->get('types')" class="mt-1" />
 
                                 <div class="grid gap-4 sm:grid-cols-2">
-                                    <div x-show="type === 'inversion' || type === 'donacion'" x-transition>
+                                    <div x-show="types.includes('inversion') || types.includes('donacion')" x-transition>
                                         <label class="label-dark" for="amount">Monto aproximado (COP) <span class="text-white/40">· opcional</span></label>
                                         <input id="amount" type="number" name="amount" min="0" step="50000" value="{{ old('amount') }}" class="input-dark" placeholder="Ej. 2000000">
                                     </div>
@@ -312,14 +310,13 @@
                                     <label class="label-dark" for="message">Mensaje para el equipo</label>
                                     <textarea id="message" name="message" rows="4" required minlength="10" maxlength="2000" class="input-dark" placeholder="Cuéntales quién eres y cómo te gustaría apoyarlos…">{{ old('message') }}</textarea>
                                     <x-input-error :messages="$errors->get('message')" class="mt-2" />
-                                    <x-input-error :messages="$errors->get('type')" class="mt-2" />
                                 </div>
                                 <label class="flex items-start gap-3 text-sm text-white/70">
                                     <input type="checkbox" name="public_ranking" value="1" @checked(old('public_ranking', auth()->user()->show_in_investor_ranking))
                                            class="mt-0.5 rounded border-white/20 bg-white/5 text-lion-400 focus:ring-lion-400 focus:ring-offset-ink-950">
                                     <span>Mostrar mi nombre u organización en el <a href="{{ route('ranking', ['vista' => 'inversionistas']) }}" class="font-semibold text-lion-300 hover:text-lion-200">ranking de inversionistas</a>.</span>
                                 </label>
-                                <button class="btn-lion px-7 py-3.5 text-base">Enviar intención de apoyo <x-icon name="paper-plane" /></button>
+                                <button class="btn-lion px-7 py-3.5 text-base" :disabled="!types.length">Enviar intención de apoyo <x-icon name="paper-plane" /></button>
                             </form>
                         @else
                             <div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -421,4 +418,82 @@
             </div>
         </section>
     @endif
+    {{-- ================= VOTO PASO A PASO ================= --}}
+    <template x-teleport="body">
+        <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-[90] flex items-end justify-center bg-lion-900/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+             @keydown.escape.window="open = false" @click.self="open = false" role="dialog" aria-modal="true" aria-labelledby="vote-title">
+            <div class="surface-light w-full max-w-lg rounded-t-ecos bg-white p-6 shadow-2xl sm:rounded-ecos sm:p-8" x-show="open" x-transition>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="eyebrow" x-show="step < 4">Paso <span x-text="step"></span> de 3</p>
+                        <h2 id="vote-title" class="mt-1 font-display text-2xl text-lion-700">
+                            <span x-show="step === 1">¿Qué te parece {{ $venture->name }}?</span>
+                            <span x-show="step === 2" x-cloak>Cuéntale al equipo por qué</span>
+                            <span x-show="step === 3" x-cloak>Confirma tu voto</span>
+                            <span x-show="step === 4" x-cloak>¡Gracias por votar!</span>
+                        </h2>
+                    </div>
+                    <button type="button" @click="open = false" class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-tarjeta text-ink-600 hover:bg-lion-100" aria-label="Cerrar"><x-icon name="xmark" /></button>
+                </div>
+                <div class="mt-4 flex gap-1.5" x-show="step < 4" aria-hidden="true">
+                    <template x-for="n in 3"><span class="h-1.5 flex-1 rounded-full transition" :class="n <= step ? 'bg-lion-500' : 'bg-tarjeta'"></span></template>
+                </div>
+
+                {{-- 1. Estrellas --}}
+                <div x-show="step === 1" class="mt-6 text-center">
+                    <div class="inline-flex text-4xl" @mouseleave="hover = 0">
+                        <template x-for="n in 5">
+                            <button type="button" @click="rating = n; error = ''" @mouseenter="hover = n" class="px-1 transition hover:scale-110" :aria-label="n + ' estrellas'">
+                                <i class="fa-star text-lion-500" :class="(hover || rating) >= n ? 'fa-solid' : 'fa-regular'" aria-hidden="true"></i>
+                            </button>
+                        </template>
+                    </div>
+                    <p class="mt-2 h-5 text-sm font-semibold text-lion-700" x-text="labels[hover || rating]"></p>
+                </div>
+
+                {{-- 2. Comentario --}}
+                <div x-show="step === 2" x-cloak class="mt-6">
+                    <textarea x-model="body" @input="error = ''" rows="5" maxlength="1000" class="input-dark" placeholder="¿Qué te gustó? ¿Qué le recomendarías mejorar?"></textarea>
+                    <p class="mt-1.5 text-right text-xs" :class="chars >= minChars ? 'text-aqua-600' : 'text-ink-500'"><span x-text="chars"></span> / mínimo <span x-text="minChars"></span> caracteres</p>
+                </div>
+
+                {{-- 3. Confirmar --}}
+                <div x-show="step === 3" x-cloak class="mt-6 rounded-ecos bg-tarjeta p-5">
+                    <div class="flex gap-0.5 text-lion-500"><template x-for="n in 5"><i class="fa-star" :class="rating >= n ? 'fa-solid' : 'fa-regular'" aria-hidden="true"></i></template></div>
+                    <p class="mt-2 whitespace-pre-line break-words text-sm text-ink-700" x-text="body"></p>
+                    <p class="mt-4 text-xs text-ink-500">Tu opinión se publicará en la ficha del emprendimiento. Hay un solo voto por persona; puedes retirarlo mientras la votación esté abierta.</p>
+                </div>
+
+                {{-- 4. Gracias → embudo de apoyo --}}
+                <div x-show="step === 4" x-cloak class="mt-4">
+                    <p class="text-ink-700">Tu voto y tu comentario ya cuentan para {{ $venture->name }}. ¿Quieres ayudarles a llegar más lejos?</p>
+                    <div class="mt-6 grid gap-2 sm:grid-cols-2">
+                        <a href="#apoyar" @click="open = false" class="btn-lion py-3"><x-icon name="hand-holding-heart" /> Apoyar a este equipo</a>
+                        <a href="{{ route('investors') }}" class="btn-ghost py-3">Formas de apoyo <x-icon name="arrow-right" /></a>
+                    </div>
+                    <button type="button" @click="open = false" class="mt-4 w-full text-center text-sm text-ink-500 hover:text-lion-700">Seguir explorando</button>
+                </div>
+
+                <p x-show="error" x-text="error" class="mt-4 rounded-xl bg-coral-400/15 px-4 py-2.5 text-sm font-medium text-coral-600"></p>
+
+                <div class="mt-6 flex gap-2" x-show="step < 4">
+                    <button type="button" x-show="step > 1" @click="step--; error = ''" class="btn-ghost"><x-icon name="arrow-left" /> Atrás</button>
+                    <button type="button" x-show="step < 3" @click="next" class="btn-lion ml-auto">Siguiente <x-icon name="arrow-right" /></button>
+                    <button type="button" x-show="step === 3" @click="submit" :disabled="loading" class="btn-lion ml-auto"><x-icon name="heart" /> <span x-text="loading ? 'Enviando…' : 'Dar mi voto'"></span></button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    {{-- Acciones siempre visibles en celular (el pie deja espacio para la barra) --}}
+    @push('scripts')<style>@media (max-width: 1023px) { body > footer { padding-bottom: 4.75rem; } }</style>@endpush
+    <div class="fixed inset-x-0 bottom-0 z-40 border-t border-ink-900/[.06] bg-white/95 p-3 backdrop-blur lg:hidden">
+        <div class="mx-auto grid max-w-md grid-cols-2 gap-2">
+            <button type="button" @click="start" :disabled="loading" class="btn py-3" :class="voted ? 'border border-lion-300 bg-white text-lion-700' : 'bg-lion-500 text-white'">
+                <i class="fa-heart" :class="voted ? 'fa-solid' : 'fa-regular'" aria-hidden="true"></i> <span x-text="voted ? 'Votaste' : 'Votar'"></span>
+            </button>
+            <a href="#apoyar" class="btn-ghost py-3"><x-icon name="hand-holding-heart" /> Apoyar</a>
+        </div>
+    </div>
+    </div>
 </x-layouts.site>

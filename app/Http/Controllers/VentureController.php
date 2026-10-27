@@ -71,6 +71,8 @@ class VentureController extends Controller
         $hasVoted = $user ? $venture->votes()->where('user_id', $user->id)->exists() : false;
         $votingBlocked = VotingGate::denialReason($user, $venture);
         $votesLeft = $user ? VotingGate::votesLeft($user, $venture) : null;
+        // Opinión previa del usuario, para precargar el voto paso a paso
+        $myReview = $user ? $venture->comments()->where('user_id', $user->id)->latest()->first(['rating', 'body']) : null;
 
         $related = Venture::published()->where('edition_id', $venture->edition_id)->whereKeyNot($venture->id)
             ->when($venture->category_id, fn ($q) => $q->orderByRaw('category_id = ? desc', [$venture->category_id]))
@@ -78,6 +80,6 @@ class VentureController extends Controller
 
         $pledgeTypes = SupportPledge::TYPES;
 
-        return view('public.ventures.show', compact('venture', 'comments', 'hasVoted', 'votingBlocked', 'votesLeft', 'related', 'pledgeTypes'));
+        return view('public.ventures.show', compact('venture', 'comments', 'hasVoted', 'votingBlocked', 'votesLeft', 'related', 'pledgeTypes', 'myReview'));
     }
 }

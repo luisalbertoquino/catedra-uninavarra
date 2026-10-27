@@ -8,28 +8,37 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './resources/js/**/*.js',
+        './app/**/*.php', // clases generadas desde PHP (p. ej. Setting::headline)
     ],
 
     theme: {
         extend: {
             fontFamily: {
-                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
-                display: ['Outfit', ...defaultTheme.fontFamily.sans],
+                // Sans humanista redondeada, de peso medio (estilo ECOS)
+                sans: ['Cabin', '"Nunito Sans"', ...defaultTheme.fontFamily.sans],
+                display: ['Cabin', '"Nunito Sans"', ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                // Paleta de marca: ajustar aquí si Comunicaciones entrega el manual de identidad
+                // Paleta inspirada en los artes ECOS. Los nombres "ink" y "lion" se conservan para no tocar cada vista:
+                // ink = tinta violeta profunda (textos y superficies oscuras), lion = violeta de acento.
                 ink: {
-                    DEFAULT: '#070a1a',
-                    50: '#f4f5fb', 100: '#e6e8f5', 200: '#c9cdea', 300: '#9aa1d0', 400: '#6871ad',
-                    500: '#454e8c', 600: '#333b70', 700: '#232a55', 800: '#151a3a', 900: '#0c1029', 950: '#070a1a',
+                    DEFAULT: '#1a1230',
+                    50: '#f8f6fc', 100: '#efeaf8', 200: '#ddd3ef', 300: '#c1b1e0', 400: '#9a85c4',
+                    500: '#7a62a8', 600: '#5f4a8a', 700: '#4a376f', 800: '#372856', 900: '#261b3e', 950: '#1a1230',
                 },
                 lion: {
-                    50: '#fffbea', 100: '#fff3c4', 200: '#ffe685', 300: '#ffd445', 400: '#fdc31b',
-                    500: '#f5b70a', 600: '#d98f02', 700: '#b46606', 800: '#924e0c', 900: '#78400d',
+                    50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff', 300: '#d8b4fe', 400: '#c084fc',
+                    500: '#a855f7', 600: '#9333ea', 700: '#7e22ce', 800: '#6b21a8', 900: '#581c87',
                 },
-                volt: { 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed' },
-                aqua: { 400: '#22d3ee', 500: '#06b6d4' },
+                volt: { 400: '#8f9ff0', 500: '#6b7fe0', 600: '#5566c9' },   // azul periwinkle
+                aqua: { 400: '#8dd6c5', 500: '#6cc5b0', 600: '#4fa892' },   // menta
+                coral: { 400: '#ff8f8b', 500: '#ff6b66', 600: '#e5524d' },
+                naranja: { 400: '#f99a52', 500: '#f7791e', 600: '#dc6410' },
+                magenta: { 400: '#ef8ff3', 500: '#e865ee', 600: '#cf4bd6' },
+                lavanda: '#e4d3f6',
+                tarjeta: '#eef0f0',
             },
+            borderRadius: { ecos: '18px' },
             backgroundImage: {
                 'grid-light': 'linear-gradient(to right, rgb(255 255 255 / .05) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / .05) 1px, transparent 1px)',
             },

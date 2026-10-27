@@ -59,10 +59,12 @@
                         <div class="relative aspect-video overflow-hidden">
                             @if ($v->cover_url)
                                 <img src="{{ $v->cover_url }}" alt="" loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-transparent to-transparent"></div>
+                            @elseif ($v->logo_url)
+                                <div class="grid h-full w-full place-items-center bg-white p-6"><img src="{{ $v->logo_url }}" alt="" loading="lazy" class="max-h-full max-w-full object-contain"></div>
                             @else
-                                <div class="h-full w-full bg-gradient-to-br from-volt-600/40 to-ink-800"></div>
+                                <div class="ecos-g-violeta-menta h-full w-full"></div>
                             @endif
-                            <div class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/20 to-transparent"></div>
                             <span class="absolute inset-0 grid place-items-center opacity-0 transition group-hover:opacity-100">
                                 <span class="grid h-14 w-14 place-items-center rounded-full bg-lion-400/90 text-ink-950"><i class="fa-solid fa-play text-xl" aria-hidden="true"></i></span>
                             </span>

@@ -1,7 +1,5 @@
 <x-layouts.site title="Ediciones">
-    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-12 pt-32 lg:pt-40">
-        <img src="{{ asset('images/catedra-banner.jpg') }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover opacity-25">
-        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/50 via-ink-950/70 to-ink-950"></div>
+    <section class="ecos-soft-azul ecos-band pb-12 pt-32 lg:pt-36">
         <div class="container-x">
             <span class="eyebrow"><x-icon name="clock-rotate-left" /> Historia</span>
             <h1 class="mt-3 page-title">Ediciones de la Cátedra</h1>
@@ -13,7 +11,7 @@
         @foreach ($editions as $e)
             <a href="{{ route('editions.show', $e) }}" class="card-dark card-dark-hover reveal group grid gap-6 overflow-hidden p-6 sm:p-8 lg:grid-cols-12 lg:items-center">
                 <div class="lg:col-span-3">
-                    <div class="font-display text-6xl font-semibold text-white/10 transition group-hover:text-lion-400/40 sm:text-7xl">{{ $e->period_label }}</div>
+                    <div class="font-display text-6xl font-medium text-lion-300 transition group-hover:text-lion-500 sm:text-7xl">{{ $e->period_label }}</div>
                     @if ($e->is_active)<span class="chip mt-2 border-lion-400/30 bg-lion-400/10 text-lion-100"><x-icon name="circle-check" /> Edición actual</span>@endif
                 </div>
                 <div class="lg:col-span-5">

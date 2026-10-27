@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\EditionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\JuryController;
 use App\Http\Controllers\PledgeController;
 use App\Http\Controllers\ProfileController;
@@ -22,6 +23,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/emprendimientos', [VentureController::class, 'index'])->name('ventures.index');
 Route::get('/emprendimientos/{venture}', [VentureController::class, 'show'])->name('ventures.show');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
+Route::get('/inversionistas', [InvestorController::class, 'index'])->name('investors');
 Route::get('/ediciones', [EditionController::class, 'index'])->name('editions.index');
 Route::get('/ediciones/{edition}', [EditionController::class, 'show'])->name('editions.show');
 

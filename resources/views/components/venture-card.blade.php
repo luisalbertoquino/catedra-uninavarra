@@ -13,38 +13,37 @@
                 <img src="{{ $venture->logo_url }}" alt="Logo {{ $venture->name }}" loading="lazy" class="max-h-full max-w-full object-contain transition duration-700 group-hover:scale-105">
             </div>
         @else
-            <div class="h-full w-full bg-gradient-to-br from-volt-600/60 via-ink-800 to-lion-500/40"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
+            <div class="ecos-g-violeta-menta h-full w-full"></div>
         @endif
 
         <div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
             @if ($venture->final_position === 1)
-                <span class="chip ico-inherit border-transparent bg-lion-400 font-bold text-ink-950"><x-icon name="trophy" /> Ganador</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-lion-500 px-3 py-1 text-xs font-bold text-white ico-inherit"><x-icon name="trophy" /> Ganador</span>
             @elseif ($venture->final_position)
-                <span class="chip border-lion-400/40 bg-ink-950/70 text-lion-100"><x-icon name="medal" /> Puesto {{ $venture->final_position }}</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700 shadow-sm"><x-icon name="medal" /> Puesto {{ $venture->final_position }}</span>
             @elseif ($venture->is_finalist)
-                <span class="chip border-lion-400/40 bg-ink-950/70 text-lion-100"><x-icon name="star" /> Finalista</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700 shadow-sm"><x-icon name="star" /> Finalista</span>
             @endif
             @if ($venture->category)
-                <span class="chip bg-ink-950/60 backdrop-blur">@if ($venture->category->icon)<x-icon :name="$venture->category->icon" />@endif {{ $venture->category->name }}</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-ink-800 shadow-sm backdrop-blur">@if ($venture->category->icon)<x-icon :name="$venture->category->icon" />@endif {{ $venture->category->name }}</span>
             @endif
         </div>
 
         @if ($rank)
-            <span class="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white font-display text-sm font-semibold text-ink-950 shadow-lg">#{{ $rank }}</span>
+            <span class="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-lion-500 font-display text-sm font-semibold text-white shadow-lg">#{{ $rank }}</span>
         @endif
 
         <div @class(['absolute bottom-3 left-4 flex items-center gap-3', 'hidden' => $logoAsCover])>
             @if ($venture->logo_url)
                 <img src="{{ $venture->logo_url }}" alt="" class="h-12 w-12 rounded-2xl border border-white/20 bg-white object-contain p-1">
             @else
-                <span class="grid h-12 w-12 place-items-center rounded-2xl border border-white/20 bg-ink-950/70 font-display text-lg font-semibold text-lion-300 backdrop-blur">{{ $venture->initials }}</span>
+                <span class="grid h-12 w-12 place-items-center rounded-full bg-white font-display text-lg font-medium text-lion-600 shadow-sm">{{ $venture->initials }}</span>
             @endif
         </div>
     </div>
 
     <div class="flex flex-1 flex-col p-5">
-        <h3 class="font-display text-xl font-semibold leading-tight text-white group-hover:text-lion-300">{{ $venture->name }}</h3>
+        <h3 class="font-display text-xl font-medium leading-tight text-lion-700 group-hover:text-lion-500">{{ $venture->name }}</h3>
         <p class="mt-2 line-clamp-2 text-sm text-white/60">{{ $venture->tagline }}</p>
 
         <div class="mt-auto flex items-center justify-between pt-5 text-sm">

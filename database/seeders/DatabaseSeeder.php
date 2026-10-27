@@ -144,10 +144,11 @@ class DatabaseSeeder extends Seeder
         $types = array_keys(SupportPledge::TYPES);
         foreach ($investors as $inv) {
             foreach ($ventures->random(2) as $v) {
-                $type = $faker->randomElement($types);
+                $picked = SupportPledge::normalizeTypes($faker->randomElements($types, mt_rand(1, 3)));
+                $type = $picked[0];
                 SupportPledge::create([
-                    'user_id' => $inv->id, 'venture_id' => $v->id, 'type' => $type,
-                    'amount' => in_array($type, ['inversion', 'donacion']) ? $faker->randomElement([500000, 1000000, 2000000, 5000000, 10000000]) : null,
+                    'user_id' => $inv->id, 'venture_id' => $v->id, 'type' => $type, 'types' => $picked,
+                    'amount' => in_array($type, SupportPledge::MONETARY) ? $faker->randomElement([500000, 1000000, 2000000, 5000000, 10000000]) : null,
                     'message' => $faker->randomElement([
                         'Me interesa conocer el plan financiero y la proyección a 3 años.',
                         'Podemos apoyarles con mentoría en mercadeo digital y ventas.',

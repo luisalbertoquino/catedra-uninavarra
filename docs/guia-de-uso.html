@@ -122,7 +122,7 @@
         <thead><tr><th>Rol</th><th>Cómo se obtiene</th><th>Puede</th><th>No puede</th></tr></thead>
         <tbody>
           <tr><td><b>Visitante</b></td><td>Sin cuenta</td><td>Ver todo el sitio, videos, ranking, ediciones y compartir.</td><td>Votar, opinar ni registrar apoyos.</td></tr>
-          <tr><td><b>Comunidad</b></td><td>Se registra eligiendo "Comunidad"</td><td>Votar (1 voto por convocatoria), calificar y comentar, registrar apoyos (mentoría, cliente…), ver "Mi actividad".</td><td>Entrar a los paneles de jurado o admin.</td></tr>
+          <tr><td><b>Comunidad</b></td><td>Se registra eligiendo "Comunidad"</td><td>Votar (1 voto por convocatoria, con estrellas y comentario), opinar, registrar apoyos (asesorías, contactos, mercadeo…), ver "Mi actividad".</td><td>Entrar a los paneles de jurado o admin.</td></tr>
           <tr><td><b>Inversionista / Aliado</b></td><td>Se registra eligiendo "Inversionista / Aliado" (teléfono obligatorio)</td><td>Todo lo de comunidad, y registrar intenciones de inversión o donación. Aparecer en el ranking de inversionistas si lo autoriza.</td><td>Entrar a los paneles de jurado o admin.</td></tr>
           <tr><td><b>Jurado</b></td><td>Lo crea el administrador</td><td>Entrar a <code>/jurado</code>, ver el video de cada equipo y calificarlo con la rúbrica.</td><td>Votar como comunidad ni ver el panel admin.</td></tr>
           <tr><td><b>Profesor experto</b> <span class="tag">jurado especial</span></td><td>Jurado marcado como experto por el administrador (el nombre del rol es configurable)</td><td>Lo mismo que un jurado; dentro del comité técnico su nota pesa igual que la de cada jurado (configurable).</td><td>Votar como comunidad.</td></tr>
@@ -175,13 +175,16 @@
         <li><b>Rol de comunidad o inversionista.</b> Jurados y administradores no votan.</li>
         <li><b>Dominio de correo (opcional):</b> si el admin lo configura (por ejemplo <code>uninavarra.edu.co</code>), solo votan cuentas de ese dominio.</li>
       </ol>
-      <div class="note">Si la persona intenta votar por otro emprendimiento ya habiendo votado, la plataforma le indica por cuál votó y cómo cambiarlo.</div>
+      <h3>El voto es un paso a paso</h3>
+      <div class="flow"><span>1. Estrellas (1 a 5)</span><i>→</i><span>2. Comentario (mínimo 15 caracteres)</span><i>→</i><span>3. Confirmar</span><i>→</i><span class="on">¡Voto registrado!</span></div>
+      <p>No se puede votar sin calificar y comentar: la plataforma lo exige también en el servidor. El comentario se publica en la ficha del emprendimiento. Al terminar, la plataforma invita a <b>apoyar al equipo</b>. Retirar el voto no borra el comentario; si vuelve a votar por el mismo emprendimiento, su opinión se actualiza.</p>
+      <div class="note">Si la persona intenta votar por otro emprendimiento ya habiendo votado, la plataforma le indica por cuál votó y cómo cambiarlo. En celular, los botones Votar y Apoyar quedan fijos en la parte inferior de la ficha.</div>
     </section>
 
     <section id="opinar">
       <h2><span class="n">6</span> Opinar y calificar</h2>
       <ul>
-        <li>Cualquier persona registrada con <b>correo verificado</b> puede dejar una calificación de 1 a 5 estrellas y un comentario (3 a 1000 caracteres), en cualquier momento.</li>
+        <li>Al votar, la calificación y el comentario son obligatorios (ver sección 5). Además, cualquier persona registrada con <b>correo verificado</b> puede opinar sin votar, en cualquier momento.</li>
         <li>Cada persona puede borrar sus comentarios. El admin puede ocultarlos, publicarlos o eliminarlos.</li>
         <li>Opcionalmente, el admin puede activar que los comentarios queden ocultos hasta aprobarlos (moderación previa).</li>
         <li>Las estrellas son retroalimentación para el equipo: <b>no afectan la nota final</b>.</li>
@@ -191,10 +194,11 @@
     <section id="inversionistas">
       <h2><span class="n">7</span> Inversionistas y aliados: cómo funciona el apoyo</h2>
       <p class="lead">La plataforma no cobra ni recibe dinero. Registra la intención y el Centro de Emprendimiento hace la gestión.</p>
+      <p>La navegación funciona como un <b>embudo</b>: la portada, la ficha de cada emprendimiento y el final del voto llevan a la página <a href="https://lionhub.uninavarra.edu.co/inversionistas"><code>/inversionistas</code></a>, que explica qué se puede aportar, cómo funciona en 3 pasos, qué equipos buscan aliados y el ranking de aliados.</p>
       <div class="flow"><span>1. Intención de apoyo</span><i>→</i><span>2. Pendiente</span><i>→</i><span>3. Contactado</span><i>→</i><span>4. En proceso</span><i>→</i><span class="on">5. Concretado</span><i>o</i><span>Descartado</span></div>
       <ol class="steps">
         <li>El inversionista o aliado inicia sesión, abre la ficha de un emprendimiento y pulsa <b>Apoyar</b>.</li>
-        <li>Elige el tipo de apoyo: <b>inversión, donación, mentoría, alianza o cliente</b>, escribe un mensaje, el monto aproximado (si aplica) y su teléfono.</li>
+        <li>Marca <b>una o varias</b> formas de apoyo: inversión, donación, asesorías, infraestructura, materia prima, equipos, herramientas, suministros, contactos, mercadeo (impulso en redes y otros canales), alianza o cliente. Escribe un mensaje, el monto aproximado (solo si incluye inversión o donación) y su teléfono.</li>
         <li>Marca, si lo desea, la casilla <b>"Mostrar mi nombre u organización en el ranking de inversionistas"</b>.</li>
         <li>La intención queda <b>Pendiente</b> y la ve el administrador en <b>Admin → Intenciones de apoyo</b>.</li>
         <li>La persona encargada lo contacta y conecta con el equipo, actualizando el estado: <b>Contactado → En proceso → Concretado</b> (o <b>Descartado</b>), con notas internas de seguimiento.</li>
@@ -286,7 +290,7 @@
     <section id="pruebas">
       <h2><span class="n">13</span> Guion de pruebas sugerido</h2>
       <div class="grid">
-        <div class="card"><h4>Comunidad · estudiante5</h4><ul class="check"><li>Votar por un emprendimiento.</li><li>Intentar votar por otro (debe indicar el voto actual).</li><li>Retirar el voto y votar por otro.</li><li>Calificar con estrellas y comentar.</li><li>Revisar "Mi actividad".</li></ul></div>
+        <div class="card"><h4>Comunidad · estudiante5</h4><ul class="check"><li>Votar paso a paso: estrellas, comentario y confirmación.</li><li>Intentar avanzar sin estrellas o con un comentario corto (debe pedirlos).</li><li>Intentar votar por otro (debe indicar el voto actual).</li><li>Retirar el voto y votar por otro.</li><li>Calificar con estrellas y comentar.</li><li>Revisar "Mi actividad".</li></ul></div>
         <div class="card"><h4>Inversionista</h4><ul class="check"><li>Apoyar un emprendimiento con inversión y monto.</li><li>Marcar "Mostrar en el ranking".</li><li>Ver el estado "Pendiente" en "Mi actividad".</li><li>Comprobar que aún no aparece en el ranking.</li></ul></div>
         <div class="card"><h4>Administrador</h4><ul class="check"><li>En Intenciones de apoyo, pasar ese apoyo a "Concretado".</li><li>Ver al inversionista en Ranking → Inversionistas.</li><li>Cambiar porcentajes o modo de nota de votos en la edición.</li><li>Editar textos en Configuración.</li><li>Probar "Siguiente convocatoria" (sin guardar).</li></ul></div>
         <div class="card"><h4>Jurados</h4><ul class="check"><li>Evaluar el mismo emprendimiento con los dos jurados y con el experto.</li><li>Ver en Resultados la nota de jurados, experto y final.</li><li>Abrir la matriz de evaluaciones.</li><li>Marcar finalistas y publicar resultados.</li></ul></div>

@@ -17,11 +17,11 @@
     <template x-for="item in items" :key="item.id">
         <div x-transition:enter="transition duration-300 ease-out" x-transition:enter-start="translate-y-4 opacity-0" x-transition:enter-end="translate-y-0 opacity-100"
              x-transition:leave="transition duration-200" x-transition:leave-end="opacity-0"
-             class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-white/10 bg-ink-900/95 px-4 py-3 text-sm text-white shadow-2xl shadow-black/40 backdrop-blur">
+             class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-ecos border border-lion-200 bg-white px-4 py-3 text-sm text-ink-800 shadow-2xl shadow-lion-900/15">
             <i class="ico fa-solid mt-0.5 shrink-0 text-base" aria-hidden="true"
                :class="item.type === 'success' ? 'fa-circle-check' : (item.type === 'warning' ? 'fa-circle-exclamation' : 'fa-circle-info')"></i>
             <p class="flex-1 leading-snug" x-text="item.message"></p>
-            <button type="button" class="text-white/50 hover:text-white" @click="items = items.filter(i => i.id !== item.id)" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            <button type="button" class="text-ink-400 hover:text-lion-700" @click="items = items.filter(i => i.id !== item.id)" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
     </template>
 </div>

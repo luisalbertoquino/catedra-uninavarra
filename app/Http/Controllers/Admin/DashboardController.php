@@ -43,8 +43,9 @@ class DashboardController extends Controller
 
         $ranking = $edition ? Ranking::for($edition, false)->sortByDesc('votes_count')->take(8)->values() : collect();
 
-        $pledgesByType = SupportPledge::whereIn('venture_id', $ventureIds)
-            ->selectRaw('type, COUNT(*) as total')->groupBy('type')->pluck('total', 'type');
+        // Una intención puede tener varios tipos: cada tipo cuenta una vez
+        $pledgesByType = SupportPledge::whereIn('venture_id', $ventureIds)->get(['type', 'types'])
+            ->flatMap->typeKeys()->countBy()->sortDesc();
 
         $latestPledges = SupportPledge::with(['user', 'venture'])->latest()->take(6)->get();
         $latestComments = Comment::with(['user', 'venture'])->latest()->take(6)->get();

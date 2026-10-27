@@ -18,12 +18,15 @@ class PledgeController extends Controller
         }
 
         $data = $request->validate([
-            'type' => ['required', Rule::in(array_keys(SupportPledge::TYPES))],
+            'types' => ['required', 'array', 'min:1', 'max:'.count(SupportPledge::TYPES)],
+            'types.*' => [Rule::in(array_keys(SupportPledge::TYPES))],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999'],
             'message' => ['required', 'string', 'min:10', 'max:2000'],
             'phone' => ['nullable', 'string', 'max:30'],
             'public_ranking' => ['nullable', 'boolean'],
-        ], [], ['type' => 'tipo de apoyo', 'amount' => 'monto', 'message' => 'mensaje']);
+        ], ['types.required' => 'Elige al menos una forma de apoyo.'], ['types' => 'formas de apoyo', 'amount' => 'monto', 'message' => 'mensaje']);
+        $types = SupportPledge::normalizeTypes($data['types']);
+        $monetary = (bool) array_intersect($types, SupportPledge::MONETARY);
 
         $user = $request->user();
         if (! empty($data['phone']) && ! $user->phone) {
@@ -34,8 +37,9 @@ class PledgeController extends Controller
 
         $venture->pledges()->create([
             'user_id' => $user->id,
-            'type' => $data['type'],
-            'amount' => $data['amount'] ?? null,
+            'type' => $types[0],
+            'types' => $types,
+            'amount' => $monetary ? ($data['amount'] ?? null) : null,
             'message' => $data['message'],
         ]);
 

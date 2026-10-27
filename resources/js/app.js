@@ -53,22 +53,55 @@ Alpine.data('counter', (to, duration = 1800) => ({
     get formatted() { return this.value.toLocaleString('es-CO'); },
 }));
 
-/* Botón de voto con respuesta instantánea */
-Alpine.data('voteButton', ({ url, voted, count, loginUrl, blocked }) => ({
-    voted, count, loading: false, pulse: false,
-    async toggle() {
+/*
+ * Voto paso a paso: 1) calificación con estrellas, 2) comentario obligatorio, 3) confirmar el voto.
+ * Al terminar ofrece apoyar al equipo (embudo hacia inversionistas). Si ya votó, el botón retira el voto.
+ */
+Alpine.data('voteWizard', ({ url, voted, count, loginUrl, blocked, review, minChars }) => ({
+    voted, count, minChars,
+    open: false, step: 1, loading: false, pulse: false, error: '',
+    rating: review?.rating || 0, hover: 0, body: review?.body || '',
+    labels: ['', 'No me convence', 'Puede mejorar', 'Interesante', 'Muy buena idea', '¡Me encanta!'],
+    get chars() { return this.body.trim().length; },
+    start() {
         if (loginUrl) return (window.location.href = loginUrl);
         if (blocked) return window.toast(blocked, 'warning');
+        if (this.voted) return this.retire();
+        this.step = 1; this.error = ''; this.open = true;
+    },
+    next() {
+        this.error = '';
+        if (this.step === 1 && !this.rating) return (this.error = 'Elige de 1 a 5 estrellas.');
+        if (this.step === 2 && this.chars < this.minChars) return (this.error = `Escribe al menos ${this.minChars} caracteres (llevas ${this.chars}).`);
+        this.step++;
+    },
+    async submit() {
+        this.loading = true; this.error = '';
+        try {
+            const { data } = await window.axios.post(url, { rating: this.rating, body: this.body.trim() }, { headers: { Accept: 'application/json' } });
+            this.voted = data.voted;
+            this.count = data.count;
+            window.dispatchEvent(new CustomEvent('vote-updated', { detail: data.count }));
+            this.step = 4;
+            this.pulse = true; setTimeout(() => (this.pulse = false), 500);
+            window.confetti?.();
+        } catch (e) {
+            this.error = e.response?.data?.message || 'No fue posible registrar el voto.';
+        } finally {
+            this.loading = false;
+        }
+    },
+    async retire() {
+        if (!window.confirm('¿Quieres retirar tu voto? Tu comentario se conserva.')) return;
         this.loading = true;
         try {
             const { data } = await window.axios.post(url, {}, { headers: { Accept: 'application/json' } });
             this.voted = data.voted;
             this.count = data.count;
             window.dispatchEvent(new CustomEvent('vote-updated', { detail: data.count }));
-            if (data.voted) { this.pulse = true; setTimeout(() => (this.pulse = false), 500); window.confetti?.(); }
-            window.toast(data.message + (data.left > 0 && data.voted ? ` Te quedan ${data.left} voto(s).` : ''), data.voted ? 'success' : 'info');
+            window.toast(data.message, 'info');
         } catch (e) {
-            window.toast(e.response?.data?.message || 'No fue posible registrar el voto.', 'warning');
+            window.toast(e.response?.data?.message || 'No fue posible retirar el voto.', 'warning');
         } finally {
             this.loading = false;
         }
@@ -81,7 +114,7 @@ window.toast = (message, type = 'success') => window.dispatchEvent(new CustomEve
 /* Confeti ligero sin dependencias */
 window.confetti = () => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const colors = ['#fdc31b', '#8b5cf6', '#22d3ee', '#ec4899', '#ffffff'];
+    const colors = ['#a855f7', '#6cc5b0', '#ff6b66', '#6b7fe0', '#f7791e', '#e865ee'];
     const wrap = document.createElement('div');
     wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden';
     document.body.appendChild(wrap);

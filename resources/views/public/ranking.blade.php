@@ -5,8 +5,7 @@
         $order = [1, 0, 2]; // 2º, 1º, 3º
     @endphp
 
-    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-12 pt-32 text-center lg:pt-40">
-        <div class="pointer-events-none absolute -top-10 left-1/2 -z-10 h-[28rem] w-[50rem] -translate-x-1/2 rounded-full bg-lion-500/15 blur-3xl"></div>
+    <section class="ecos-soft-menta ecos-band pb-12 pt-32 text-center lg:pt-36">
         <div class="container-x">
             <span class="eyebrow"><x-icon name="ranking-star" /> {{ $edition?->name }}</span>
             <h1 class="mt-3 page-title">
@@ -25,7 +24,7 @@
                     Así va la votación en tiempo real. La comunidad aporta el {{ $edition?->community_weight ?? 30 }}% de la nota final; el resto lo definen los jurados y el {{ $edition?->expert_title ?? 'Profesor experto' }}.
                 @endif
             </p>
-            <div class="mt-8 inline-flex rounded-xl border border-white/10 bg-white/[.03] p-1">
+            <div class="mt-8 inline-flex rounded-full bg-white p-1 shadow-sm">
                 @foreach (['emprendimientos' => ['lightbulb', 'Emprendimientos'], 'inversionistas' => ['hand-holding-dollar', 'Inversionistas']] as $key => [$icon, $label])
                     <a href="{{ route('ranking', array_filter(['edicion' => request('edicion'), 'vista' => $key === 'emprendimientos' ? null : $key])) }}"
                        @class(['inline-flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold transition', 'ico-inherit bg-lion-400 text-ink-950' => $tab === $key, 'text-white/70 hover:text-white' => $tab !== $key])>
@@ -61,7 +60,7 @@
                                 @else
                                     <span class="grid h-16 w-16 place-items-center rounded-2xl border border-white/15 bg-ink-800 font-display text-xl font-semibold text-lion-300 sm:h-24 sm:w-24 sm:text-3xl">{{ $v->initials }}</span>
                                 @endif
-                                <span class="absolute -right-3 -top-3 grid h-9 w-9 place-items-center rounded-full border border-lion-400/40 bg-ink-950 sm:h-10 sm:w-10"><x-icon :name="$idx === 0 ? 'crown' : 'medal'" /></span>
+                                <span class="absolute -right-3 -top-3 grid h-9 w-9 place-items-center rounded-full bg-white shadow-md sm:h-10 sm:w-10"><x-icon :name="$idx === 0 ? 'crown' : 'medal'" /></span>
                             </div>
                             <div class="truncate px-1 text-sm font-bold group-hover:text-lion-300 sm:text-lg">{{ $v->name }}</div>
                             <div class="text-xs text-white/50 sm:text-sm">

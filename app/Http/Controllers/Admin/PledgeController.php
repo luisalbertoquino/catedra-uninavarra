@@ -47,7 +47,7 @@ class PledgeController extends Controller
     {
         return SupportPledge::with(['user', 'venture.edition'])
             ->when($request->filled('estado'), fn ($q) => $q->where('status', $request->estado))
-            ->when($request->filled('tipo'), fn ($q) => $q->where('type', $request->tipo))
+            ->when($request->filled('tipo'), fn ($q) => $q->whereJsonContains('types', (string) $request->tipo))
             ->when($request->filled('edicion'), fn ($q) => $q->whereHas('venture', fn ($v) => $v->where('edition_id', $request->edicion)))
             ->latest();
     }

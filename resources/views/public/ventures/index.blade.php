@@ -1,6 +1,5 @@
 <x-layouts.site title="Emprendimientos" :description="'Conoce los emprendimientos de la '.($edition?->name ?? 'Cátedra UNINAVARRA')">
-    <section class="surface-dark isolate bg-ink-950 text-white relative overflow-hidden pb-10 pt-32 lg:pt-40">
-        <div class="pointer-events-none absolute -top-20 left-1/2 -z-10 h-96 w-[50rem] -translate-x-1/2 rounded-full bg-volt-600/20 blur-3xl"></div>
+    <section class="ecos-soft-violeta ecos-band pb-10 pt-32 lg:pt-36">
         <div class="container-x">
             <span class="eyebrow"><x-icon name="lightbulb" /> {{ $edition?->name }}</span>
             <h1 class="mt-3 page-title">Emprendimientos</h1>
