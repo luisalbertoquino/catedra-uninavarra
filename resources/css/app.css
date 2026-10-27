@@ -76,6 +76,11 @@
     .tarjeta-ecos__tab { @apply inline-flex items-center gap-2 rounded-ecos rounded-bl-none bg-tarjeta px-6 pb-3 pt-4 text-sm font-semibold uppercase tracking-[.06em] text-lion-700; }
     .tarjeta-ecos__body { @apply -mt-px rounded-ecos rounded-tl-none bg-tarjeta p-6 sm:p-8; }
 
+    /* Variante translúcida (sobre video o imagen): blanco al 80 % con desenfoque */
+    .tarjeta-ecos--glass .tarjeta-ecos__tab,
+    .tarjeta-ecos--glass .tarjeta-ecos__body { @apply bg-white/80 backdrop-blur-md; }
+    .tarjeta-ecos--glass .tarjeta-ecos__body { @apply mt-0 shadow-2xl shadow-lion-900/20; }
+
     /* Divisor fino con degradado y un punto en cada extremo */
     .divisor-ecos { @apply relative mx-3 my-4 h-0.5 w-44; background: linear-gradient(90deg, theme('colors.lion.500'), theme('colors.aqua.500')); }
     .divisor-ecos::before, .divisor-ecos::after { content: ''; position: absolute; top: -2px; width: 6px; height: 6px; border-radius: 9999px; }

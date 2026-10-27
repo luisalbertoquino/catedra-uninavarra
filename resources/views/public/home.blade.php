@@ -1,8 +1,21 @@
 <x-layouts.site>
-    {{-- ================= PORTADA: degradado violeta + banda de píldoras + tarjeta escalonada ================= --}}
-    <section class="ecos-g-violeta ecos-band flex min-h-[92svh] items-center pb-16 pt-28 lg:pt-32">
+    {{-- ================= PORTADA: video de fondo + degradado ECOS translúcido + tarjeta blanca translúcida ================= --}}
+    @php $heroVideo = $edition?->promo_video_id; @endphp
+    <section class="ecos-band flex min-h-[92svh] items-center bg-lion-300 pb-16 pt-28 lg:pt-32">
+        <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+            @if ($heroVideo)
+                {{-- Miniatura mientras carga (y si el navegador bloquea la reproducción automática) --}}
+                <img src="https://img.youtube.com/vi/{{ $heroVideo }}/maxresdefault.jpg" alt="" class="absolute inset-0 h-full w-full object-cover">
+                <div class="hero-video absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <iframe src="https://www.youtube-nocookie.com/embed/{{ $heroVideo }}?autoplay=1&mute=1&loop=1&playlist={{ $heroVideo }}&controls=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&fs=0"
+                            title="Video promocional de la Cátedra UNINAVARRA" tabindex="-1" class="h-full w-full" allow="autoplay; encrypted-media; picture-in-picture" loading="eager"></iframe>
+                </div>
+            @endif
+            {{-- Degradado ECOS sobre el video --}}
+            <div class="ecos-g-violeta absolute inset-0 opacity-70"></div>
+        </div>
         <div class="container-x">
-            <div class="tarjeta-ecos mx-auto max-w-5xl animate-fade-up">
+            <div class="tarjeta-ecos tarjeta-ecos--glass mx-auto max-w-5xl animate-fade-up">
                 <span class="tarjeta-ecos__tab"><x-icon name="bolt" /> {{ $edition?->event_name ?? 'LION HUB EVENT' }} · {{ $edition?->period_label }}</span>
                 <div class="tarjeta-ecos__body sm:p-10 lg:p-14">
                     <h1 class="hero-title text-lion-700">{!! \App\Models\Setting::headline('hero_title') !!}</h1>
