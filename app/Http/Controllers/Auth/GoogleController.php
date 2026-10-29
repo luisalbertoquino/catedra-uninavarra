@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Laravel\Socialite\Facades\Socialite;
@@ -39,7 +40,10 @@ class GoogleController extends Controller
 
         try {
             $google = Socialite::driver('google')->user();
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            // Queda en storage/logs/laravel.log para diagnosticar (estado de sesión perdido, secreto inválido, etc.)
+            Log::warning('Ingreso con Google falló: '.$e::class.' — '.Str::limit($e->getMessage(), 500));
+
             return redirect()->route('login')->withErrors(['email' => 'No se pudo ingresar con Google. Inténtalo de nuevo.']);
         }
 
