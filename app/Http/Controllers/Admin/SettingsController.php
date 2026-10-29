@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Notifications\WelcomeInvitation;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
@@ -30,5 +31,17 @@ class SettingsController extends Controller
         Setting::put($request->validate($rules));
 
         return back()->with('status', 'Configuración guardada.');
+    }
+
+    /** Vista previa del correo de bienvenida tal como le llega a un jurado o a un administrador. */
+    public function welcomePreview(Request $request)
+    {
+        $user = $request->user()->replicate()->forceFill([
+            'id' => $request->user()->id,
+            'role' => $request->tipo === 'jurado' ? 'jurado' : 'admin',
+            'is_expert' => false,
+        ]);
+
+        return (new WelcomeInvitation)->toMail($user)->render();
     }
 }

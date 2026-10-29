@@ -1,6 +1,6 @@
 # Cátedra UNINAVARRA · Plataforma de emprendimientos
 
-Vitrina pública de los emprendimientos de la Cátedra UNINAVARRA / LION HUB EVENT. Es reutilizable en cada edición semestral.
+Vitrina pública de los emprendimientos de Cátedra UNINAVARRA / LION HUB EVENT. Es reutilizable en cada edición semestral.
 
 📘 **Guía de uso para cualquier persona (roles, credenciales de prueba, votación, jurados, inversionistas, admin):** [`docs/guia-de-uso.html`](docs/guia-de-uso.html)
 

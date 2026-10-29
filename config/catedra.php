@@ -14,6 +14,9 @@ return [
     // Comentarios nuevos quedan pendientes de aprobación del admin
     'moderate_comments' => env('CATEDRA_MODERATE_COMMENTS', false),
 
+    // Único administrador que puede borrar cuentas de usuario
+    'superadmin' => env('CATEDRA_SUPERADMIN', 'webmaster@uninavarra.edu.co'),
+
     'contact' => [
         'phone' => '+57 318 071 5286',
         'whatsapp' => '573180715286',

@@ -74,6 +74,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'admin';
     }
 
+    /** El administrador principal (webmaster) es el único que puede borrar cuentas. */
+    public function isSuperAdmin(): bool
+    {
+        return $this->isAdmin() && strcasecmp($this->email, (string) config('catedra.superadmin')) === 0;
+    }
+
     public function isInvestor(): bool
     {
         return $this->role === 'inversionista';

@@ -40,12 +40,20 @@
                                     </select>
                                 </form>
                             </td>
-                            <td class="whitespace-nowrap text-right">
-                                @if ($u->isAdmin() || $u->isJury())
-                                    <form method="POST" action="{{ route('admin.users.invite', $u) }}" onsubmit="return confirm('¿Enviar a {{ $u->email }} el correo de bienvenida con el enlace para crear su contraseña?')">@csrf
-                                        <button class="a-btn-light !py-1.5 text-xs" title="Enviar correo de bienvenida"><x-icon name="envelope" style="regular" /> Invitar</button>
-                                    </form>
-                                @endif
+                            <td class="whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-2">
+                                    @if ($u->isAdmin() || $u->isJury())
+                                        <form method="POST" action="{{ route('admin.users.invite', $u) }}" onsubmit="return confirm('¿Enviar a {{ $u->email }} el correo de bienvenida con el enlace para crear su contraseña?')">@csrf
+                                            <button class="a-btn-light !py-1.5 text-xs" title="Enviar correo de bienvenida"><x-icon name="envelope" style="regular" /> Invitar</button>
+                                        </form>
+                                    @endif
+                                    @if (auth()->user()->isSuperAdmin() && ! $u->is(auth()->user()))
+                                        <form method="POST" action="{{ route('admin.users.destroy', $u) }}" onsubmit="return confirm(@js("¿Borrar la cuenta de {$u->email}? También se borran sus {$u->votes_count} voto(s), {$u->comments_count} comentario(s) y {$u->pledges_count} apoyo(s). No se puede deshacer."))">
+                                            @csrf @method('DELETE')
+                                            <button class="a-btn !py-1.5 text-rose-600 hover:bg-rose-50" title="Borrar cuenta"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach

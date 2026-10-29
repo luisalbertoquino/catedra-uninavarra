@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Edition;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -40,17 +41,21 @@ class WelcomeInvitation extends Notification
 
     public function toMail(User $user): MailMessage
     {
-        $event = Edition::current()?->name ?? config('app.name');
+        $edition = Edition::current();
         $mail = (new MailMessage)
             ->subject('Bienvenida a '.config('app.name'))
             ->greeting('¡Hola, '.strtok($user->name, ' ').'!');
 
-        if ($user->isJury()) {
-            $mail->line("Te damos la bienvenida como **".($user->is_expert ? (Edition::current()?->expert_title ?? 'profesor experto') : 'jurado')."** de {$event}.")
-                ->line('En el panel del jurado verás los emprendimientos asignados con su video pitch, y los calificarás con la rúbrica oficial. Tus notas se guardan solas y puedes ajustarlas hasta que cierre la evaluación.');
-        } else {
-            $mail->line("Te damos la bienvenida como **administrador/a** de la plataforma de {$event}.")
-                ->line('Desde el panel podrás gestionar ediciones, emprendimientos, jurados, resultados, comentarios y apoyos de inversionistas.');
+        // Texto editable en Admin → Configuración; el diseño del correo no cambia
+        $text = strtr((string) Setting::get($user->isJury() ? 'welcome_jury' : 'welcome_admin'), [
+            '{nombre}' => $user->name,
+            '{rol}' => $user->isJury() ? ($user->is_expert ? ($edition?->expert_title ?? 'profesor experto') : 'jurado') : 'administrador/a',
+            '{evento}' => $edition?->name ?? config('app.name'),
+        ]);
+        foreach (preg_split('/\r?\n/', $text) as $paragraph) {
+            if (trim($paragraph) !== '') {
+                $mail->line(trim($paragraph));
+            }
         }
 
         if ($this->note) {

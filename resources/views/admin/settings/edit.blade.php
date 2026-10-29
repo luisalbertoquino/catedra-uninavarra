@@ -10,11 +10,14 @@
                             <div>
                                 <label class="a-label" for="{{ $key }}">{{ $label }}</label>
                                 @if ($type === 'textarea')
-                                    <textarea id="{{ $key }}" name="{{ $key }}" rows="{{ $key === 'hero_title' ? 3 : 3 }}" class="a-input">{{ old($key, \App\Models\Setting::get($key)) }}</textarea>
+                                    <textarea id="{{ $key }}" name="{{ $key }}" rows="{{ str_starts_with($key, 'welcome_') ? 5 : 3 }}" class="a-input">{{ old($key, \App\Models\Setting::get($key)) }}</textarea>
                                 @else
                                     <input id="{{ $key }}" type="{{ $type }}" name="{{ $key }}" class="a-input" value="{{ old($key, \App\Models\Setting::get($key)) }}">
                                 @endif
                                 @if ($hint)<p class="mt-1 text-xs text-slate-600">{{ $hint }}</p>@endif
+                                @if (str_starts_with($key, 'welcome_'))
+                                    <a href="{{ route('admin.settings.welcome', ['tipo' => $key === 'welcome_jury' ? 'jurado' : 'admin']) }}" target="_blank" class="mt-1.5 inline-flex items-center gap-1.5 text-xs font-semibold text-ink-700 hover:underline"><x-icon name="eye" style="regular" /> Ver cómo queda el correo (guarda primero los cambios)</a>
+                                @endif
                             </div>
                         @endforeach
                     </div>

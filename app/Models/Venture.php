@@ -112,6 +112,6 @@ class Venture extends Model
             $digits = '57'.$digits;
         }
 
-        return 'https://wa.me/'.$digits.'?text='.rawurlencode("Hola, vi {$this->name} en la Cátedra UNINAVARRA y me gustaría conocer más.");
+        return 'https://wa.me/'.$digits.'?text='.rawurlencode("Hola, vi {$this->name} en Cátedra UNINAVARRA y me gustaría conocer más.");
     }
 }

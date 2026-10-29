@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Comment;
 use App\Models\Edition;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\Venture;
 use App\Models\Vote;
@@ -123,5 +124,37 @@ class AdminCommandsTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.ventures.index', ['orden' => 'grupo', 'dir' => 'asc']))->assertSeeInOrder(['>Dos<', '>Siete<', '>Doce<'], false);
         $this->actingAs($admin)->get(route('admin.ventures.index', ['orden' => 'grupo', 'dir' => 'desc']))->assertSeeInOrder(['>Doce<', '>Siete<', '>Dos<'], false);
+    }
+
+    public function test_only_the_webmaster_can_delete_users(): void
+    {
+        $webmaster = User::factory()->create(['email' => 'webmaster@uninavarra.edu.co', 'role' => 'admin']);
+        $otherAdmin = User::factory()->create(['role' => 'admin']);
+        $victim = User::factory()->create(['role' => 'comunidad']);
+
+        $this->actingAs($otherAdmin)->delete(route('admin.users.destroy', $victim))->assertForbidden();
+        $this->actingAs($otherAdmin)->get(route('admin.users.index'))->assertDontSee('Borrar cuenta');
+        $this->assertModelExists($victim);
+
+        $this->actingAs($webmaster)->get(route('admin.users.index'))->assertSee('Borrar cuenta');
+        $this->actingAs($webmaster)->delete(route('admin.users.destroy', $victim))->assertSessionHas('status');
+        $this->assertModelMissing($victim);
+
+        $this->actingAs($webmaster)->delete(route('admin.users.destroy', $webmaster))->assertSessionHas('error');
+        $this->assertModelExists($webmaster);
+    }
+
+    public function test_welcome_message_text_is_editable(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Setting::put(['welcome_jury' => "Hola {nombre}, serás **{rol}** en {evento}.\nGracias por acompañarnos."]);
+        $jury = User::factory()->create(['name' => 'Ana Pérez', 'role' => 'jurado']);
+
+        $html = (string) (new WelcomeInvitation)->toMail($jury)->render();
+        $this->assertMatchesRegularExpression('#Hola Ana Pérez, serás <strong[^>]*>jurado</strong>#u', $html);
+        $this->assertStringContainsString('Gracias por acompañarnos.', $html);
+        $this->assertStringContainsString('Crear mi contraseña', $html);
+
+        $this->actingAs($admin)->get(route('admin.settings.welcome', ['tipo' => 'jurado']))->assertOk()->assertSee('Gracias por acompañarnos.');
     }
 }

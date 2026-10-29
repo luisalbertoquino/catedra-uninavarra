@@ -1,7 +1,7 @@
 <x-layouts.site :title="$venture->name" :description="$venture->tagline" :image="$venture->cover_url">
     @php
         $shareUrl = route('ventures.show', $venture);
-        $shareText = "Vota por {$venture->name} en la Cátedra UNINAVARRA";
+        $shareText = "Vota por {$venture->name} en Cátedra UNINAVARRA";
         $socials = array_filter([
             'instagram' => ['Instagram', 'brands', $venture->instagram],
             'facebook' => ['Facebook', 'brands', $venture->facebook],

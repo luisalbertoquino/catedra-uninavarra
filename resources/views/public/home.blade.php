@@ -8,7 +8,7 @@
                 <img src="https://img.youtube.com/vi/{{ $heroVideo }}/maxresdefault.jpg" alt="" class="absolute inset-0 h-full w-full object-cover">
                 <div class="hero-video absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <iframe src="https://www.youtube-nocookie.com/embed/{{ $heroVideo }}?autoplay=1&mute=1&loop=1&playlist={{ $heroVideo }}&controls=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&fs=0"
-                            title="Video promocional de la Cátedra UNINAVARRA" tabindex="-1" class="h-full w-full" allow="autoplay; encrypted-media; picture-in-picture" loading="eager"></iframe>
+                            title="Video promocional de Cátedra UNINAVARRA" tabindex="-1" class="h-full w-full" allow="autoplay; encrypted-media; picture-in-picture" loading="eager"></iframe>
                 </div>
             @endif
             {{-- Degradado ECOS sobre el video --}}
@@ -111,7 +111,7 @@
                 <div class="reveal lg:col-span-8" x-data="{ play: false }">
                     <div class="relative aspect-video overflow-hidden rounded-ecos bg-lion-900 shadow-2xl shadow-lion-900/20">
                         <template x-if="play">
-                            <iframe src="https://www.youtube-nocookie.com/embed/{{ $videoId }}?autoplay=1&rel=0" title="Video promocional de la Cátedra UNINAVARRA"
+                            <iframe src="https://www.youtube-nocookie.com/embed/{{ $videoId }}?autoplay=1&rel=0" title="Video promocional de Cátedra UNINAVARRA"
                                     class="absolute inset-0 h-full w-full" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
                         </template>
                         <button type="button" x-show="!play" @click="play = true" class="group absolute inset-0" aria-label="Reproducir video">

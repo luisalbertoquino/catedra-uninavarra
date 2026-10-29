@@ -1,7 +1,7 @@
 @props(['title' => null, 'description' => null, 'image' => null])
 @php
     $fullTitle = $title ? $title.' · Cátedra UNINAVARRA' : 'Cátedra UNINAVARRA · Emprendimientos que transforman la región';
-    $desc = $description ?? 'Conoce, vota y apoya los emprendimientos de los estudiantes Navarristas en la Cátedra UNINAVARRA y el LION HUB EVENT.';
+    $desc = $description ?? 'Conoce, vota y apoya los emprendimientos de los estudiantes Navarristas en Cátedra UNINAVARRA y el LION HUB EVENT.';
 @endphp
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

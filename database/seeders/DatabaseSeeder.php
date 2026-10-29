@@ -171,7 +171,7 @@ class DatabaseSeeder extends Seeder
         return Edition::create([
             'name' => $name, 'slug' => Str::slug($name), 'year' => $year, 'period' => $period,
             'event_name' => 'LION HUB EVENT', 'tagline' => $tagline,
-            'description' => 'La Cátedra UNINAVARRA desarrolla las competencias emprendedoras de los estudiantes Navarristas mediante el aprender haciendo y pedagogías activas. Los equipos construyen propuestas de negocio basadas en innovación y sostenibilidad, y las presentan a la comunidad y a un jurado de expertos inversionistas.',
+            'description' => 'Cátedra UNINAVARRA desarrolla las competencias emprendedoras de los estudiantes Navarristas mediante el aprender haciendo y pedagogías activas. Los equipos construyen propuestas de negocio basadas en innovación y sostenibilidad, y las presentan a la comunidad y a un jurado de expertos inversionistas.',
             'voting_starts_at' => $votingStart, 'voting_ends_at' => $votingEnd, 'final_at' => $final,
             'final_location' => 'Auditorio Ciudad Universitaria UNINAVARRA, Neiva',
             'community_weight' => 30, 'max_votes_per_user' => 1, 'finalists_count' => 5,
@@ -191,7 +191,7 @@ class DatabaseSeeder extends Seeder
         $venture = Venture::create([
             'edition_id' => $edition->id, 'category_id' => $category->id,
             'name' => $name, 'slug' => $slug, 'tagline' => $tagline,
-            'description' => "$name nace en el aula de la Cátedra UNINAVARRA como respuesta a una necesidad real de nuestra región. ".$solution.' Nuestro equipo combina perfiles de distintas disciplinas para llevar la idea del prototipo al mercado.',
+            'description' => "$name nace en el aula de Cátedra UNINAVARRA como respuesta a una necesidad real de nuestra región. ".$solution.' Nuestro equipo combina perfiles de distintas disciplinas para llevar la idea del prototipo al mercado.',
             'problem' => $problem, 'solution' => $solution,
             'target_market' => 'Inicialmente Neiva y municipios del Huila, con proyección al sur colombiano. Clientes: '.$faker->randomElement(['hogares de estratos 2 a 4', 'pequeños productores agrícolas', 'restaurantes y cafeterías', 'instituciones educativas', 'turistas nacionales y extranjeros', 'pymes de la región']).'.',
             'cover' => "https://picsum.photos/seed/{$slug}-cover/1600/900",

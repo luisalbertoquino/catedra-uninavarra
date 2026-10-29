@@ -41,6 +41,18 @@ class UserController extends Controller
         return back()->with('status', "Invitación enviada a {$user->email}.");
     }
 
+    /** Borra una cuenta con sus votos, comentarios, apoyos y evaluaciones. Solo el administrador principal. */
+    public function destroy(Request $request, User $user)
+    {
+        abort_unless($request->user()->isSuperAdmin(), 403, 'Solo el administrador principal puede borrar usuarios.');
+        if ($user->is($request->user())) {
+            return back()->with('error', 'No puedes borrar tu propia cuenta.');
+        }
+        $user->delete(); // votos, comentarios, apoyos y evaluaciones se borran en cascada
+
+        return back()->with('status', "Cuenta de {$user->email} borrada.");
+    }
+
     public function export(Request $request)
     {
         $rows = $this->query($request)->get()->map(fn ($u) => [

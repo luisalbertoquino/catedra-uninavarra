@@ -106,6 +106,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('configuracion', [Admin\SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('configuracion', [Admin\SettingsController::class, 'update'])->name('settings.update');
+    Route::get('configuracion/correo-bienvenida', [Admin\SettingsController::class, 'welcomePreview'])->name('settings.welcome');
 
     Route::get('importar', [Admin\ImportController::class, 'create'])->name('import.create');
     Route::post('importar', [Admin\ImportController::class, 'store'])->name('import.store');
@@ -113,6 +114,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('usuarios', [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('usuarios/exportar', [Admin\UserController::class, 'export'])->name('users.export');
     Route::patch('usuarios/{user}', [Admin\UserController::class, 'update'])->name('users.update');
+    Route::delete('usuarios/{user}', [Admin\UserController::class, 'destroy'])->name('users.destroy');
     Route::post('usuarios/{user}/invitar', [Admin\UserController::class, 'invite'])->middleware('throttle:20,1')->name('users.invite');
 });
 
