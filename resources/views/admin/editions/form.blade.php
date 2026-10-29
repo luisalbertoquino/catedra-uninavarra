@@ -126,6 +126,10 @@
                     <input id="promo_video_url" type="url" name="promo_video_url" class="a-input" value="{{ old('promo_video_url', $edition->promo_video_url) }}" placeholder="https://www.youtube.com/watch?v=…">
                     <p class="mt-1 text-xs text-slate-600">Se reproduce en bucle, sin sonido y oscurecido de fondo en la portada.</p>
                 </div>
+                <label class="mt-5 flex cursor-pointer items-start gap-3 rounded-xl bg-slate-50 p-3">
+                    <input type="checkbox" name="web_voting" value="1" class="mt-0.5 rounded border-slate-300 text-ink-700 focus:ring-ink-500" @checked(old('web_voting', $edition->web_voting ?? true))>
+                    <span class="text-sm"><b>Votación de la comunidad en la página</b><br><span class="text-slate-600">Desmárcala si la comunidad vota en YouTube, Facebook u otras redes: el botón «Votar» se oculta y los votos se registran a mano en Resultados.</span></span>
+                </label>
                 <div class="mt-5 space-y-4">
                     <div><label class="a-label" for="voting_starts_at">Inicio de votación</label><input id="voting_starts_at" type="datetime-local" name="voting_starts_at" class="a-input" value="{{ $dt('voting_starts_at') }}"></div>
                     <div><label class="a-label" for="voting_ends_at">Cierre de votación</label><input id="voting_ends_at" type="datetime-local" name="voting_ends_at" class="a-input" value="{{ $dt('voting_ends_at') }}"></div>

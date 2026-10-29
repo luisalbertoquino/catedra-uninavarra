@@ -22,7 +22,7 @@
                     <div class="flex flex-wrap items-center gap-2 text-xs">
                         @if ($edition->is_active)<span class="rounded-full bg-white px-2.5 py-1 font-semibold text-lion-700"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Edición activa</span>@endif
                         @php $vs = $edition->votingStatus(); @endphp
-                        <span class="rounded-full bg-white/20 px-2.5 py-1">Votación: {{ ['abierta' => 'abierta', 'proxima' => 'próxima', 'cerrada' => 'cerrada', 'sin_fecha' => 'sin fechas'][$vs] }}</span>
+                        <span class="rounded-full bg-white/20 px-2.5 py-1">Votación: {{ ['abierta' => 'abierta', 'proxima' => 'próxima', 'cerrada' => 'cerrada', 'sin_fecha' => 'sin fechas', 'redes' => 'en redes (registro manual)'][$vs] }}</span>
                         <span class="rounded-full bg-white/20 px-2.5 py-1">Resultados {{ $edition->results_published ? 'publicados' : 'ocultos' }}</span>
                     </div>
                     <h2 class="mt-3 font-display text-2xl font-semibold sm:text-3xl">{{ $edition->name }}</h2>

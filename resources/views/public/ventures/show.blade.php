@@ -17,6 +17,9 @@
             'review' => $myReview ? ['rating' => (int) $myReview->rating, 'body' => $myReview->body] : null,
             'minChars' => \App\Http\Controllers\VoteController::MIN_COMMENT,
         ];
+        // Votación en redes: el botón «Votar» lleva al video, donde se vota con «Me gusta»
+        $webVoting = $venture->edition->hasWebVoting();
+        $isYoutube = (bool) \App\Support\Media::youtubeId($venture->video_url);
     @endphp
 
     <div x-data="voteWizard(@js($voteProps))">
@@ -52,6 +55,7 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
+                        @if ($webVoting)
                         <button type="button" @click="start" :disabled="loading"
                                 class="btn px-6 py-3.5 text-base"
                                 :class="voted ? 'border border-lion-300 bg-white text-lion-700 hover:bg-lion-50' : 'bg-lion-600 text-white shadow-lg shadow-lion-500/30 hover:bg-lion-600'">
@@ -59,6 +63,11 @@
                             <span x-text="voted ? 'Votaste' : 'Votar'"></span>
                             <span class="rounded-full bg-black/10 px-2 py-0.5 text-sm tabular-nums" x-text="count.toLocaleString('es-CO')"></span>
                         </button>
+                        @elseif ($venture->video_url)
+                            <a href="{{ $venture->video_url }}" target="_blank" rel="noopener" class="btn bg-lion-600 px-6 py-3.5 text-base text-white shadow-lg shadow-lion-500/30">
+                                <x-icon :name="$isYoutube ? 'youtube' : 'thumbs-up'" :style="$isYoutube ? 'brands' : 'solid'" class="text-lg !text-white" /> {{ $isYoutube ? 'Votar en YouTube' : 'Votar en el video' }}
+                            </a>
+                        @endif
                         <a href="#apoyar" class="btn-ghost bg-white px-6 py-3.5 text-base"><x-icon name="hand-holding-heart" /> Apoyar</a>
                         <div x-data="{ open: false, copied: false }" class="relative">
                             <button type="button" @click="navigator.share ? navigator.share({ title: @js($venture->name), text: @js($shareText), url: @js($shareUrl) }).catch(() => {}) : open = !open" @click.outside="open = false"
@@ -86,10 +95,8 @@
             @if ($venture->video_embed_url)
                 <section class="reveal">
                     <h2 class="eyebrow mb-4"><x-icon name="circle-play" /> Video pitch</h2>
-                    <div class="relative aspect-video overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl shadow-volt-600/10">
-                        <iframe src="{{ $venture->video_embed_url }}" title="Video pitch {{ $venture->name }}" class="absolute inset-0 h-full w-full" loading="lazy"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
+                    <x-video-player :src="$venture->video_embed_url" :title="'Video pitch '.$venture->name" :url="$venture->video_url" lazy
+                                    class="rounded-3xl border border-white/10 shadow-2xl shadow-volt-600/10" />
                 </section>
             @elseif ($venture->video_url)
                 <a href="{{ $venture->video_url }}" target="_blank" rel="noopener" class="card-dark card-dark-hover reveal flex items-center gap-4 p-6">
@@ -106,11 +113,9 @@
                 </section>
             @endif
 
-            {{-- Problema, solución, misión, visión y población objetivo --}}
+            {{-- Misión, visión y población objetivo --}}
             @php
                 $blocks = collect([
-                    ['bullseye', 'El problema', $venture->problem],
-                    ['lightbulb', 'La solución', $venture->solution],
                     ['flag', 'Misión', $venture->mission],
                     ['binoculars', 'Visión', $venture->vision],
                     ['users-viewfinder', 'Población objetivo', $venture->target_market],
@@ -357,6 +362,9 @@
                                     {{ $hasVoted ? 'Ya votaste por este emprendimiento.' : ($votesLeft ? 'Tienes tu voto disponible.' : 'Ya usaste tu voto en otro emprendimiento.') }}
                                 @endif
                             </p>
+                        @elseif ($status === 'redes')
+                            <p class="flex items-center gap-2 font-semibold text-white"><x-icon name="thumbs-up" /> Votación en redes</p>
+                            <p class="mt-1 text-white/60">{{ \App\Models\Setting::get('external_voting_text') }}</p>
                         @elseif ($status === 'proxima')
                             <p class="flex items-center gap-2 font-semibold text-white"><x-icon name="hourglass-half" /> Votación próximamente</p>
                             <p class="mt-1 text-white/60">Abre el {{ $venture->edition->voting_starts_at->translatedFormat('j \d\e F') }}.</p>
@@ -489,9 +497,13 @@
     @push('scripts')<style>@media (max-width: 1023px) { body > footer { padding-bottom: 4.75rem; } }</style>@endpush
     <div class="fixed inset-x-0 bottom-0 z-40 border-t border-ink-900/[.06] bg-white/95 p-3 backdrop-blur lg:hidden">
         <div class="mx-auto grid max-w-md grid-cols-2 gap-2">
+            @if ($webVoting)
             <button type="button" @click="start" :disabled="loading" class="btn py-3" :class="voted ? 'border border-lion-300 bg-white text-lion-700' : 'bg-lion-600 text-white'">
                 <i class="fa-heart" :class="voted ? 'fa-solid' : 'fa-regular'" aria-hidden="true"></i> <span x-text="voted ? 'Votaste' : 'Votar'"></span>
             </button>
+            @elseif ($venture->video_url)
+                <a href="{{ $venture->video_url }}" target="_blank" rel="noopener" class="btn bg-lion-600 py-3 text-white"><x-icon :name="$isYoutube ? 'youtube' : 'thumbs-up'" :style="$isYoutube ? 'brands' : 'solid'" class="!text-white" /> {{ $isYoutube ? 'Votar en YouTube' : 'Votar' }}</a>
+            @endif
             <a href="#apoyar" class="btn-ghost py-3"><x-icon name="hand-holding-heart" /> Apoyar</a>
         </div>
     </div>

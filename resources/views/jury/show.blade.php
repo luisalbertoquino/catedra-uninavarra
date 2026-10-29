@@ -31,11 +31,8 @@
                 </div>
 
                 @if ($venture->video_embed_url)
-                    <div class="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
-                        <iframe src="{{ $venture->video_embed_url }}" title="Video pitch {{ $venture->name }}" class="absolute inset-0 h-full w-full"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                    <a href="{{ $venture->video_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white"><x-icon name="youtube" style="brands" /> Abrir el video en YouTube</a>
+                    <x-video-player :src="$venture->video_embed_url" :title="'Video pitch '.$venture->name" :url="$venture->video_url"
+                                    class="rounded-2xl border border-white/10 shadow-2xl" />
                 @elseif ($venture->video_url)
                     <a href="{{ $venture->video_url }}" target="_blank" rel="noopener" class="card-dark card-dark-hover flex items-center gap-4 p-6">
                         <span class="grid h-14 w-14 place-items-center rounded-full bg-lion-400/10"><x-icon name="play" class="text-xl" /></span>
@@ -53,7 +50,7 @@
 
                 <div class="grid gap-4 md:grid-cols-2">
                     @php
-                        $blocks = collect([['bullseye', 'El problema', $venture->problem], ['lightbulb', 'La solución', $venture->solution], ['flag', 'Misión', $venture->mission], ['binoculars', 'Visión', $venture->vision], ['users-viewfinder', 'Población objetivo', $venture->target_market]])->filter(fn ($b) => filled($b[2]))->values();
+                        $blocks = collect([['flag', 'Misión', $venture->mission], ['binoculars', 'Visión', $venture->vision], ['users-viewfinder', 'Población objetivo', $venture->target_market]])->filter(fn ($b) => filled($b[2]))->values();
                     @endphp
                     @foreach ($blocks as [$icon, $label, $text])
                         @if ($text)

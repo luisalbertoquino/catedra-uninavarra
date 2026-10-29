@@ -88,6 +88,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('resultados', [Admin\ResultsController::class, 'index'])->name('results.index');
     Route::put('resultados/{edition}', [Admin\ResultsController::class, 'update'])->name('results.update');
+    Route::post('resultados/{edition}/votacion-web', [Admin\ResultsController::class, 'toggleWebVoting'])->name('results.web-voting');
     Route::post('resultados/{edition}/finalistas', [Admin\ResultsController::class, 'pickFinalists'])->name('results.finalists');
     Route::get('resultados/{edition}/exportar', [Admin\ResultsController::class, 'export'])->name('results.export');
 
@@ -104,6 +105,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('jurados/{user}', [Admin\JuryController::class, 'update'])->name('juries.update');
     Route::delete('jurados/{user}', [Admin\JuryController::class, 'destroy'])->name('juries.destroy');
     Route::get('resultados/{edition}/evaluaciones', [Admin\ResultsController::class, 'evaluations'])->name('results.evaluations');
+    Route::delete('resultados/{edition}/evaluaciones/{evaluation}', [Admin\ResultsController::class, 'destroyEvaluation'])->name('results.evaluations.destroy');
+    Route::delete('resultados/{edition}/evaluaciones/jurado/{user}', [Admin\ResultsController::class, 'destroyJuryEvaluations'])->name('results.evaluations.destroy-jury');
 
     Route::get('configuracion', [Admin\SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('configuracion', [Admin\SettingsController::class, 'update'])->name('settings.update');

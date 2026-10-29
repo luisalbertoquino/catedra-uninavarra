@@ -25,6 +25,9 @@ class Setting extends Model
             'investment_contact_phone' => ['Teléfono / WhatsApp', '+57 318 071 5286', 'text', null],
             'investment_contact_email' => ['Correo', 'centroemprendimiento@uninavarra.edu.co', 'email', null],
         ],
+        'Votación en redes' => [
+            'external_voting_text' => ['Mensaje cuando la votación es fuera de la página', 'La votación de la comunidad se hace en las redes de UNINAVARRA: dale «Me gusta» al video del emprendimiento en YouTube o Facebook.', 'textarea', 'Se muestra en los emprendimientos cuando la edición tiene deshabilitado el voto en la página.'],
+        ],
         'Correo de bienvenida (jurados y administradores)' => [
             'welcome_jury' => ['Mensaje para jurados', "Te damos la bienvenida como **{rol}** de {evento}.\nEn el panel del jurado verás los emprendimientos con su video pitch y los calificarás con la rúbrica oficial. Tus notas se guardan solas y puedes ajustarlas hasta que cierre la evaluación.", 'textarea', 'Cada renglón es un párrafo. Puedes usar {nombre}, {rol} y {evento}; el texto entre **dobles asteriscos** sale en negrita. El saludo, el usuario, el botón para crear la contraseña y la firma se agregan solos.'],
             'welcome_admin' => ['Mensaje para administradores', "Te damos la bienvenida como **administrador/a** de la plataforma de {evento}.\nDesde el panel podrás gestionar ediciones, emprendimientos, jurados, resultados, comentarios y apoyos de inversionistas.", 'textarea', 'Igual que el de jurados.'],

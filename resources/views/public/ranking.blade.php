@@ -21,7 +21,7 @@
                         Nota final de 1 a 5: comunidad {{ $edition->community_weight }}% + jurados {{ $edition->jury_weight }}% + {{ $edition->expert_title }} {{ $edition->expert_score_weight }}%.
                     @endif
                 @else
-                    Así va la votación en tiempo real. La comunidad aporta el {{ $edition?->community_weight ?? 30 }}% de la nota final; el resto lo definen los jurados y el {{ $edition?->expert_title ?? 'Profesor experto' }}.
+                    {{ $edition?->hasWebVoting() === false ? 'Votos de la comunidad en nuestras redes.' : 'Así va la votación en tiempo real.' }} La comunidad aporta el {{ $edition?->community_weight ?? 30 }}% de la nota final; el resto lo definen los jurados y el {{ $edition?->expert_title ?? 'Profesor experto' }}.
                 @endif
             </p>
             <div class="mt-8 inline-flex rounded-full bg-white p-1 shadow-sm">

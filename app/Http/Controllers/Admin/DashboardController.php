@@ -24,7 +24,8 @@ class DashboardController extends Controller
 
         $kpis = [
             'ventures' => $ventureIds->count(),
-            'votes' => Vote::where('edition_id', $edition?->id)->count(),
+            // Votos en la página + los registrados a mano (YouTube, Facebook…)
+            'votes' => Vote::where('edition_id', $edition?->id)->count() + (int) $edition?->ventures()->sum('external_votes'),
             'voters' => Vote::where('edition_id', $edition?->id)->distinct('user_id')->count('user_id'),
             'users' => User::count(),
             'investors' => User::where('role', 'inversionista')->count(),

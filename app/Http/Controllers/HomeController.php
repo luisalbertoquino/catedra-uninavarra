@@ -16,7 +16,7 @@ class HomeController extends Controller
 
         $featured = $edition
             ? $edition->ventures()->published()->with('category')->withCount('votes')
-                ->orderByDesc('is_finalist')->orderByDesc('votes_count')->take(6)->get()
+                ->orderByDesc('is_finalist')->orderByVotes()->take(6)->get()
             : collect();
 
         $stats = [

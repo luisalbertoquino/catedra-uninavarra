@@ -41,7 +41,7 @@ class VentureController extends Controller
             // "Grupo 7" antes que "Grupo 12": primero por largo y luego alfabético; los que no tienen grupo van al final
             'grupo' => $query->orderByRaw('team_group IS NULL')->orderByRaw('LENGTH(team_group) '.$dir)->orderBy('team_group', $dir),
             'equipo' => $query->orderBy('members_count', $dir),
-            'votos' => $query->orderBy('votes_count', $dir),
+            'votos' => $query->orderByVotes($dir),
             'comentarios' => $query->orderBy('comments_count', $dir),
             'apoyos' => $query->orderBy('pledges_count', $dir),
             default => null,
@@ -124,8 +124,6 @@ class VentureController extends Controller
             'slug' => ['nullable', 'alpha_dash', 'max:160', Rule::unique('ventures')->ignore($venture)],
             'tagline' => ['nullable', 'string', 'max:200'],
             'description' => ['nullable', 'string', 'max:10000'],
-            'problem' => ['nullable', 'string', 'max:5000'],
-            'solution' => ['nullable', 'string', 'max:5000'],
             'target_market' => ['nullable', 'string', 'max:5000'],
             'mission' => ['nullable', 'string', 'max:5000'],
             'vision' => ['nullable', 'string', 'max:5000'],

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
+use App\Models\Evaluation;
 use App\Models\User;
 use App\Services\JuryScoring;
 use App\Services\Ranking;
@@ -18,8 +19,38 @@ class ResultsController extends Controller
         $editions = Edition::orderByDesc('year')->orderByDesc('period')->get();
         $edition = $request->filled('edicion') ? $editions->firstWhere('id', (int) $request->edicion) : (Edition::current() ?? $editions->first());
         $ranking = $edition ? Ranking::for($edition, false) : collect();
+        [$evaluators, $grades] = $edition ? $this->evaluatorGrades($edition) : [collect(), collect()];
 
-        return view('admin.results.index', compact('editions', 'edition', 'ranking'));
+        return view('admin.results.index', compact('editions', 'edition', 'ranking', 'evaluators', 'grades'));
+    }
+
+    /**
+     * Comité técnico en columnas: primero los jurados y luego el experto, con la nota (1-5) que cada uno dio.
+     * Incluye a los jurados actuales y a quien ya haya evaluado en la edición.
+     *
+     * @return array{0: \Illuminate\Support\Collection<int, User>, 1: \Illuminate\Support\Collection} notas por venture_id y user_id
+     */
+    private function evaluatorGrades(Edition $edition): array
+    {
+        $grades = $edition->evaluations()->get(['venture_id', 'user_id', 'total_score'])
+            ->groupBy('venture_id')
+            ->map(fn ($evals) => $evals->mapWithKeys(fn ($e) => [$e->user_id => JuryScoring::toGrade((float) $e->total_score)]));
+
+        $ids = $edition->evaluations()->distinct()->pluck('user_id');
+        $evaluators = User::where('role', 'jurado')->orWhereIn('id', $ids)
+            ->orderBy('is_expert')->orderBy('name')->get();
+
+        return [$evaluators, $grades];
+    }
+
+    /** Habilita o deshabilita la votación de la comunidad en la página (la alternativa son los votos en redes, registrados a mano). */
+    public function toggleWebVoting(Edition $edition)
+    {
+        $edition->update(['web_voting' => ! $edition->hasWebVoting()]);
+
+        return back()->with('status', $edition->web_voting
+            ? 'Votación en la página habilitada: la comunidad vuelve a votar desde cada emprendimiento.'
+            : 'Votación en la página deshabilitada: registra en la columna «Votos» los votos de YouTube, Facebook u otras redes.');
     }
 
     /** Guarda puntajes del comité técnico, finalistas y posiciones finales. */
@@ -28,16 +59,22 @@ class ResultsController extends Controller
         $data = $request->validate([
             'rows' => ['array'],
             'rows.*.committee_score' => ['nullable', 'numeric', 'between:0,100'],
+            'rows.*.external_votes' => ['nullable', 'integer', 'min:0', 'max:10000000'],
             'rows.*.final_position' => ['nullable', 'integer', 'between:1,50'],
         ]);
 
         DB::transaction(function () use ($edition, $data, $request) {
             foreach ($data['rows'] ?? [] as $id => $row) {
-                $edition->ventures()->whereKey($id)->update([
+                $fields = [
                     'committee_score' => $row['committee_score'] ?? null,
                     'final_position' => $row['final_position'] ?? null,
                     'is_finalist' => (bool) ($request->input("rows.$id.is_finalist")),
-                ]);
+                ];
+                // Solo llega cuando la votación es en redes: si no, se conservan los votos ya registrados
+                if (array_key_exists('external_votes', $row)) {
+                    $fields['external_votes'] = (int) $row['external_votes'];
+                }
+                $edition->ventures()->whereKey($id)->update($fields);
             }
             $edition->update(['results_published' => $request->boolean('results_published')]);
         });
@@ -74,19 +111,41 @@ class ResultsController extends Controller
         return view('admin.results.evaluations', compact('edition', 'juries', 'ventures', 'evaluations', 'scores'));
     }
 
+    /** Borra una evaluación (por ejemplo, de prueba). El jurado puede volver a evaluar mientras la evaluación esté abierta. */
+    public function destroyEvaluation(Edition $edition, Evaluation $evaluation)
+    {
+        abort_unless($evaluation->edition_id === $edition->id, 404);
+        $evaluation->delete();
+
+        return back()->with('status', 'Evaluación borrada.');
+    }
+
+    /** Borra todas las evaluaciones de un jurado en la edición, sin borrar su cuenta. */
+    public function destroyJuryEvaluations(Edition $edition, User $user)
+    {
+        $count = $edition->evaluations()->where('user_id', $user->id)->delete();
+
+        return back()->with('status', "Se borraron {$count} evaluación(es) de {$user->name}.");
+    }
+
     public function export(Edition $edition)
     {
         $grade = fn ($n) => $n === null ? null : number_format($n, 2, ',', '');
+        [$evaluators, $grades] = $this->evaluatorGrades($edition);
         $rows = Ranking::for($edition, false)->values()->map(fn ($v, $i) => [
-            $i + 1, $v->name, $v->team_group, $v->category?->name, $v->votes_count, $grade($v->community_grade),
+            $i + 1, $v->name, $v->team_group, $v->category?->name,
+            ...$evaluators->map(fn ($u) => $grade($grades->get($v->id)?->get($u->id))),
             $grade($v->jury_grade), $v->jury_count, $grade($v->expert_grade), $v->expert_count,
+            $v->votes_count, $grade($v->community_grade),
             $grade($v->final_grade), $v->is_partial ? 'Parcial' : '', $v->is_finalist ? 'Sí' : 'No', $v->final_position,
             $v->comments_count, $v->rating_avg ? round($v->rating_avg, 1) : null, $v->views,
         ]);
 
         return Csv::download("resultados-{$edition->slug}.csv",
-            ['#', 'Emprendimiento', 'Grupo', 'Categoría', 'Votos', 'Nota comunidad', 'Nota '.mb_strtolower($edition->committeeLabel()), 'N.º jurados', "Nota {$edition->expert_title}", 'N.º expertos',
-                'Nota final', 'Estado', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
+            ['#', 'Emprendimiento', 'Grupo', 'Categoría',
+                ...$evaluators->map(fn ($u) => ($u->is_expert ? $edition->expert_title : 'Jurado').': '.$u->name),
+                'Nota '.mb_strtolower($edition->committeeLabel()), 'N.º jurados', "Nota {$edition->expert_title}", 'N.º expertos',
+                'Votos', 'Nota comunidad', 'Nota final', 'Estado', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
             $rows);
     }
 }

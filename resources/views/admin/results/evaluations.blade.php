@@ -12,7 +12,7 @@
         @else
             Las columnas finales muestran el promedio de los <b>jurados</b> ({{ $edition->jury_weight }}% de la nota final) y del <b>{{ $edition->expert_title }}</b> ({{ $edition->expert_score_weight }}%).
         @endif
-        Pasa el mouse sobre una celda para ver el detalle por criterio.
+        Pasa el mouse sobre una celda para ver el detalle por criterio. Con <x-icon name="trash-can" style="regular" /> puedes borrar una evaluación de prueba, o todas las de un jurado al final de su columna.
     </p>
 
     @if ($juries->isEmpty())
@@ -49,6 +49,11 @@
                                         @if ($e)
                                             <span class="inline-block min-w-[3rem] rounded-md bg-slate-100 px-2 py-1 font-semibold tabular-nums text-slate-800">{{ $fmt(\App\Services\JuryScoring::toGrade((float) $e->total_score)) }}</span>
                                             @if ($e->comment)<i class="fa-regular fa-comment ml-1 text-slate-500" aria-hidden="true"></i>@endif
+                                            <form method="POST" action="{{ route('admin.results.evaluations.destroy', [$edition, $e]) }}" class="inline"
+                                                  onsubmit="return confirm(@js("¿Borrar la evaluación de {$j->name} a {$v->name}? No se puede deshacer."))">
+                                                @csrf @method('DELETE')
+                                                <button class="ml-1 text-slate-400 hover:text-rose-600" title="Borrar esta evaluación"><x-icon name="trash-can" style="regular" /></button>
+                                            </form>
                                         @else
                                             <span class="text-slate-400">—</span>
                                         @endif
@@ -65,7 +70,16 @@
                             <td class="sticky left-0 bg-slate-50 font-semibold">Avance</td>
                             @foreach ($juries as $j)
                                 @php $n = $evaluations->filter(fn ($r) => $r->has($j->id))->count(); @endphp
-                                <td class="text-center">{{ $n }}/{{ $ventures->count() }}</td>
+                                <td class="text-center">
+                                    {{ $n }}/{{ $ventures->count() }}
+                                    @if ($n)
+                                        <form method="POST" action="{{ route('admin.results.evaluations.destroy-jury', [$edition, $j]) }}" class="mt-1"
+                                              onsubmit="return confirm(@js("¿Borrar las {$n} evaluaciones de {$j->name} en esta edición? Su cuenta se conserva. No se puede deshacer."))">
+                                            @csrf @method('DELETE')
+                                            <button class="font-medium text-rose-600 hover:underline"><x-icon name="trash-can" style="regular" /> Borrar todas</button>
+                                        </form>
+                                    @endif
+                                </td>
                             @endforeach
                             <td></td><td></td>@if ($edition->expertCountsAsJury())<td></td>@endif
                         </tr>

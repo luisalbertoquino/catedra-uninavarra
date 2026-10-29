@@ -16,7 +16,7 @@ class InvestorController extends Controller
         // Primero los que declararon cuánto necesitan, luego los más votados
         $ventures = $edition
             ? $edition->ventures()->published()->with('category')->withCount('votes')
-                ->orderByRaw('funding_goal IS NULL, startup_amount IS NULL')->orderByDesc('votes_count')->take(6)->get()
+                ->orderByRaw('funding_goal IS NULL, startup_amount IS NULL')->orderByVotes()->take(6)->get()
             : collect();
 
         $investors = $edition ? InvestorRanking::for($edition)->take(5) : collect();

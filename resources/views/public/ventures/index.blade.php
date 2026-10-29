@@ -19,6 +19,9 @@
                         @case('cerrada')
                             <span class="chip"><x-icon name="lock" /> Votación cerrada</span>
                             @break
+                        @case('redes')
+                            <span class="chip"><x-icon name="thumbs-up" /> {{ \App\Models\Setting::get('external_voting_text') }}</span>
+                            @break
                     @endswitch
                     @if ($votesLeft !== null && $edition->isVotingOpen())
                         <span class="chip"><x-icon name="check-to-slot" />

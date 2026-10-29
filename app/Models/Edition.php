@@ -22,7 +22,7 @@ class Edition extends Model
         'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner', 'promo_video_url',
         'voting_starts_at', 'voting_ends_at', 'final_at', 'final_location',
         'community_weight', 'jury_weight', 'expert_score_weight', 'committee_mode', 'vote_grade_mode', 'vote_grade_thresholds',
-        'max_votes_per_user', 'finalists_count', 'voting_email_domain', 'expert_title',
+        'max_votes_per_user', 'web_voting', 'finalists_count', 'voting_email_domain', 'expert_title',
         'is_active', 'is_published', 'results_published',
     ];
 
@@ -30,6 +30,7 @@ class Edition extends Model
         'voting_starts_at' => 'datetime',
         'voting_ends_at' => 'datetime',
         'final_at' => 'datetime',
+        'web_voting' => 'boolean',
         'is_active' => 'boolean',
         'is_published' => 'boolean',
         'results_published' => 'boolean',
@@ -150,16 +151,25 @@ class Edition extends Model
             ?? static::published()->orderByDesc('year')->orderByDesc('period')->first();
     }
 
+    /** false = la comunidad vota fuera de la página (YouTube, Facebook…) y un admin registra los votos a mano. */
+    public function hasWebVoting(): bool
+    {
+        return $this->web_voting ?? true;
+    }
+
     public function isVotingOpen(): bool
     {
         $now = now();
 
-        return $this->voting_starts_at && $this->voting_ends_at
+        return $this->hasWebVoting() && $this->voting_starts_at && $this->voting_ends_at
             && $now->between($this->voting_starts_at, $this->voting_ends_at);
     }
 
     public function votingStatus(): string
     {
+        if (! $this->hasWebVoting()) {
+            return 'redes';
+        }
         if (! $this->voting_starts_at || ! $this->voting_ends_at) {
             return 'sin_fecha';
         }
@@ -168,6 +178,12 @@ class Edition extends Model
         }
 
         return now()->gt($this->voting_ends_at) ? 'cerrada' : 'abierta';
+    }
+
+    /** Con withCount('votes'): votos en la página + los registrados a mano en los emprendimientos */
+    public function getVotesCountAttribute($value): ?int
+    {
+        return $value === null ? null : (int) $value + (int) $this->ventures()->sum('external_votes');
     }
 
     public function getBannerUrlAttribute(): ?string

@@ -14,13 +14,14 @@ class Venture extends Model
         'edition_id', 'category_id', 'name', 'slug', 'tagline', 'description', 'problem', 'solution',
         'target_market', 'mission', 'vision', 'logo', 'cover', 'video_url', 'academic_program', 'team_group', 'contact_name',
         'contact_email', 'contact_phone', 'website', 'instagram', 'facebook', 'tiktok',
-        'funding_goal', 'startup_amount', 'committee_score', 'is_finalist', 'final_position', 'is_published',
+        'funding_goal', 'startup_amount', 'committee_score', 'external_votes', 'is_finalist', 'final_position', 'is_published',
     ];
 
     protected $casts = [
         'funding_goal' => 'decimal:2',
         'startup_amount' => 'decimal:2',
         'committee_score' => 'decimal:2',
+        'external_votes' => 'integer',
         'is_finalist' => 'boolean',
         'is_published' => 'boolean',
     ];
@@ -78,6 +79,18 @@ class Venture extends Model
     public function scopePublished(Builder $q): Builder
     {
         return $q->where('is_published', true);
+    }
+
+    /** Ordena por votos de la comunidad: los de la página + los registrados a mano (YouTube, Facebook…) */
+    public function scopeOrderByVotes(Builder $q, string $dir = 'desc'): Builder
+    {
+        return $q->orderByRaw('((select count(*) from votes where votes.venture_id = ventures.id) + ventures.external_votes) '.($dir === 'asc' ? 'asc' : 'desc'));
+    }
+
+    /** Con withCount('votes'): votos en la página + los registrados a mano */
+    public function getVotesCountAttribute($value): ?int
+    {
+        return $value === null ? null : (int) $value + (int) ($this->attributes['external_votes'] ?? 0);
     }
 
     public function getLogoUrlAttribute(): ?string

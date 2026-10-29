@@ -85,7 +85,7 @@ class VoteController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'voted' => $voted,
-                'count' => $venture->votes()->count(),
+                'count' => $venture->votes()->count() + $venture->external_votes,
                 'left' => $request->user() ? VotingGate::votesLeft($request->user(), $venture) : null,
                 'message' => $message,
             ], $status);

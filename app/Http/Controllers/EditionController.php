@@ -23,7 +23,7 @@ class EditionController extends Controller
         $edition->load('milestones')->loadCount('votes');
         $ventures = $edition->ventures()->published()->with('category')->withCount('votes')
             ->orderByRaw('final_position is null')->orderBy('final_position')
-            ->orderByDesc('is_finalist')->orderByDesc('votes_count')->get();
+            ->orderByDesc('is_finalist')->orderByVotes()->get();
 
         return view('public.editions.show', compact('edition', 'ventures'));
     }

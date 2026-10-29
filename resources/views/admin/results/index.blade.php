@@ -16,6 +16,7 @@
             $w = $edition->gradeWeights();
             $combined = $edition->expertCountsAsJury();
             $g = fn ($n) => $n === null ? '—' : number_format($n, 2, ',', '.');
+            $web = $edition->hasWebVoting();
         @endphp
         <div class="mb-6 grid gap-4 lg:grid-cols-3">
             <div class="a-card p-5 lg:col-span-2">
@@ -44,6 +45,18 @@
                 <a href="{{ route('admin.results.evaluations', $edition) }}" class="a-btn-light mt-4 !py-1.5"><x-icon name="table-cells" /> Ver evaluaciones de los jurados</a>
             </div>
             <div class="a-card flex flex-col justify-center gap-2 p-5">
+                <div class="mb-3 border-b border-slate-200 pb-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-sm font-semibold text-ink-900"><x-icon name="check-to-slot" /> Votación en la página</span>
+                        <span @class(['rounded-full px-2.5 py-0.5 text-xs font-semibold', 'bg-emerald-100 text-emerald-800' => $web, 'bg-slate-200 text-slate-700' => ! $web])>{{ $web ? 'Habilitada' : 'Deshabilitada' }}</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-600">{{ $web ? 'La comunidad vota desde cada emprendimiento.' : 'La comunidad vota en redes (YouTube, Facebook…): escribe sus votos en la columna «Votos» y guarda.' }}</p>
+                    <form method="POST" action="{{ route('admin.results.web-voting', $edition) }}" class="mt-3"
+                          onsubmit="return confirm(@js($web ? '¿Deshabilitar la votación en la página? Se ocultará el botón «Votar» y podrás registrar a mano los votos de las redes.' : '¿Habilitar de nuevo la votación en la página?'))">
+                        @csrf
+                        <button class="{{ $web ? 'a-btn-light' : 'a-btn-primary' }} w-full"><x-icon :name="$web ? 'toggle-off' : 'toggle-on'" /> {{ $web ? 'Deshabilitar votación en la página' : 'Habilitar votación en la página' }}</button>
+                    </form>
+                </div>
                 <form method="POST" action="{{ route('admin.results.finalists', $edition) }}" onsubmit="return confirm('Se marcarán como finalistas los {{ $edition->finalists_count }} primeros según la nota final. ¿Continuar?')">
                     @csrf
                     <button class="a-btn-lion w-full"><x-icon name="star" /> Marcar top {{ $edition->finalists_count }} como finalistas</button>
@@ -59,10 +72,22 @@
                     <table class="a-table">
                         <thead>
                             <tr>
-                                <th>#</th><th>Emprendimiento</th><th class="text-center">Votos</th>
-                                <th class="text-center">Comunidad<br><span class="font-normal normal-case">{{ $w['community'] }}%</span></th>
-                                <th class="text-center">{{ $edition->committeeLabel() }}<br><span class="font-normal normal-case">{{ $w['jury'] }}%</span></th>
-                                <th class="text-center">{{ Str::limit($edition->expert_title, 16) }}<br><span class="font-normal normal-case">{{ $combined ? 'en el comité' : $w['expert'].'%' }}</span></th>
+                                <th>#</th><th class="min-w-[11rem]">Emprendimiento</th>
+                                {{-- Comité técnico: una columna por jurado y por experto, con la nota que dio --}}
+                                @foreach ($evaluators as $u)
+                                    <th class="min-w-[6.5rem] text-center align-bottom" title="{{ $u->name }} · {{ $u->email }}">
+                                        <span class="block text-[10px] font-semibold {{ $u->is_expert ? 'text-lion-700' : 'text-slate-500' }}"><x-icon :name="$u->is_expert ? 'award' : 'gavel'" /> {{ $u->is_expert ? Str::limit($edition->expert_title, 18) : 'Jurado' }}</span>
+                                        <span class="block font-medium normal-case leading-tight text-ink-900">{{ $u->name }}</span>
+                                    </th>
+                                @endforeach
+                                @if ($combined)
+                                    <th class="bg-slate-50 text-center">Comité técnico<br><span class="font-normal normal-case">{{ $w['jury'] }}%</span></th>
+                                @else
+                                    <th class="bg-slate-50 text-center">Jurados<br><span class="font-normal normal-case">{{ $w['jury'] }}%</span></th>
+                                    <th class="bg-slate-50 text-center">{{ Str::limit($edition->expert_title, 16) }}<br><span class="font-normal normal-case">{{ $w['expert'] }}%</span></th>
+                                @endif
+                                <th class="text-center">Votos<br><span class="font-normal normal-case">{{ $web ? 'en la página' : 'en redes' }}</span></th>
+                                <th class="bg-slate-50 text-center">Comunidad<br><span class="font-normal normal-case">{{ $w['community'] }}%</span></th>
                                 <th class="bg-lion-50 text-center">Nota final</th>
                                 <th class="text-center">Manual<br><span class="font-normal normal-case">0-100</span></th>
                                 <th class="text-center">Finalista</th><th class="text-center">Posición</th>
@@ -76,17 +101,32 @@
                                         <div class="font-semibold text-ink-900">{{ $v->name }}</div>
                                         <div class="text-xs text-slate-600">{{ $v->team_group }}@if ($v->team_group && $v->category) · @endif{{ $v->category?->name }} @unless($v->is_published)· <span class="text-rose-500">no publicado</span>@endunless</div>
                                     </td>
-                                    <td class="text-center font-semibold">{{ $v->votes_count }}</td>
-                                    <td class="text-center tabular-nums">{{ $g($v->community_grade) }}</td>
-                                    <td class="text-center tabular-nums">
+                                    @foreach ($evaluators as $u)
+                                        @php $ug = $grades->get($v->id)?->get($u->id); @endphp
+                                        <td @class(['text-center tabular-nums', 'text-slate-400' => $ug === null])>{{ $g($ug) }}</td>
+                                    @endforeach
+                                    <td class="bg-slate-50/70 text-center font-semibold tabular-nums">
                                         {{ $g($v->jury_grade) }}
                                         @php $n = $v->jury_count + ($combined ? $v->expert_count : 0); @endphp
-                                        @if ($n)<div class="text-[11px] text-slate-500"><x-icon name="gavel" /> {{ $n }}</div>@endif
+                                        @if ($n)<div class="text-[11px] font-normal text-slate-500"><x-icon name="gavel" /> {{ $n }}</div>@endif
                                     </td>
-                                    <td class="text-center tabular-nums">
-                                        {{ $g($v->expert_grade) }}
-                                        @if ($v->expert_count)<div class="text-[11px] text-slate-500"><x-icon name="award" /> {{ $v->expert_count }}</div>@endif
+                                    @unless ($combined)
+                                        <td class="bg-slate-50/70 text-center font-semibold tabular-nums">
+                                            {{ $g($v->expert_grade) }}
+                                            @if ($v->expert_count)<div class="text-[11px] font-normal text-slate-500"><x-icon name="award" /> {{ $v->expert_count }}</div>@endif
+                                        </td>
+                                    @endunless
+                                    <td class="text-center">
+                                        @php $pageVotes = $v->votes_count - $v->external_votes; @endphp
+                                        @if ($web)
+                                            <span class="font-semibold">{{ $v->votes_count }}</span>
+                                            @if ($v->external_votes)<div class="text-[11px] text-slate-500">{{ $v->external_votes }} de redes</div>@endif
+                                        @else
+                                            <input type="number" min="0" step="1" name="rows[{{ $v->id }}][external_votes]" value="{{ $v->external_votes }}" class="a-input mx-auto !w-24 text-center" title="Votos de la comunidad en redes (YouTube, Facebook…)">
+                                            @if ($pageVotes)<div class="text-[11px] text-slate-500">+{{ $pageVotes }} en la página</div>@endif
+                                        @endif
                                     </td>
+                                    <td class="bg-slate-50/70 text-center font-semibold tabular-nums">{{ $g($v->community_grade) }}</td>
                                     <td class="bg-lion-50/40 text-center">
                                         <span class="font-display text-lg font-semibold text-ink-900">{{ $g($v->final_grade) }}</span>
                                         @if ($v->is_partial)<div class="text-[10px] font-semibold uppercase text-lion-700">Parcial</div>@endif

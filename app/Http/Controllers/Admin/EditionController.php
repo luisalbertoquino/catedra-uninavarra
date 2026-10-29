@@ -189,6 +189,7 @@ class EditionController extends Controller
         $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
         $data['is_published'] = $request->boolean('is_published');
         $data['results_published'] = $request->boolean('results_published');
+        $data['web_voting'] = $request->boolean('web_voting');
         $data['voting_email_domain'] = isset($data['voting_email_domain']) ? ltrim($data['voting_email_domain'], '@') : null;
         $data['banner'] = Media::store($request->file('banner'), 'editions', $edition?->banner);
         if ($request->boolean('remove_banner')) {

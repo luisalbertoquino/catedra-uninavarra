@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\Venture;
 use Illuminate\Support\Str;
@@ -17,6 +18,7 @@ class VotingGate
             return match ($edition->votingStatus()) {
                 'proxima' => 'La votación abre el '.$edition->voting_starts_at->translatedFormat('j \d\e F \a \l\a\s g:i a').'.',
                 'cerrada' => 'La votación de esta edición ya cerró.',
+                'redes' => Setting::get('external_voting_text'),
                 default => 'La votación aún no tiene fechas definidas.',
             };
         }

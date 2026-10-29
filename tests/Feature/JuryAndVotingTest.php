@@ -364,6 +364,96 @@ class JuryAndVotingTest extends TestCase
         $this->get('/')->assertOk()->assertSee(route('investors'));
     }
 
+    /** Votación en redes: se deshabilita el voto en la página y el admin registra los votos a mano. */
+    public function test_admin_can_switch_to_manual_votes_from_social_networks(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $voter = User::factory()->create();
+        $a = $this->venture('Redes Uno');
+        $b = $this->venture('Redes Dos');
+        $b->update(['video_url' => 'https://www.youtube.com/shorts/8g3BoGJWKXM']);
+
+        $this->actingAs($admin)->post(route('admin.results.web-voting', $this->edition))->assertRedirect();
+        $this->assertFalse($this->edition->fresh()->hasWebVoting());
+        $this->assertSame('redes', $this->edition->fresh()->votingStatus());
+
+        // Ya no se puede votar en la página; el botón lleva al video
+        $this->actingAs($voter)->postJson(route('ventures.vote', $a), self::REVIEW)->assertStatus(422);
+        $this->assertDatabaseCount('votes', 0);
+        $this->get(route('ventures.show', $b))->assertOk()->assertSee('Votar en YouTube')->assertSee('Ver en pantalla completa');
+
+        // El admin escribe los votos de las redes en la tabla de resultados
+        $this->actingAs($admin)->get(route('admin.results.index'))->assertOk()->assertSee('rows['.$a->id.'][external_votes]', false);
+        $this->actingAs($admin)->put(route('admin.results.update', $this->edition), ['rows' => [
+            $a->id => ['external_votes' => 120], $b->id => ['external_votes' => 30],
+        ]])->assertRedirect();
+
+        $ranking = Ranking::for($this->edition)->keyBy('name');
+        $this->assertSame(120, $ranking['Redes Uno']->votes_count);
+        $this->assertEquals(5.0, $ranking['Redes Uno']->community_grade); // el más votado = 5 (modo relativo)
+        $this->assertEquals(2.0, $ranking['Redes Dos']->community_grade);
+        $this->assertSame(['Redes Uno', 'Redes Dos'], Venture::orderByVotes()->pluck('name')->all());
+
+        // Al volver a habilitar la página, los votos registrados se conservan
+        $this->actingAs($admin)->post(route('admin.results.web-voting', $this->edition));
+        $this->actingAs($admin)->put(route('admin.results.update', $this->edition), ['rows' => [$a->id => ['final_position' => 1]]]);
+        $this->assertSame(120, $a->fresh()->external_votes);
+    }
+
+    /** Resultados: una columna por jurado y por experto con su nota, antes de la comunidad. */
+    public function test_results_show_each_jury_member_grade(): void
+    {
+        $venture = $this->venture('Columnas');
+        $jury = $this->jury();
+        $jury->update(['name' => 'Ana Jurado']);
+        $expert = $this->jury(true);
+        $expert->update(['name' => 'Pedro Experto']);
+        $this->evaluate($jury, $venture, 4);
+        $this->evaluate($expert, $venture, 3);
+
+        $this->actingAs(User::factory()->create(['role' => 'admin']))->get(route('admin.results.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['Ana Jurado', 'Pedro Experto', 'Jurados', 'Votos', 'Comunidad', 'Nota final'])
+            ->assertSeeInOrder(['Columnas', '4,00', '3,00']);
+    }
+
+    public function test_export_has_the_same_columns_as_the_results_table(): void
+    {
+        $venture = $this->venture('Export');
+        $jury = $this->jury();
+        $jury->update(['name' => 'Ana Jurado']);
+        $this->evaluate($jury, $venture, 4);
+
+        $csv = $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->get(route('admin.results.export', $this->edition))->assertOk()->streamedContent();
+        [$header, $row] = array_map(fn ($l) => str_getcsv($l, ';'), array_slice(explode("\n", trim(substr($csv, 3))), 0, 2));
+
+        $this->assertSame(['#', 'Emprendimiento', 'Grupo', 'Categoría', 'Jurado: Ana Jurado'], array_slice($header, 0, 5));
+        $this->assertLessThan(array_search('Votos', $header), array_search('Nota jurados', $header));
+        $this->assertLessThan(array_search('Nota final', $header), array_search('Nota comunidad', $header));
+        $this->assertSame('4,00', $row[4]);
+    }
+
+    public function test_admin_can_delete_test_evaluations(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $jury = $this->jury();
+        $a = $this->venture('Prueba A');
+        $b = $this->venture('Prueba B');
+        $this->evaluate($jury, $a, 4);
+        $this->evaluate($jury, $b, 3);
+
+        $this->actingAs($jury)->delete(route('admin.results.evaluations.destroy', [$this->edition, Evaluation::first()]))->assertForbidden();
+
+        $this->actingAs($admin)->get(route('admin.results.evaluations', $this->edition))->assertOk()->assertSee('Borrar todas');
+        $this->actingAs($admin)->delete(route('admin.results.evaluations.destroy', [$this->edition, Evaluation::first()]))->assertRedirect();
+        $this->assertSame(1, Evaluation::count());
+
+        $this->actingAs($admin)->delete(route('admin.results.evaluations.destroy-jury', [$this->edition, $jury]))->assertRedirect();
+        $this->assertSame(0, Evaluation::count());
+        $this->assertNotNull($jury->fresh()); // la cuenta del jurado se conserva
+    }
+
     public function test_security_headers_are_sent(): void
     {
         $this->get('/')->assertHeader('X-Frame-Options', 'SAMEORIGIN')->assertHeader('X-Content-Type-Options', 'nosniff');

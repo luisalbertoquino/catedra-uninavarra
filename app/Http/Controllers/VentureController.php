@@ -35,7 +35,7 @@ class VentureController extends Controller
             'recientes' => $ventures->latest(),
             'az' => $ventures->orderBy('name'),
             'comentados' => $ventures->orderByDesc('comments_count'),
-            default => $ventures->orderByDesc('votes_count')->orderBy('name'),
+            default => $ventures->orderByVotes()->orderBy('name'),
         };
 
         $ventures = $ventures->paginate(12)->withQueryString();
