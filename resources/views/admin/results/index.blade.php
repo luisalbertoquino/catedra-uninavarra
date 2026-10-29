@@ -38,6 +38,25 @@
                         </div>
                     @endforeach
                 </div>
+                {{-- Tabla de votos (likes) → nota de la comunidad --}}
+                @if ($edition->vote_grade_mode === 'rangos')
+                    @php $ranges = collect($edition->voteRanges())->values(); @endphp
+                    <div class="mt-3 rounded-xl border border-slate-200 p-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-sm font-medium text-slate-700"><x-icon name="thumbs-up" /> Votos {{ $web ? '' : '(likes) ' }}→ nota de la comunidad</span>
+                            <a href="{{ route('admin.editions.edit', $edition) }}#calificacion" class="text-xs font-medium text-ink-700 underline">Cambiar rangos</a>
+                        </div>
+                        <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                            @foreach ($ranges as $i => $r)
+                                <div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
+                                    <div class="text-xs text-slate-600">{{ $ranges->has($i + 1) ? $r['min'].' a '.($ranges[$i + 1]['min'] - 1) : $r['min'].' o más' }} votos</div>
+                                    <div class="font-display text-lg font-semibold text-ink-900">{{ rtrim(rtrim(number_format($r['grade'], 2, ',', '.'), '0'), ',') }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                        @if ($ranges->first()['min'] > 0)<p class="mt-2 text-xs text-slate-600">Menos de {{ $ranges->first()['min'] }} votos = 1.</p>@endif
+                    </div>
+                @endif
                 <p class="mt-3 text-xs text-slate-600">
                     Si a un emprendimiento le falta algún componente (por ejemplo, el experto aún no lo evalúa), su peso se reparte entre los demás y la nota aparece como <b>parcial</b>.
                     Los porcentajes y la forma de calcular la nota de los votos se cambian en <a href="{{ route('admin.editions.edit', $edition) }}#calificacion" class="font-medium text-ink-700 underline">la edición</a>.

@@ -401,6 +401,14 @@ class JuryAndVotingTest extends TestCase
     }
 
     /** Resultados: una columna por jurado y por experto con su nota, antes de la comunidad. */
+    /** La tabla de votos (likes) → nota de la comunidad se ve en Resultados. */
+    public function test_results_show_the_vote_ranges(): void
+    {
+        $this->edition->update(['vote_grade_mode' => 'rangos', 'vote_grade_thresholds' => null]);
+        $this->actingAs(User::factory()->create(['role' => 'admin']))->get(route('admin.results.index'))
+            ->assertOk()->assertSeeInOrder(['0 a 14 votos', '3', '15 a 49 votos', '3,5', '198 o más votos', '5'])->assertSee('Cambiar rangos');
+    }
+
     public function test_results_show_each_jury_member_grade(): void
     {
         $venture = $this->venture('Columnas');
