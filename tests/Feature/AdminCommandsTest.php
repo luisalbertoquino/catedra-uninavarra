@@ -157,4 +157,24 @@ class AdminCommandsTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.settings.welcome', ['tipo' => 'jurado']))->assertOk()->assertSee('Gracias por acompañarnos.');
     }
+
+    public function test_failed_welcome_mail_shows_a_warning_instead_of_an_error(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Notification::shouldReceive('send')->andThrow(new \RuntimeException('SMTP caído'));
+
+        $this->actingAs($admin)->post(route('admin.juries.store'), ['name' => 'Jurado Correo', 'email' => 'jurado.correo@uninavarra.edu.co', 'invite' => 1])
+            ->assertRedirect()->assertSessionHas('error');
+        $jury = User::where('email', 'jurado.correo@uninavarra.edu.co')->firstOrFail();
+        $this->assertTrue($jury->isJury()); // la cuenta se crea igual
+
+        $this->actingAs($admin)->post(route('admin.users.invite', $jury))->assertRedirect()->assertSessionHas('error');
+    }
+
+    public function test_admin_help_manual(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']))->get(route('admin.help'))
+            ->assertOk()->assertSee('Paso a paso del evento')->assertSee('Rúbrica por jurado')->assertSee('Votación en redes', false);
+        $this->actingAs(User::factory()->create(['role' => 'jurado']))->get(route('admin.help'))->assertForbidden();
+    }
 }

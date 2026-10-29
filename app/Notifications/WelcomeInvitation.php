@@ -7,7 +7,9 @@ use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Throwable;
 
 /**
  * Correo de bienvenida para jurados y administradores, con un enlace para crear (o cambiar) su contraseña.
@@ -24,6 +26,20 @@ class WelcomeInvitation extends Notification
     public function via(User $user): array
     {
         return ['mail'];
+    }
+
+    /** Envía la invitación; si el servidor de correo falla, lo deja en el log y devuelve false en vez de romper la página. */
+    public static function send(User $user): bool
+    {
+        try {
+            $user->notify(new self);
+
+            return true;
+        } catch (Throwable $e) {
+            Log::warning("No se pudo enviar la invitación a {$user->email}: ".$e->getMessage());
+
+            return false;
+        }
     }
 
     public static function url(User $user): string

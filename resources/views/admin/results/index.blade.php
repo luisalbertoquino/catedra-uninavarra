@@ -1,7 +1,7 @@
 <x-layouts.admin title="Resultados">
     <x-slot:actions>
         @if ($edition)
-            <a href="{{ route('admin.results.export', $edition) }}" class="a-btn-light"><x-icon name="file-arrow-down" /> Exportar CSV</a>
+            <a href="{{ route('admin.results.export', $edition) }}" class="a-btn-light"><x-icon name="file-excel" /> Exportar Excel</a>
         @endif
     </x-slot:actions>
 

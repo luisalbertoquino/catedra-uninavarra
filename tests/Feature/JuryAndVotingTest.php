@@ -417,21 +417,40 @@ class JuryAndVotingTest extends TestCase
             ->assertSeeInOrder(['Columnas', '4,00', '3,00']);
     }
 
-    public function test_export_has_the_same_columns_as_the_results_table(): void
+    public function test_excel_export_is_ordered_with_the_full_rubric(): void
     {
         $venture = $this->venture('Export');
+        $this->venture('Sin evaluar');
         $jury = $this->jury();
         $jury->update(['name' => 'Ana Jurado']);
-        $this->evaluate($jury, $venture, 4);
+        $this->evaluate($jury, $venture, [4, 3.5, 5, 0, 2]);
 
-        $csv = $this->actingAs(User::factory()->create(['role' => 'admin']))
+        $content = $this->actingAs(User::factory()->create(['role' => 'admin']))
             ->get(route('admin.results.export', $this->edition))->assertOk()->streamedContent();
-        [$header, $row] = array_map(fn ($l) => str_getcsv($l, ';'), array_slice(explode("\n", trim(substr($csv, 3))), 0, 2));
+        $file = tempnam(sys_get_temp_dir(), 'xlsx');
+        file_put_contents($file, $content);
+        $book = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+        unlink($file);
 
-        $this->assertSame(['#', 'Emprendimiento', 'Grupo', 'Categoría', 'Jurado: Ana Jurado'], array_slice($header, 0, 5));
-        $this->assertLessThan(array_search('Votos', $header), array_search('Nota jurados', $header));
-        $this->assertLessThan(array_search('Nota final', $header), array_search('Nota comunidad', $header));
-        $this->assertSame('4,00', $row[4]);
+        $this->assertSame(['Resultados', 'Rúbrica por jurado', 'Comentarios'], $book->getSheetNames());
+
+        // Resultados: nota de cada jurado antes del comité, luego votos, comunidad y nota final
+        $summary = $book->getSheet(0)->rangeToArray('A4:N5', null, false, false);
+        $this->assertSame("Jurado\nAna Jurado", $summary[0][4]);
+        $this->assertSame(['Export', 2.9], [$summary[1][1], $summary[1][4]]);
+        $header = $summary[0];
+        $this->assertLessThan(array_search('Nota final', $header), array_search("Comunidad\n30%", $header));
+
+        // Rúbrica: el evaluador arriba y debajo cada criterio con su puntaje y su nota
+        $rubric = $book->getSheet(1);
+        $first = $this->edition->criteria->first();
+        $this->assertSame('Jurado: Ana Jurado', $rubric->getCell('D4')->getValue());
+        $this->assertSame("{$first->name}\n(máx. 5)", $rubric->getCell('D5')->getValue());
+        $row = $rubric->rangeToArray('A6:I6', null, false, false)[0];
+        $this->assertSame(['Export', 4.0, 3.5, 5.0, 0.0, 2.0, 2.9], [$row[1], ...array_map('floatval', array_slice($row, 3, 6))]);
+        $this->assertNull($rubric->getCell('D7')->getValue()); // «Sin evaluar»: celdas vacías
+
+        $this->assertSame([['Export', null, 'Jurado: Ana Jurado', 2.9, 'ok']], $book->getSheet(2)->rangeToArray('A5:E5', null, false, false));
     }
 
     public function test_admin_can_delete_test_evaluations(): void

@@ -72,6 +72,7 @@ Route::middleware(['auth', 'jury'])->prefix('jurado')->name('jury.')->group(func
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('ayuda', [Admin\DashboardController::class, 'help'])->name('help');
 
     Route::resource('ediciones', Admin\EditionController::class)
         ->parameters(['ediciones' => 'edition'])->names('editions')->except('show');

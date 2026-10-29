@@ -49,7 +49,10 @@ class JuryController extends Controller
         $jury->markEmailAsVerified();
 
         if ($request->boolean('invite')) {
-            $jury->notify(new WelcomeInvitation);
+            if (! WelcomeInvitation::send($jury)) {
+                return back()->with('error', "Jurado creado, pero no se pudo enviar el correo de bienvenida. Usa el botón «Invitar» para reintentarlo.")
+                    ->with('credentials', ['email' => $jury->email, 'password' => $password]);
+            }
             if (empty($data['password'])) {
                 return back()->with('status', "Jurado creado. Le enviamos a {$jury->email} el correo de bienvenida para que cree su contraseña.");
             }

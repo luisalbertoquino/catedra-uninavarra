@@ -19,6 +19,7 @@
             ['Categorías', 'admin.categories.index', 'admin.categories.*', 'tags'],
             ['Importar Excel', 'admin.import.create', 'admin.import.*', 'file-import'],
             ['Configuración', 'admin.settings.edit', 'admin.settings.*', 'sliders'],
+            ['Ayuda', 'admin.help', 'admin.help', 'circle-question'],
         ];
         $pendingPledges = \App\Models\SupportPledge::where('status', 'pendiente')->count();
         $pendingComments = \App\Models\Comment::where('is_approved', false)->count();

@@ -36,7 +36,9 @@ class UserController extends Controller
         if (! $user->isAdmin() && ! $user->isJury()) {
             return back()->with('error', 'Las invitaciones son para jurados y administradores.');
         }
-        $user->notify(new WelcomeInvitation);
+        if (! WelcomeInvitation::send($user)) {
+            return back()->with('error', "No se pudo enviar el correo a {$user->email}. Revisa el correo del servidor e inténtalo de nuevo.");
+        }
 
         return back()->with('status', "Invitación enviada a {$user->email}.");
     }

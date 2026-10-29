@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ResultsWorkbook;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use App\Models\Evaluation;
 use App\Models\User;
 use App\Services\JuryScoring;
 use App\Services\Ranking;
-use App\Support\Csv;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -128,24 +128,9 @@ class ResultsController extends Controller
         return back()->with('status', "Se borraron {$count} evaluación(es) de {$user->name}.");
     }
 
+    /** Excel ordenado: resultados, rúbrica por jurado y comentarios (ver ResultsWorkbook). */
     public function export(Edition $edition)
     {
-        $grade = fn ($n) => $n === null ? null : number_format($n, 2, ',', '');
-        [$evaluators, $grades] = $this->evaluatorGrades($edition);
-        $rows = Ranking::for($edition, false)->values()->map(fn ($v, $i) => [
-            $i + 1, $v->name, $v->team_group, $v->category?->name,
-            ...$evaluators->map(fn ($u) => $grade($grades->get($v->id)?->get($u->id))),
-            $grade($v->jury_grade), $v->jury_count, $grade($v->expert_grade), $v->expert_count,
-            $v->votes_count, $grade($v->community_grade),
-            $grade($v->final_grade), $v->is_partial ? 'Parcial' : '', $v->is_finalist ? 'Sí' : 'No', $v->final_position,
-            $v->comments_count, $v->rating_avg ? round($v->rating_avg, 1) : null, $v->views,
-        ]);
-
-        return Csv::download("resultados-{$edition->slug}.csv",
-            ['#', 'Emprendimiento', 'Grupo', 'Categoría',
-                ...$evaluators->map(fn ($u) => ($u->is_expert ? $edition->expert_title : 'Jurado').': '.$u->name),
-                'Nota '.mb_strtolower($edition->committeeLabel()), 'N.º jurados', "Nota {$edition->expert_title}", 'N.º expertos',
-                'Votos', 'Nota comunidad', 'Nota final', 'Estado', 'Finalista', 'Posición', 'Comentarios', 'Calificación', 'Visitas'],
-            $rows);
+        return (new ResultsWorkbook($edition))->download();
     }
 }

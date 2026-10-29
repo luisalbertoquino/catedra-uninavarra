@@ -53,4 +53,10 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact('editions', 'edition', 'kpis', 'votesByDay', 'ranking', 'pledgesByType', 'latestPledges', 'latestComments'));
     }
+
+    /** Manual de uso del panel, con las cifras de la edición activa. */
+    public function help()
+    {
+        return view('admin.help', ['edition' => Edition::current()]);
+    }
 }
