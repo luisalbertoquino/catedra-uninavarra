@@ -19,14 +19,34 @@ class VentureController extends Controller
     {
         $editions = Edition::orderByDesc('year')->orderByDesc('period')->get();
         $editionId = $request->input('edicion', Edition::current()?->id);
+        $sort = in_array($request->orden, self::SORTS, true) ? $request->orden : 'nombre';
+        $dir = $request->dir === 'desc' ? 'desc' : 'asc';
 
         $ventures = Venture::with(['category', 'edition'])
             ->withCount(['votes', 'comments', 'pledges', 'members'])
             ->when($editionId, fn ($q) => $q->where('edition_id', $editionId))
-            ->when($request->filled('q'), fn ($q) => $q->where('name', 'like', '%'.$request->q.'%'))
-            ->orderBy('name')->paginate(20)->withQueryString();
+            ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', '%'.$request->q.'%')->orWhere('team_group', 'like', '%'.$request->q.'%')))
+            ->tap(fn ($q) => $this->sort($q, $sort, $dir))
+            ->paginate(20)->withQueryString();
 
-        return view('admin.ventures.index', compact('ventures', 'editions', 'editionId'));
+        return view('admin.ventures.index', compact('ventures', 'editions', 'editionId', 'sort', 'dir'));
+    }
+
+    /** Columnas por las que se puede ordenar la tabla (clic en el encabezado). */
+    private const SORTS = ['nombre', 'grupo', 'equipo', 'votos', 'comentarios', 'apoyos'];
+
+    private function sort($query, string $sort, string $dir): void
+    {
+        match ($sort) {
+            // "Grupo 7" antes que "Grupo 12": primero por largo y luego alfabético; los que no tienen grupo van al final
+            'grupo' => $query->orderByRaw('team_group IS NULL')->orderByRaw('LENGTH(team_group) '.$dir)->orderBy('team_group', $dir),
+            'equipo' => $query->orderBy('members_count', $dir),
+            'votos' => $query->orderBy('votes_count', $dir),
+            'comentarios' => $query->orderBy('comments_count', $dir),
+            'apoyos' => $query->orderBy('pledges_count', $dir),
+            default => null,
+        };
+        $query->orderBy('name', $sort === 'nombre' ? $dir : 'asc');
     }
 
     public function create(Request $request)

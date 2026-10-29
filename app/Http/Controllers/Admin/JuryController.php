@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use App\Models\User;
+use App\Notifications\WelcomeInvitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -37,14 +38,22 @@ class JuryController extends Controller
         ]);
 
         $password = $data['password'] ?? Str::password(12, symbols: false);
-        User::create([
+        $jury = User::create([
             'name' => $data['name'],
             'email' => Str::lower($data['email']),
             'organization' => $data['organization'] ?? null,
             'role' => 'jurado',
             'is_expert' => $request->boolean('is_expert'),
             'password' => Hash::make($password),
-        ])->markEmailAsVerified();
+        ]);
+        $jury->markEmailAsVerified();
+
+        if ($request->boolean('invite')) {
+            $jury->notify(new WelcomeInvitation);
+            if (empty($data['password'])) {
+                return back()->with('status', "Jurado creado. Le enviamos a {$jury->email} el correo de bienvenida para que cree su contraseña.");
+            }
+        }
 
         return back()->with('status', 'Jurado creado.')
             ->with('credentials', ['email' => Str::lower($data['email']), 'password' => $password]);

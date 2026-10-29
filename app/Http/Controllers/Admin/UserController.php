@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\WelcomeInvitation;
 use App\Support\Csv;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -27,6 +28,17 @@ class UserController extends Controller
         $user->update($data);
 
         return back()->with('status', "Rol de {$user->name} actualizado.");
+    }
+
+    /** Envía el correo de bienvenida con el enlace para crear o cambiar la contraseña (jurados y administradores). */
+    public function invite(User $user)
+    {
+        if (! $user->isAdmin() && ! $user->isJury()) {
+            return back()->with('error', 'Las invitaciones son para jurados y administradores.');
+        }
+        $user->notify(new WelcomeInvitation);
+
+        return back()->with('status', "Invitación enviada a {$user->email}.");
     }
 
     public function export(Request $request)

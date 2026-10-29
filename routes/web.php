@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\EditionController;
 use App\Http\Controllers\HomeController;
@@ -47,6 +48,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/perfil', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/perfil', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Enlace del correo de bienvenida para jurados y administradores (firmado y de un solo uso)
+Route::get('/invitacion/{user}/{hash}', [InvitationController::class, 'show'])->middleware('signed')->name('invitation.show');
+Route::post('/invitacion/{user}/{hash}', [InvitationController::class, 'store'])->middleware(['signed', 'throttle:10,1'])->name('invitation.store');
 
 /*
 |--------------------------------------------------------------------------
@@ -108,6 +113,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('usuarios', [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('usuarios/exportar', [Admin\UserController::class, 'export'])->name('users.export');
     Route::patch('usuarios/{user}', [Admin\UserController::class, 'update'])->name('users.update');
+    Route::post('usuarios/{user}/invitar', [Admin\UserController::class, 'invite'])->middleware('throttle:20,1')->name('users.invite');
 });
 
 require __DIR__.'/auth.php';

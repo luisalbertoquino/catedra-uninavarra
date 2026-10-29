@@ -31,6 +31,10 @@
                 <input type="checkbox" name="is_expert" value="1" @checked(old('is_expert')) class="mt-0.5 rounded border-slate-300 text-lion-600 focus:ring-lion-500">
                 <span class="text-sm"><b>{{ $expertTitle }}</b><br><span class="text-slate-600">@if ($edition)Su evaluación {{ $edition->expertWeightText() }}.@endif</span></span>
             </label>
+            <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-3">
+                <input type="checkbox" name="invite" value="1" @checked(old('invite', true)) class="mt-0.5">
+                <span class="text-sm"><b>Enviar correo de bienvenida</b><br><span class="text-slate-600">Con un enlace para que cree su propia contraseña. Si dejas la contraseña vacía, no necesitas pasarle ninguna.</span></span>
+            </label>
             <button class="a-btn-primary w-full"><x-icon name="user-plus" /> Crear jurado</button>
             <p class="text-xs text-slate-600">El nombre "{{ $expertTitle }}" y los porcentajes se configuran en <a href="{{ $edition ? route('admin.editions.edit', $edition) : route('admin.editions.index') }}#calificacion" class="font-medium text-ink-700 underline">la edición</a>.</p>
         </form>
@@ -61,6 +65,10 @@
                             </div>
                         </div>
                         <div class="flex shrink-0 gap-2">
+                            <form method="POST" action="{{ route('admin.users.invite', $j) }}" onsubmit="return confirm('¿Enviar a {{ $j->email }} el correo de bienvenida con el enlace para crear su contraseña?')">
+                                @csrf
+                                <button class="a-btn-light !py-1.5" title="Enviar correo de bienvenida"><x-icon name="envelope" style="regular" /> Invitar</button>
+                            </form>
                             <button type="button" @click="edit = !edit" class="a-btn-light !py-1.5"><x-icon name="pen-to-square" /> Editar</button>
                             <form method="POST" action="{{ route('admin.juries.destroy', $j) }}" onsubmit="return confirm('¿Eliminar a {{ $j->name }}? También se borrarán sus {{ $j->evaluations_count }} evaluación(es).')">
                                 @csrf @method('DELETE')

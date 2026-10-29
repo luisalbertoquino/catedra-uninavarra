@@ -15,7 +15,7 @@
     <div class="a-card overflow-hidden">
         <div class="overflow-x-auto">
             <table class="a-table">
-                <thead><tr><th>Usuario</th><th>Contacto</th><th class="text-center">Votos</th><th class="text-center">Coment.</th><th class="text-center">Apoyos</th><th>Registro</th><th>Rol</th></tr></thead>
+                <thead><tr><th>Usuario</th><th>Contacto</th><th class="text-center">Votos</th><th class="text-center">Coment.</th><th class="text-center">Apoyos</th><th>Registro</th><th>Rol</th><th></th></tr></thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($users as $u)
                         <tr class="hover:bg-slate-50">
@@ -39,6 +39,13 @@
                                         @foreach (\App\Models\User::ROLES as $k => $l)<option value="{{ $k }}" @selected($u->role === $k)>{{ $l }}</option>@endforeach
                                     </select>
                                 </form>
+                            </td>
+                            <td class="whitespace-nowrap text-right">
+                                @if ($u->isAdmin() || $u->isJury())
+                                    <form method="POST" action="{{ route('admin.users.invite', $u) }}" onsubmit="return confirm('¿Enviar a {{ $u->email }} el correo de bienvenida con el enlace para crear su contraseña?')">@csrf
+                                        <button class="a-btn-light !py-1.5 text-xs" title="Enviar correo de bienvenida"><x-icon name="envelope" style="regular" /> Invitar</button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
