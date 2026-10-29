@@ -2,6 +2,8 @@
     <h1 class="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Únete a la comunidad</h1>
     <p class="mt-2 text-white/60">Crea tu cuenta en menos de un minuto.</p>
 
+    <x-google-button class="mt-8" label="Registrarme con Google" :perfil="$role === 'inversionista' ? 'inversionista' : null" />
+
     <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-5" x-data="{ role: @js(old('role', $role)) }">
         @csrf
         <x-honeypot />
@@ -68,7 +70,7 @@
 
         <label class="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-lion-200 bg-lavanda/30 p-4 transition has-[:checked]:border-lion-600 has-[:checked]:bg-lavanda/70">
             <input type="checkbox" name="terms" value="1" @checked(old('terms')) required class="mt-0.5 text-lion-600 focus:ring-lion-500">
-            <span class="text-sm leading-relaxed text-ink-700">Autorizo el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 y la política de privacidad de UNINAVARRA, para fines de la Cátedra y contacto con los emprendimientos.</span>
+            <span class="text-sm leading-relaxed text-ink-700">Autorizo el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 y la <a href="{{ route('privacy') }}" target="_blank" class="font-semibold text-lion-700 underline">política de privacidad</a> de UNINAVARRA, para fines de la Cátedra y contacto con los emprendimientos.</span>
         </label>
         <x-input-error :messages="$errors->get('terms')" />
 

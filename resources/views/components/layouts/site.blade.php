@@ -168,6 +168,7 @@
                             <li><a href="{{ $url }}" class="hover:text-lion-300">{{ $label }}</a></li>
                         @endforeach
                         <li><a href="{{ route('investors') }}" class="hover:text-lion-300">Soy inversionista o aliado</a></li>
+                        <li><a href="{{ route('privacy') }}" class="hover:text-lion-300">Privacidad y condiciones</a></li>
                     </ul>
                 </div>
                 <div class="md:col-span-4">

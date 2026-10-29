@@ -4,6 +4,8 @@
 
     <x-auth-session-status class="mt-6" :status="session('status')" />
 
+    <x-google-button class="mt-8" />
+
     <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-5">
         @csrf
         <div>

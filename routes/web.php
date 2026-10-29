@@ -25,6 +25,7 @@ Route::get('/emprendimientos', [VentureController::class, 'index'])->name('ventu
 Route::get('/emprendimientos/{venture}', [VentureController::class, 'show'])->name('ventures.show');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
 Route::get('/inversionistas', [InvestorController::class, 'index'])->name('investors');
+Route::view('/privacidad', 'public.privacy')->name('privacy');
 Route::get('/ediciones', [EditionController::class, 'index'])->name('editions.index');
 Route::get('/ediciones/{edition}', [EditionController::class, 'show'])->name('editions.show');
 
