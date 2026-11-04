@@ -125,6 +125,25 @@
         </section>
     @endif
 
+    {{-- ================= INVERSIONISTAS INVITADOS ================= --}}
+    @if ($investorProfiles->isNotEmpty())
+        <section class="container-x py-20">
+            <div class="reveal flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div>
+                    <span class="eyebrow"><x-icon name="people-group" /> Inversionistas invitados</span>
+                    <h2 class="section-title mt-3">Quiénes escuchan los pitch</h2>
+                    <p class="mt-3 max-w-2xl text-ink-600">Empresarios y expertos en inversión que acompañan a los equipos en el {{ $edition?->event_name ?? 'LION HUB EVENT' }}.</p>
+                </div>
+                <a href="{{ route('investor-profiles') }}" class="btn-ghost shrink-0">Ver todos <x-icon name="arrow-right" /></a>
+            </div>
+            <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($investorProfiles->take(3) as $p)
+                    <x-investor-card :profile="$p" compact />
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     {{-- ================= EMBUDO: INVERSIONISTAS ================= --}}
     <section class="ecos-g-coral ecos-band py-20">
         <div class="container-x grid items-center gap-8 lg:grid-cols-12">

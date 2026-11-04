@@ -16,6 +16,8 @@
             ['Intenciones de apoyo', 'admin.pledges.index', 'admin.pledges.*', 'hand-holding-dollar'],
             ['Comentarios', 'admin.comments.index', 'admin.comments.*', 'comments'],
             ['Usuarios', 'admin.users.index', 'admin.users.*', 'users'],
+            ['Inversionistas invitados', 'admin.investor-profiles.index', 'admin.investor-profiles.*', 'people-group'],
+            ['Portafolios', 'admin.portfolios.index', 'admin.portfolios.*', 'book-open'],
             ['Categorías', 'admin.categories.index', 'admin.categories.*', 'tags'],
             ['Importar Excel', 'admin.import.create', 'admin.import.*', 'file-import'],
             ['Configuración', 'admin.settings.edit', 'admin.settings.*', 'sliders'],

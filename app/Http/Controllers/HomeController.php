@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Edition;
+use App\Models\InvestorProfile;
 use App\Models\SupportPledge;
 use App\Models\User;
 use App\Models\Vote;
@@ -21,7 +22,8 @@ class HomeController extends Controller
 
         $stats = [
             'ventures' => $edition?->ventures()->published()->count() ?? 0,
-            'votes' => $edition ? Vote::where('edition_id', $edition->id)->count() : 0,
+            // Votos en la página + los registrados a mano (YouTube, Facebook…)
+            'votes' => $edition ? Vote::where('edition_id', $edition->id)->count() + (int) $edition->ventures()->sum('external_votes') : 0,
             'community' => User::count(),
             'pledges' => SupportPledge::count(),
         ];
@@ -32,6 +34,8 @@ class HomeController extends Controller
         $pastEditions = Edition::published()->when($edition, fn ($q) => $q->whereKeyNot($edition->id))
             ->withCount('ventures')->orderByDesc('year')->orderByDesc('period')->take(3)->get();
 
-        return view('public.home', compact('edition', 'featured', 'stats', 'categories', 'pastEditions'));
+        $investorProfiles = InvestorProfile::published()->ordered()->take(6)->get();
+
+        return view('public.home', compact('edition', 'featured', 'stats', 'categories', 'pastEditions', 'investorProfiles'));
     }
 }

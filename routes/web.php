@@ -11,6 +11,7 @@ use App\Http\Controllers\JuryController;
 use App\Http\Controllers\PledgeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\ShowcaseController;
 use App\Http\Controllers\VentureController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,8 @@ Route::get('/emprendimientos', [VentureController::class, 'index'])->name('ventu
 Route::get('/emprendimientos/{venture}', [VentureController::class, 'show'])->name('ventures.show');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
 Route::get('/inversionistas', [InvestorController::class, 'index'])->name('investors');
+Route::get('/nuestros-inversionistas', [ShowcaseController::class, 'investors'])->name('investor-profiles');
+Route::get('/portafolios', [ShowcaseController::class, 'portfolios'])->name('portfolios');
 Route::view('/privacidad', 'public.privacy')->name('privacy');
 Route::get('/ediciones', [EditionController::class, 'index'])->name('editions.index');
 Route::get('/ediciones/{edition}', [EditionController::class, 'show'])->name('editions.show');
@@ -81,6 +84,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('emprendimientos', Admin\VentureController::class)
         ->parameters(['emprendimientos' => 'venture'])->names('ventures')->except('show');
     Route::delete('imagenes/{image}', [Admin\VentureController::class, 'destroyImage'])->name('ventures.images.destroy');
+
+    Route::resource('inversionistas', Admin\InvestorProfileController::class)
+        ->parameters(['inversionistas' => 'profile'])->names('investor-profiles')->except('show');
+    Route::resource('portafolios', Admin\PortfolioController::class)
+        ->parameters(['portafolios' => 'portfolio'])->names('portfolios')->except('show');
 
     Route::get('categorias', [Admin\CategoryController::class, 'index'])->name('categories.index');
     Route::post('categorias', [Admin\CategoryController::class, 'store'])->name('categories.store');

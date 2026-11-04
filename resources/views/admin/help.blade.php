@@ -19,6 +19,8 @@
             'apoyos' => ['hand-holding-dollar', 'Intenciones de apoyo'],
             'comentarios' => ['comments', 'Comentarios'],
             'usuarios' => ['users', 'Usuarios y administradores'],
+            'inversionistas' => ['people-group', 'Inversionistas invitados'],
+            'portafolios' => ['book-open', 'Portafolios'],
             'configuracion' => ['sliders', 'Configuración'],
             'videos' => ['circle-play', 'Videos'],
             'preguntas' => ['circle-question', 'Preguntas frecuentes'],
@@ -212,6 +214,25 @@
                     <li><b>Nuevo administrador:</b> la persona se registra (o la creas como jurado) y en <a class="font-medium text-ink-700 underline" href="{{ route('admin.users.index') }}">Usuarios</a> le cambias el rol a administrador. Luego pulsa <b>Invitar</b> para enviarle el correo con el enlace de contraseña.</li>
                     <li><b>Borrar cuentas:</b> solo el administrador principal ({{ config('catedra.superadmin') }}) ve el botón de borrar. Se borran también los votos, comentarios y apoyos de esa cuenta.</li>
                     <li><b>Ingreso con Google:</b> cualquier persona puede entrar con su cuenta de Google. Si el correo ya existe (también jurados y administradores), entra con esa cuenta; si es nueva, acepta el tratamiento de datos y elige su perfil.</li>
+                </ul>
+            </section>
+
+            <section id="inversionistas" class="a-card p-6">
+                <h2><x-icon name="people-group" /> Inversionistas invitados</h2>
+                <p>Son los empresarios e inversionistas que acompañan el evento. Se muestran en la página <b>Inversionistas</b> del sitio y los tres primeros también en el inicio. No son cuentas de usuario.</p>
+                <ul>
+                    <li>En <a class="font-medium text-ink-700 underline" href="{{ route('admin.investor-profiles.index') }}">Inversionistas invitados</a> agregas a cada persona con su foto, cargo, trayectoria, temas en los que aporta (separados por coma) y LinkedIn opcional.</li>
+                    <li>La trayectoria se escribe en párrafos (un renglón por párrafo); en el sitio se ven las primeras líneas con el botón «Ver trayectoria completa».</li>
+                    <li>El campo <b>Orden</b> define en qué posición sale cada uno. Desmarca <b>Publicado</b> para ocultar a alguien sin borrarlo.</li>
+                </ul>
+            </section>
+
+            <section id="portafolios" class="a-card p-6">
+                <h2><x-icon name="book-open" /> Portafolios</h2>
+                <p>En <a class="font-medium text-ink-700 underline" href="{{ route('admin.portfolios.index') }}">Portafolios</a> registras el portafolio de cada convocatoria con su enlace web, su PDF o ambos. Se listan en la página <b>Portafolios</b> del sitio.</p>
+                <ul>
+                    <li>El portafolio marcado como <b>Botón flotante</b> aparece en todas las páginas, abajo a la izquierda, y abre su PDF (o la página web si no tiene PDF). Solo puede haber uno.</li>
+                    <li>Al empezar una convocatoria nueva, agrega su portafolio y márcalo como botón flotante: el anterior se desmarca solo.</li>
                 </ul>
             </section>
 

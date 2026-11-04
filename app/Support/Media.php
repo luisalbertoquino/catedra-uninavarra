@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class Media
 {
-    /** URL pública de un archivo guardado en el disco "public" o de una URL externa. */
+    /** URL pública de un archivo del disco "public", de un archivo dentro de public/ (ruta con "/" inicial) o de una URL externa. */
     public static function url(?string $path): ?string
     {
         if (! $path) {
@@ -16,6 +16,9 @@ class Media
         }
         if (Str::startsWith($path, ['http://', 'https://'])) {
             return $path;
+        }
+        if (Str::startsWith($path, '/')) {
+            return asset(ltrim($path, '/'));
         }
 
         return Storage::disk('public')->url($path);
@@ -33,7 +36,7 @@ class Media
 
     public static function delete(?string $path): void
     {
-        if ($path && ! Str::startsWith($path, ['http://', 'https://'])) {
+        if ($path && ! Str::startsWith($path, ['http://', 'https://', '/'])) {
             Storage::disk('public')->delete($path);
         }
     }

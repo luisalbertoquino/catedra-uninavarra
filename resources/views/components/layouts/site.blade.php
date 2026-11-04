@@ -11,6 +11,8 @@
             ['Emprendimientos', route('ventures.index'), 'ventures.*'],
             ['Ranking', route('ranking'), 'ranking'],
             ['Ediciones', route('editions.index'), 'editions.*'],
+            ['Inversionistas', route('investor-profiles'), 'investor-profiles'],
+            ['Portafolios', route('portfolios'), 'portfolios'],
             ['Apoya', route('investors'), 'investors'],
         ];
     @endphp
@@ -55,7 +57,7 @@
         <nav class="container-x flex h-16 items-center justify-between lg:h-20">
             <a href="{{ route('home') }}" class="shrink-0"><x-brand :dark="false" /></a>
 
-            <div class="hidden items-center gap-1 rounded-full bg-tarjeta p-1 md:flex">
+            <div class="hidden items-center gap-1 rounded-full bg-tarjeta p-1 xl:flex">
                 @foreach ($links as [$label, $url, $pattern])
                     <a href="{{ $url }}" @class([
                         'rounded-full px-4 py-2 text-sm font-medium transition',
@@ -65,7 +67,7 @@
                 @endforeach
             </div>
 
-            <div class="hidden items-center gap-2 md:flex">
+            <div class="hidden items-center gap-2 xl:flex">
                 @auth
                     @if (auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}" class="btn-ghost !px-4"><x-icon name="gauge-high" /> Panel admin</a>
@@ -92,13 +94,13 @@
                 @endauth
             </div>
 
-            <button @click="open = !open" class="grid h-10 w-10 place-items-center rounded-full bg-tarjeta text-lion-700 md:hidden" aria-label="Menú">
+            <button @click="open = !open" class="grid h-10 w-10 place-items-center rounded-full bg-tarjeta text-lion-700 xl:hidden" aria-label="Menú">
                 <x-icon name="bars" x-show="!open" class="text-lg" />
                 <x-icon name="xmark" x-cloak x-show="open" class="text-lg" />
             </button>
         </nav>
 
-        <div x-cloak x-show="open" x-collapse class="md:hidden">
+        <div x-cloak x-show="open" x-collapse class="xl:hidden">
             <div class="container-x space-y-1 pb-6 pt-2">
                 @foreach ($links as [$label, $url, $pattern])
                     <a href="{{ $url }}" @class(['block rounded-lg px-4 py-3 text-base font-medium', 'bg-white/10 text-white' => request()->routeIs($pattern), 'text-white/70' => ! request()->routeIs($pattern)])>{{ $label }}</a>
@@ -191,6 +193,16 @@
             </div>
         </div>
     </footer>
+
+    {{-- Botón flotante: portafolio en PDF de la convocatoria actual (en la ficha, encima de la barra fija del celular) --}}
+    @if ($portfolio = \App\Models\Portfolio::featured())
+        <a href="{{ $portfolio->open_url }}" target="_blank" rel="noopener"
+           @class(['btn-lion fixed left-4 z-40 !px-4 !py-3 text-sm shadow-xl shadow-lion-900/25 sm:left-6', 'bottom-24 lg:bottom-6' => request()->routeIs('ventures.show'), 'bottom-4 sm:bottom-6' => ! request()->routeIs('ventures.show')])
+           title="Abrir el {{ $portfolio->title }}">
+            <x-icon :name="$portfolio->pdf_url ? 'file-pdf' : 'book-open'" class="text-base !text-white" />
+            <span>Portafolio <span class="hidden sm:inline">{{ $portfolio->period }}</span></span>
+        </a>
+    @endif
 
     <x-toasts />
     @stack('scripts')
