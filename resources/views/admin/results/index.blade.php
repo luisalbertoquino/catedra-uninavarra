@@ -109,7 +109,7 @@
                                 <th class="bg-slate-50 text-center">Comunidad<br><span class="font-normal normal-case">{{ $w['community'] }}%</span></th>
                                 <th class="bg-lion-50 text-center">Nota final</th>
                                 <th class="text-center">Manual<br><span class="font-normal normal-case">0-100</span></th>
-                                <th class="text-center">Finalista</th><th class="text-center">Posición</th>
+                                <th class="text-center">Finalista</th><th class="text-center" title="Puesto que dieron los jurados inversionistas en la gran final. Es lo que muestra el podio.">Posición final</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">

@@ -8,6 +8,7 @@ use App\Services\JuryScoring;
 use App\Services\Ranking;
 use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -18,9 +19,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Excel de resultados de una edición, en el orden del ranking:
- *  1. Resultados: nota de cada jurado y del experto, comité técnico, votos, comunidad y nota final.
- *  2. Rúbrica por jurado: el puntaje que cada evaluador dio en cada criterio, agrupado por evaluador.
- *  3. Comentarios: lo que escribió cada evaluador a cada emprendimiento.
+ *  1. Resumen: ganadores y premios, finalistas, porcentajes de la nota, rangos de votos y condiciones.
+ *  2. Resultados: nota de cada jurado y del experto, comité técnico, votos, comunidad, aporte de cada parte y nota final.
+ *  3. Rúbrica por jurado: el puntaje que cada evaluador dio en cada criterio, agrupado por evaluador.
+ *  4. Comentarios: lo que escribió cada evaluador a cada emprendimiento.
  */
 class ResultsWorkbook
 {
@@ -46,7 +48,8 @@ class ResultsWorkbook
         $book = new Spreadsheet();
         $book->getProperties()->setTitle('Resultados '.$this->edition->name)->setCreator('LION HUB EVENT');
 
-        $this->summary($book->getActiveSheet());
+        $this->overview($book->getActiveSheet());
+        $this->summary($book->createSheet());
         $this->rubric($book->createSheet());
         $this->comments($book->createSheet());
         $book->setActiveSheetIndex(0);
@@ -54,6 +57,138 @@ class ResultsWorkbook
         return response()->streamDownload(fn () => (new Xlsx($book))->save('php://output'),
             "resultados-{$this->edition->slug}.xlsx",
             ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
+    }
+
+    /** Hoja de lectura rápida: quién ganó, qué se llevó y cómo se calculó la nota. */
+    private function overview(Worksheet $sheet): void
+    {
+        $sheet->setTitle('Resumen');
+        $e = $this->edition;
+        $w = $e->gradeWeights();
+        $this->title($sheet, 6, 'Resumen · '.$e->name,
+            "Los finalistas se eligen con la nota de 1 a 5; los ganadores los elige el jurado en la gran final.");
+
+        // Ganadores
+        $row = $this->section($sheet, 4, 'Ganadores', ['Resultado final', 'Emprendimiento', 'Grupo', 'Nota', 'Votos', 'Premios']);
+        $winners = $this->ranking->whereNotNull('final_position')->sortBy('final_position')->values();
+        $first = $row;
+        foreach ($winners as $v) {
+            $prizes = collect($e->prizePlaces()->firstWhere('position', $v->final_position)['items'] ?? [])
+                ->map(fn ($i) => $i['title'].(empty($i['amount']) ? '' : ': '.Edition::money($i['amount'])))->implode("\n");
+            $sheet->fromArray([$e->placeLabel($v->final_position), $v->name, $v->team_group, $v->final_grade, $v->votes_count, $prizes], null, "A$row", true);
+            $sheet->getRowDimension($row)->setRowHeight(max(18, 16 * (substr_count($prizes, "\n") + 1)));
+            $row++;
+        }
+        if ($winners->isEmpty()) {
+            $sheet->setCellValue("A$row", 'Aún no se han registrado posiciones finales.');
+            $row++;
+        }
+        $this->sectionBody($sheet, $first - 1, $row - 1, 6);
+
+        // Finalistas, en el orden de la nota
+        $row = $this->section($sheet, $row + 1, 'Finalistas', ['Puesto por nota', 'Emprendimiento', 'Grupo', 'Nota', 'Votos', 'Resultado final']);
+        $first = $row;
+        foreach ($this->ranking as $i => $v) {
+            if ($v->is_finalist) {
+                $sheet->fromArray([$i + 1, $v->name, $v->team_group, $v->final_grade, $v->votes_count, $v->final_position ? $e->placeLabel($v->final_position) : ''], null, "A$row", true);
+                $row++;
+            }
+        }
+        if ($row === $first) {
+            $sheet->setCellValue("A$row", 'Aún no se han marcado finalistas.');
+            $row++;
+        }
+        $this->sectionBody($sheet, $first - 1, $row - 1, 6);
+
+        // Porcentajes
+        $row = $this->section($sheet, $row + 1, 'Cómo se calcula la nota final', ['Componente', 'Qué mide', 'Peso']);
+        $first = $row;
+        $parts = $e->expertCountsAsJury()
+            ? [['Comité técnico', "Promedio de los jurados y el {$e->expert_title}", $w['jury']]]
+            : [['Jurados', 'Promedio de los jurados', $w['jury']], [$e->expert_title, "Nota del {$e->expert_title}", $w['expert']]];
+        foreach ([...$parts, ['Comunidad', 'Nota según los votos', $w['community']]] as $part) {
+            $sheet->fromArray([$part[0], $part[1], $part[2] / 100], null, "A$row", true);
+            $row++;
+        }
+        $this->sectionBody($sheet, $first - 1, $row - 1, 3);
+        $this->numberFormat($sheet, 3, 3, $first, $row - 1, '0%');
+
+        // Votos a nota
+        $row = $this->section($sheet, $row + 1, 'De votos a nota de la comunidad', ['Votos', 'Nota']);
+        $first = $row;
+        if ($e->vote_grade_mode === 'rangos') {
+            $ranges = $e->voteRanges();
+            foreach ($ranges as $i => $r) {
+                $next = $ranges[$i + 1]['min'] ?? null;
+                $sheet->setCellValueExplicit("A$row", $next === null ? "{$r['min']} o más" : "{$r['min']} a ".($next - 1), DataType::TYPE_STRING);
+                $sheet->setCellValue("B$row", $r['grade']);
+                $row++;
+            }
+        } else {
+            $sheet->setCellValue("A$row", 'Proporcional');
+            $sheet->setCellValue("B$row", 'El más votado obtiene 5 y los demás en proporción');
+            $row++;
+        }
+        $this->sectionBody($sheet, $first - 1, $row - 1, 2);
+
+        // Premios
+        if ($e->hasPrizes()) {
+            $row = $this->section($sheet, $row + 1, 'Premios por puesto', ['Puesto', 'Premio', 'Valor (COP)', '', '', 'Condiciones']);
+            $sheet->mergeCells($this->range(3, $row - 1, 5, $row - 1));
+            $first = $row;
+            foreach ($e->prizePlaces() as $place) {
+                foreach ($place['items'] as $item) {
+                    $details = $item['details'] ?? '';
+                    $sheet->fromArray([$place['label'], $item['title'], $item['amount'] ?? null, null, null, $details], null, "A$row", true);
+                    $sheet->mergeCells($this->range(3, $row, 5, $row));
+                    $sheet->getRowDimension($row)->setRowHeight(max(18, 15 * ceil(mb_strlen($details) / 85)));
+                    $row++;
+                }
+            }
+            $this->sectionBody($sheet, $first - 1, $row - 1, 6);
+            $this->numberFormat($sheet, 3, 3, $first, $row - 1, '"$" #,##0');
+        }
+
+        $this->numberFormat($sheet, 4, 4, 5, $row, '0.00');
+        $this->widths($sheet, [1 => 26, 2 => 34, 3 => 12, 4 => 10, 5 => 10, 6 => 70], 6, 12);
+    }
+
+    /** Título de un bloque del resumen más su fila de encabezados. Devuelve la primera fila de datos. */
+    private function section(Worksheet $sheet, int $row, string $title, array $headers): int
+    {
+        $sheet->setCellValue("A$row", $title);
+        $sheet->getStyle("A$row")->getFont()->setBold(true)->setSize(12)->getColor()->setRGB(self::VIOLET);
+        $this->header($sheet, $row + 1, $headers);
+
+        return $row + 2;
+    }
+
+    /** Bordes, ajuste de texto y primera columna a la izquierda en un bloque del resumen. */
+    private function sectionBody(Worksheet $sheet, int $headerRow, int $last, int $cols): void
+    {
+        $this->body($sheet, $headerRow, $last, $cols);
+        if ($last > $headerRow) {
+            $range = $sheet->getStyle($this->range(1, $headerRow + 1, $cols, $last));
+            $range->getAlignment()->setWrapText(true);
+            $sheet->getStyle($this->range(1, $headerRow + 1, 1, $last))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            if ($cols === 6) {
+                $sheet->getStyle($this->range(6, $headerRow + 1, 6, $last))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            }
+        }
+    }
+
+    /** Cuánto suma cada parte a la nota final: nota × peso (si falta una parte, su peso se reparte como en Ranking). */
+    private function shares($v): array
+    {
+        $w = $this->edition->gradeWeights();
+        $grades = ['community' => $v->community_grade, 'jury' => $v->jury_grade, 'expert' => $this->edition->expertCountsAsJury() ? null : $v->expert_grade];
+        $present = collect($grades)->filter(fn ($g, $k) => $g !== null && $w[$k] > 0);
+        $available = $present->keys()->sum(fn ($k) => $w[$k]);
+        if ($v->final_grade === null || $available === 0) {
+            return ['community' => null, 'jury' => null, 'expert' => null];
+        }
+
+        return collect($grades)->map(fn ($g, $k) => $present->has($k) ? round($g * $w[$k] / $available, 2) : null)->all();
     }
 
     private function summary(Worksheet $sheet): void
@@ -65,17 +200,25 @@ class ResultsWorkbook
 
         $headers = ['#', 'Emprendimiento', 'Grupo', 'Categoría',
             ...$this->evaluators->map(fn ($u) => $this->role($u)."\n".$u->name),
-            ...($combined ? ["Comité técnico\n{$w['jury']}%"] : ["Jurados\n{$w['jury']}%", "{$e->expert_title}\n{$w['expert']}%"]),
-            $e->hasWebVoting() ? "Votos\nen la página" : "Votos\nen redes", "Comunidad\n{$w['community']}%",
-            'Nota final', 'Estado', 'Finalista', 'Posición'];
+            ...($combined
+                ? ["Comité técnico\n(peso {$w['jury']}%)", "Aporte comité\n(nota × {$w['jury']}%)"]
+                : ["Jurados\n(peso {$w['jury']}%)", "Aporte jurados\n(nota × {$w['jury']}%)", "{$e->expert_title}\n(peso {$w['expert']}%)", "Aporte experto\n(nota × {$w['expert']}%)"]),
+            $e->hasWebVoting() ? "Votos\nen la página" : "Votos\nen redes",
+            "Comunidad\n(peso {$w['community']}%)", "Aporte comunidad\n(nota × {$w['community']}%)",
+            'Nota final', 'Estado', 'Finalista', 'Posición final', 'Resultado final'];
 
-        $rows = $this->ranking->map(fn ($v, $i) => [
-            $i + 1, $v->name, $v->team_group, $v->category?->name,
-            ...$this->evaluators->map(fn ($u) => $this->grade($v->id, $u->id)),
-            ...($combined ? [$v->jury_grade] : [$v->jury_grade, $v->expert_grade]),
-            $v->votes_count, $v->community_grade,
-            $v->final_grade, $v->is_partial ? 'Parcial' : '', $v->is_finalist ? 'Sí' : 'No', $v->final_position,
-        ]);
+        $rows = $this->ranking->map(function ($v, $i) use ($combined, $e) {
+            $share = $this->shares($v);
+
+            return [
+                $i + 1, $v->name, $v->team_group, $v->category?->name,
+                ...$this->evaluators->map(fn ($u) => $this->grade($v->id, $u->id)),
+                ...($combined ? [$v->jury_grade, $share['jury']] : [$v->jury_grade, $share['jury'], $v->expert_grade, $share['expert']]),
+                $v->votes_count, $v->community_grade, $share['community'],
+                $v->final_grade, $v->is_partial ? 'Parcial' : '', $v->is_finalist ? 'Sí' : 'No', $v->final_position,
+                $v->final_position ? $e->placeLabel($v->final_position) : '',
+            ];
+        });
 
         $this->title($sheet, count($headers), 'Resultados · '.$e->name,
             $combined
@@ -86,15 +229,15 @@ class ResultsWorkbook
 
         $last = 4 + $rows->count();
         $firstGrade = 5;
-        $finalCol = count($headers) - 3;
+        $finalCol = count($headers) - 4;
         $this->body($sheet, 4, $last, count($headers));
         $this->numberFormat($sheet, $firstGrade, $finalCol, 5, $last, '0.00');
-        $votesCol = $finalCol - 2;
+        $votesCol = $finalCol - 3;
         $this->numberFormat($sheet, $votesCol, $votesCol, 5, $last, '#,##0');
         $this->fill($sheet, $finalCol, $finalCol, 5, $last, 'F5F3FF');
         $sheet->getStyle($this->range($finalCol, 5, $finalCol, $last))->getFont()->setBold(true);
 
-        $this->widths($sheet, [1 => 5, 2 => 30, 3 => 11, 4 => 22], count($headers), 14);
+        $this->widths($sheet, [1 => 5, 2 => 30, 3 => 11, 4 => 22, count($headers) => 24], count($headers), 14);
         $sheet->freezePane('C5');
     }
 

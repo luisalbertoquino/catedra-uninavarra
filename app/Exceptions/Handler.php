@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -43,6 +45,16 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // 419: el formulario se abrió hace mucho (sesión vencida) o en otra pestaña se cerró sesión.
+        // En vez de la página de error, se lleva a la persona al inicio.
+        $this->renderable(function (HttpException $e, Request $request) {
+            if ($e->getStatusCode() !== 419 || $request->expectsJson()) {
+                return null;
+            }
+
+            return redirect('/');
         });
     }
 }

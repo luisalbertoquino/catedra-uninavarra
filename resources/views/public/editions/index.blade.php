@@ -27,8 +27,10 @@
                         <div class="space-y-2">
                             @foreach ($e->ventures->take(3) as $w)
                                 <div class="flex items-center gap-3 rounded-xl bg-white/[.04] px-3 py-2 text-sm">
-                                    <x-icon :name="$w->final_position === 1 ? 'trophy' : 'medal'" fw /><span class="text-xs font-bold text-white/50">{{ $w->final_position }}º</span>
-                                    <span class="truncate font-medium">{{ $w->name }}</span>
+                                    <x-icon :name="$w->final_position === 1 ? 'trophy' : 'medal'" fw /><span class="min-w-0">
+                                        <span class="block truncate font-medium">{{ $w->name }}</span>
+                                        <span class="block text-xs text-white/50">{{ $e->placeLabel($w->final_position) }}</span>
+                                    </span>
                                 </div>
                             @endforeach
                         </div>

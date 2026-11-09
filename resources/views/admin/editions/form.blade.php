@@ -119,6 +119,40 @@
         </div>
 
         <div class="space-y-6">
+            <section id="premios" class="a-card scroll-mt-24 p-6"
+                     x-data="{ places: @js(collect(old('prizes', $edition->prizeRows()))->map(fn ($p) => $p + ['items' => []])->values()) }">
+                <h2 class="font-semibold text-ink-900"><x-icon name="trophy" /> Premios por puesto</h2>
+                <p class="mt-1 text-sm text-slate-600">Salen en el inicio y en el Ranking. El puesto de cada emprendimiento se escribe en <b>Resultados → Posición final</b>. Si un puesto no se entrega, déjalo sin beneficios y sin posición.</p>
+                @if ($errors->has('prizes.*'))
+                    <p class="mt-2 text-sm text-rose-600">Revisa los premios: cada beneficio necesita un nombre y su valor debe ser un número sin puntos.</p>
+                @endif
+                <template x-for="(place, p) in places" :key="place.position">
+                    <div class="mt-5 rounded-xl border border-slate-200 p-4">
+                        <input type="hidden" :name="`prizes[${p}][position]`" :value="place.position">
+                        <label class="a-label" :for="`prize-label-${p}`" x-text="`Puesto ${place.position}: nombre`"></label>
+                        <input :id="`prize-label-${p}`" :name="`prizes[${p}][label]`" x-model="place.label" maxlength="60" class="a-input">
+                        <template x-for="(item, i) in place.items" :key="i">
+                            <div class="mt-3 rounded-lg bg-slate-50 p-3">
+                                <div class="grid gap-3">
+                                    <div>
+                                        <label class="a-label" :for="`prize-title-${p}-${i}`">Beneficio</label>
+                                        <input :id="`prize-title-${p}-${i}`" :name="`prizes[${p}][items][${i}][title]`" x-model="item.title" required maxlength="120" class="a-input" placeholder="Bono de inversión">
+                                    </div>
+                                    <div>
+                                        <label class="a-label" :for="`prize-amount-${p}-${i}`">Valor en pesos, sin puntos (opcional)</label>
+                                        <input :id="`prize-amount-${p}-${i}`" type="number" min="0" step="1" :name="`prizes[${p}][items][${i}][amount]`" x-model="item.amount" class="a-input" placeholder="5000000">
+                                    </div>
+                                </div>
+                                <label class="a-label mt-3" :for="`prize-details-${p}-${i}`">Condiciones</label>
+                                <textarea :id="`prize-details-${p}-${i}`" :name="`prizes[${p}][items][${i}][details]`" x-model="item.details" rows="3" maxlength="2000" class="a-input"></textarea>
+                                <button type="button" class="mt-2 text-sm font-medium text-rose-600" @click="place.items.splice(i, 1)"><x-icon name="trash-can" style="regular" /> Quitar beneficio</button>
+                            </div>
+                        </template>
+                        <button type="button" class="a-btn-light mt-3 !py-1.5" @click="place.items.push({ title: '', amount: '', details: '' })"><x-icon name="plus" /> Agregar beneficio</button>
+                    </div>
+                </template>
+            </section>
+
             <section class="a-card p-6">
                 <h2 class="font-semibold text-ink-900">Votación y final</h2>
                 <div class="mt-5">

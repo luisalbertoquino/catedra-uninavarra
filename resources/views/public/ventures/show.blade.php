@@ -44,8 +44,8 @@
                         @endif
                         <div>
                             <div class="flex flex-wrap gap-2">
-                                @if ($venture->final_position === 1)<span class="inline-flex items-center gap-1.5 rounded-full bg-lion-600 px-3 py-1 text-xs font-bold text-white"><x-icon name="trophy" class="!text-white" /> Ganador {{ $venture->edition->period_label }}</span>
-                                @elseif ($venture->final_position)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700"><x-icon name="medal" /> Puesto {{ $venture->final_position }}</span>
+                                @if ($venture->final_position === 1)<span class="inline-flex items-center gap-1.5 rounded-full bg-lion-600 px-3 py-1 text-xs font-bold text-white"><x-icon name="trophy" class="!text-white" /> {{ $venture->edition->placeLabel(1) }} {{ $venture->edition->period_label }}</span>
+                                @elseif ($venture->final_position)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700"><x-icon name="medal" /> {{ $venture->edition->placeLabel($venture->final_position) }}</span>
                                 @elseif ($venture->is_finalist)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-lion-700"><x-icon name="star" /> Finalista</span>@endif
                                 @if ($venture->academic_program)<span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-ink-700"><x-icon name="graduation-cap" /> {{ $venture->academic_program }}</span>@endif
                             </div>
@@ -91,6 +91,20 @@
     <div class="container-x mt-12 grid gap-10 lg:grid-cols-12 [&>*]:min-w-0">
         {{-- ================= CONTENIDO ================= --}}
         <div class="space-y-14 lg:col-span-8">
+            @php $wonPrizes = $venture->edition->results_published ? $venture->edition->prizePlaces()->firstWhere('position', $venture->final_position) : null; @endphp
+            @if ($wonPrizes)
+                <section class="card-dark reveal p-6">
+                    <h2 class="font-display text-2xl font-semibold"><x-icon name="trophy" /> {{ $wonPrizes['label'] }}: premios obtenidos</h2>
+                    <ul class="mt-4 space-y-3">
+                        @foreach ($wonPrizes['items'] as $item)
+                            <li>
+                                <span class="font-semibold">{{ $item['title'] }}</span>
+                                @if (! empty($item['amount']))<span class="font-semibold text-lion-700"> · {{ \App\Models\Edition::money($item['amount']) }}</span>@endif
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
             {{-- Video pitch --}}
             @if ($venture->video_embed_url)
                 <section class="reveal">

@@ -409,6 +409,103 @@ class JuryAndVotingTest extends TestCase
             ->assertOk()->assertSeeInOrder(['0 a 14 votos', '3', '15 a 49 votos', '3,5', '198 o más votos', '5'])->assertSee('Cambiar rangos');
     }
 
+    /** Los ganadores los eligen los jurados inversionistas: el podio sale de la posición manual, no de la nota. */
+    public function test_official_podium_uses_the_manual_position_instead_of_the_grade(): void
+    {
+        $topGrade = $this->venture('Mejor Nota');
+        $winner = $this->venture('Ganador Final');
+        $this->evaluate($this->jury(), $topGrade, 5);
+        $this->evaluate($this->jury(), $winner, 2);
+
+        // Antes de publicar no hay confeti
+        $this->get(route('ranking'))->assertOk()->assertDontSee('prefers-reduced-motion');
+
+        // Publicado sin posiciones: no se inventa un ganador a partir de la nota
+        $this->edition->update(['results_published' => true]);
+        $this->get(route('ranking'))->assertOk()->assertSee('prefers-reduced-motion')
+            ->assertSee('Cómo llegaron a la final')->assertDontSee('Primer puesto');
+
+        $winner->update(['final_position' => 1]);
+        $topGrade->update(['final_position' => 2]);
+
+        // El podio se dibuja 2.º, 1.º, 3.º y después sigue la tabla por nota, que se conserva
+        $this->get(route('ranking'))->assertOk()
+            ->assertSeeInOrder(['Mejor Nota', 'Segundo puesto', 'Ganador Final', 'Primer puesto', 'Cómo llegaron a la final', 'Mejor Nota', 'Ganador Final'])
+            ->assertSee('/5', false);
+
+        // La pestaña de inversionistas no celebra
+        $this->get(route('ranking', ['vista' => 'inversionistas']))->assertOk()->assertDontSee('prefers-reduced-motion');
+    }
+
+    /** Los premios se editan en la edición y salen en el inicio, el ranking, el emprendimiento y el Excel. */
+    public function test_prizes_by_place_are_shown_everywhere(): void
+    {
+        $this->edition->update(['prizes' => [
+            ['position' => 1, 'label' => 'Primer puesto', 'items' => [
+                ['title' => 'Aval para modalidad de grado', 'amount' => null, 'details' => 'Condición del aval'],
+                ['title' => 'Bono de inversión', 'amount' => 5000000, 'details' => null],
+            ]],
+            ['position' => 2, 'label' => 'Segundo puesto', 'items' => []],
+            ['position' => 3, 'label' => 'Reconocimiento especial', 'items' => [['title' => 'Aval para modalidad de grado', 'amount' => null, 'details' => null]]],
+        ]]);
+        $first = $this->venture('Primero');
+        $third = $this->venture('Tercero');
+        $first->update(['final_position' => 1, 'is_finalist' => true]);
+        $third->update(['final_position' => 3, 'is_finalist' => true]);
+
+        $this->get('/')->assertOk()->assertSee('Lo que está en juego')->assertSee('$ 5.000.000')->assertSee('Condición del aval');
+
+        // El puesto sin beneficios no aparece en premios, y el tercero usa su nombre propio
+        $this->edition->update(['results_published' => true]);
+        $this->get(route('ranking'))->assertOk()->assertSee('Reconocimiento especial')->assertSee('Premios de esta edición');
+        $this->get(route('ventures.show', $first))->assertOk()->assertSee('premios obtenidos')->assertSee('$ 5.000.000');
+        $this->get(route('ventures.show', $third))->assertOk()->assertSee('Reconocimiento especial');
+
+        // Se editan desde el formulario de la edición
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->get(route('admin.editions.edit', $this->edition))->assertOk()->assertSee('Premios por puesto');
+        $form = $this->edition->only('name', 'slug', 'year', 'community_weight', 'jury_weight', 'expert_score_weight', 'committee_mode', 'max_votes_per_user', 'expert_title') + [
+            'finalists_count' => 5, 'vote_grade_mode' => 'relativo', 'is_published' => 1, 'results_published' => 1,
+            'criteria' => $this->edition->criteria->map->only('id', 'name', 'weight', 'max_score')->all(),
+        ];
+        $this->actingAs($admin)->put(route('admin.editions.update', $this->edition), $form + ['prizes' => [
+            ['position' => 3, 'label' => '', 'items' => [['title' => 'Mención', 'amount' => 100]]],
+        ]])->assertSessionHasNoErrors();
+        $this->assertSame('Reconocimiento especial', $this->edition->fresh()->placeLabel(3));
+        $this->assertSame(100, $this->edition->fresh()->prizePlaces()->first()['items'][0]['amount']);
+        $this->actingAs($admin)->put(route('admin.editions.update', $this->edition), $form + ['prizes' => [
+            ['position' => 1, 'items' => [['title' => '', 'amount' => 'mucho']]],
+        ]])->assertSessionHasErrors(['prizes.0.items.0.title', 'prizes.0.items.0.amount']);
+        $this->edition->update(['prizes' => [['position' => 1, 'label' => 'Primer puesto', 'items' => [
+            ['title' => 'Aval para modalidad de grado', 'amount' => null, 'details' => null],
+            ['title' => 'Bono de inversión', 'amount' => 5000000, 'details' => null],
+        ]], ['position' => 3, 'label' => 'Reconocimiento especial', 'items' => []]]]);
+
+        // Excel: hoja de resumen con el ganador y su premio
+        $response = $this->actingAs($admin)->get(route('admin.results.export', $this->edition));
+        $path = tempnam(sys_get_temp_dir(), 'xlsx');
+        file_put_contents($path, $response->streamedContent());
+        $values = collect(\PhpOffice\PhpSpreadsheet\IOFactory::load($path)->getSheetByName('Resumen')->toArray())->flatten()->filter()->values();
+        unlink($path);
+        $this->assertTrue($values->contains('Reconocimiento especial'));
+        $this->assertTrue($values->contains('Primero'));
+        $this->assertTrue($values->contains("Aval para modalidad de grado\nBono de inversión: $ 5.000.000"));
+    }
+
+    public function test_repeated_final_position_warns_the_admin(): void
+    {
+        $a = $this->venture('Uno');
+        $b = $this->venture('Dos');
+
+        $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->put(route('admin.results.update', $this->edition), ['rows' => [
+                $a->id => ['final_position' => 1],
+                $b->id => ['final_position' => 1],
+            ]])->assertSessionHas('error');
+
+        $this->assertSame(1, $a->fresh()->final_position);
+    }
+
     public function test_results_show_each_jury_member_grade(): void
     {
         $venture = $this->venture('Columnas');
@@ -440,17 +537,25 @@ class JuryAndVotingTest extends TestCase
         $book = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
         unlink($file);
 
-        $this->assertSame(['Resultados', 'Rúbrica por jurado', 'Comentarios'], $book->getSheetNames());
+        $this->assertSame(['Resumen', 'Resultados', 'Rúbrica por jurado', 'Comentarios'], $book->getSheetNames());
+
+        // Resumen: los porcentajes con los que se calcula la nota
+        $overview = collect($book->getSheet(0)->toArray(null, false, false))->flatten();
+        $this->assertTrue($overview->contains('Cómo se calcula la nota final'));
+        $this->assertTrue($overview->contains(0.3) && $overview->contains(0.4));
 
         // Resultados: nota de cada jurado antes del comité, luego votos, comunidad y nota final
-        $summary = $book->getSheet(0)->rangeToArray('A4:N5', null, false, false);
+        $summary = $book->getSheet(1)->rangeToArray('A4:S5', null, false, false);
         $this->assertSame("Jurado\nAna Jurado", $summary[0][4]);
         $this->assertSame(['Export', 2.9], [$summary[1][1], $summary[1][4]]);
         $header = $summary[0];
-        $this->assertLessThan(array_search('Nota final', $header), array_search("Comunidad\n30%", $header));
+        $this->assertLessThan(array_search('Nota final', $header), array_search("Comunidad\n(peso 30%)", $header));
+        // Cuánto aporta cada parte: en una nota parcial, el peso se reparte entre las partes disponibles
+        $share = array_search("Aporte jurados\n(nota × 40%)", $header);
+        $this->assertSame(round(2.9 * 40 / 70, 2), $summary[1][$share]);
 
         // Rúbrica: el evaluador arriba y debajo cada criterio con su puntaje y su nota
-        $rubric = $book->getSheet(1);
+        $rubric = $book->getSheet(2);
         $first = $this->edition->criteria->first();
         $this->assertSame('Jurado: Ana Jurado', $rubric->getCell('D4')->getValue());
         $this->assertSame("{$first->name}\n(máx. 5)", $rubric->getCell('D5')->getValue());
@@ -458,7 +563,7 @@ class JuryAndVotingTest extends TestCase
         $this->assertSame(['Export', 4.0, 3.5, 5.0, 0.0, 2.0, 2.9], [$row[1], ...array_map('floatval', array_slice($row, 3, 6))]);
         $this->assertNull($rubric->getCell('D7')->getValue()); // «Sin evaluar»: celdas vacías
 
-        $this->assertSame([['Export', null, 'Jurado: Ana Jurado', 2.9, 'ok']], $book->getSheet(2)->rangeToArray('A5:E5', null, false, false));
+        $this->assertSame([['Export', null, 'Jurado: Ana Jurado', 2.9, 'ok']], $book->getSheet(3)->rangeToArray('A5:E5', null, false, false));
     }
 
     public function test_admin_can_delete_test_evaluations(): void

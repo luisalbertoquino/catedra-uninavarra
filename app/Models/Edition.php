@@ -18,8 +18,11 @@ class Edition extends Model
         ['min' => 198, 'grade' => 5],
     ];
 
+    /** Nombre de cada puesto si la edición no define otro. */
+    public const PLACE_LABELS = [1 => 'Primer puesto', 2 => 'Segundo puesto', 3 => 'Reconocimiento especial'];
+
     protected $fillable = [
-        'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner', 'promo_video_url',
+        'prizes', 'name', 'slug', 'year', 'period', 'event_name', 'tagline', 'description', 'banner', 'promo_video_url',
         'voting_starts_at', 'voting_ends_at', 'final_at', 'final_location',
         'community_weight', 'jury_weight', 'expert_score_weight', 'committee_mode', 'vote_grade_mode', 'vote_grade_thresholds',
         'max_votes_per_user', 'web_voting', 'finalists_count', 'voting_email_domain', 'expert_title',
@@ -35,6 +38,7 @@ class Edition extends Model
         'is_published' => 'boolean',
         'results_published' => 'boolean',
         'vote_grade_thresholds' => 'array',
+        'prizes' => 'array',
     ];
 
     public function getRouteKeyName(): string
@@ -65,6 +69,40 @@ class Edition extends Model
     public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class);
+    }
+
+    /** Nombre público de un puesto: «Primer puesto», «Reconocimiento especial», «Puesto 4»… */
+    public function placeLabel(int $position): string
+    {
+        return collect($this->prizes ?? [])->firstWhere('position', $position)['label']
+            ?? self::PLACE_LABELS[$position]
+            ?? "Puesto $position";
+    }
+
+    /** Puestos que tienen al menos un premio, en orden. */
+    public function prizePlaces(): \Illuminate\Support\Collection
+    {
+        return collect($this->prizes ?? [])->filter(fn ($p) => ! empty($p['items']))->sortBy('position')->values();
+    }
+
+    public function hasPrizes(): bool
+    {
+        return $this->prizePlaces()->isNotEmpty();
+    }
+
+    /** Puestos para el formulario: siempre los tres, aunque aún no tengan premios. */
+    public function prizeRows(): array
+    {
+        return collect(self::PLACE_LABELS)->map(fn ($label, $position) => [
+            'position' => $position,
+            'label' => $this->placeLabel($position),
+            'items' => collect($this->prizes ?? [])->firstWhere('position', $position)['items'] ?? [],
+        ])->values()->all();
+    }
+
+    public static function money(int|float $amount): string
+    {
+        return '$ '.number_format($amount, 0, ',', '.');
     }
 
     /** Pesos de la nota final (comunidad, jurados, experto) en porcentaje */

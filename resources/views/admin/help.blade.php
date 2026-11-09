@@ -176,8 +176,9 @@
                 <ul>
                     <li><b>Manual 0-100:</b> solo si un emprendimiento no tiene evaluaciones y el comité entrega una nota por fuera de la plataforma.</li>
                     <li><b>Marcar top {{ $edition?->finalists_count ?? 5 }} como finalistas:</b> marca automáticamente a los mejores según la nota final. También puedes marcarlos a mano.</li>
-                    <li><b>Posición:</b> el puesto después de la gran final (1 = ganador).</li>
-                    <li><b>Publicar resultados oficiales:</b> el ranking público pasa a mostrar la nota final y se cierra la evaluación de los jurados.</li>
+                    <li><b>Posición final:</b> el puesto que dio el jurado en la gran final (1, 2 y, si aplica, 3 para el Reconocimiento especial). Se escribe a mano y no depende de la nota. Forma el podio del Ranking y define qué premios se muestran; con los resultados publicados, el podio no aparece hasta que escribas al menos una posición. Si un año solo hay dos ganadores, deja vacía la posición 3.</li>
+                    <li><b>Premios:</b> el nombre y los beneficios de cada puesto se editan en <a href="{{ $edition ? route('admin.editions.edit', $edition).'#premios' : '#' }}" class="underline">la edición, sección Premios por puesto</a>. Una edición nueva copia los de la anterior.</li>
+                    <li><b>Publicar resultados oficiales:</b> el ranking público muestra el podio de ganadores con confeti y, debajo, la nota con la que se eligieron los finalistas. También se cierra la evaluación de los jurados.</li>
                 </ul>
                 <p>Con <b>Ver evaluaciones de los jurados</b> ves la matriz de notas; al pasar el mouse por una celda aparece el detalle por criterio y el comentario.</p>
             </section>
@@ -186,7 +187,8 @@
                 <h2><x-icon name="file-excel" /> Excel de resultados</h2>
                 <p>El botón <b>Exportar Excel</b> de Resultados descarga un archivo con tres hojas, en el orden del ranking:</p>
                 <ol>
-                    <li><b>Resultados:</b> la misma tabla de la pantalla (nota de cada jurado y del experto, comité, votos, comunidad, nota final, finalista y posición).</li>
+                    <li><b>Resumen:</b> ganadores con sus premios, finalistas, porcentajes de la nota, rangos de votos y condiciones de los premios.</li>
+                    <li><b>Resultados:</b> la misma tabla de la pantalla (nota de cada jurado y del experto, comité, votos, comunidad, cuánto aporta cada parte según su porcentaje, nota final, finalista y posición).</li>
                     <li><b>Rúbrica por jurado:</b> por cada evaluador, el puntaje que dio en cada criterio (Innovación, Viabilidad comercial, etc.) y su nota.</li>
                     <li><b>Comentarios:</b> lo que escribió cada evaluador a cada emprendimiento.</li>
                 </ol>

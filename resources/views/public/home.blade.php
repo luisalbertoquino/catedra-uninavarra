@@ -125,6 +125,19 @@
         </section>
     @endif
 
+    {{-- ================= PREMIOS ================= --}}
+    @if ($edition?->hasPrizes())
+        <section class="container-x py-20">
+            <div class="reveal">
+                <span class="eyebrow"><x-icon name="trophy" /> Premios {{ $edition->period_label }}</span>
+                <h2 class="section-title mt-3">Lo que está en juego</h2>
+            </div>
+            <div class="mt-10">
+                <x-prizes :edition="$edition" />
+            </div>
+        </section>
+    @endif
+
     {{-- ================= INVERSIONISTAS INVITADOS ================= --}}
     @if ($investorProfiles->isNotEmpty())
         <section class="container-x py-20">

@@ -55,6 +55,7 @@ class EditionController extends Controller
             'vote_grade_mode' => $template->vote_grade_mode ?? 'rangos',
             'vote_grade_thresholds' => $template?->voteRanges() ?? Edition::DEFAULT_VOTE_RANGES,
             'finalists_count' => $template->finalists_count ?? 5,
+            'prizes' => $template->prizes ?? null,
             'voting_email_domain' => $template->voting_email_domain ?? null,
             'promo_video_url' => $template->promo_video_url ?? null,
             'is_published' => true,
@@ -157,6 +158,13 @@ class EditionController extends Controller
             'vote_grade_thresholds' => ['nullable', 'array', 'max:20'],
             'vote_grade_thresholds.*.min' => ['nullable', 'integer', 'min:0', 'max:10000000'],
             'vote_grade_thresholds.*.grade' => ['nullable', 'numeric', 'between:1,5'],
+            'prizes' => ['array', 'max:3'],
+            'prizes.*.position' => ['required', 'integer', 'between:1,3'],
+            'prizes.*.label' => ['nullable', 'string', 'max:60'],
+            'prizes.*.items' => ['array', 'max:8'],
+            'prizes.*.items.*.title' => ['required', 'string', 'max:120'],
+            'prizes.*.items.*.amount' => ['nullable', 'integer', 'min:0', 'max:1000000000000'],
+            'prizes.*.items.*.details' => ['nullable', 'string', 'max:2000'],
             'criteria' => ['array', 'max:15'],
             'criteria.*.id' => ['nullable', 'integer'],
             'criteria.*.name' => ['required', 'string', 'max:120'],
@@ -168,7 +176,7 @@ class EditionController extends Controller
             'milestones.*.description' => ['nullable', 'string', 'max:1000'],
             'milestones.*.starts_at' => ['nullable', 'date'],
             'milestones.*.ends_at' => ['nullable', 'date'],
-        ], ['promo_video_url.regex' => 'El video promocional debe ser un enlace de YouTube.'], ['milestones.*.title' => 'título de la fase', 'promo_video_url' => 'video promocional', 'criteria.*.name' => 'nombre del criterio', 'criteria.*.weight' => 'peso del criterio', 'criteria.*.max_score' => 'puntaje máximo', 'expert_title' => 'nombre del jurado experto', 'jury_weight' => '% jurados', 'expert_score_weight' => '% experto', 'community_weight' => '% comunidad', 'vote_grade_thresholds.*.min' => 'votos del rango', 'vote_grade_thresholds.*.grade' => 'nota del rango']);
+        ], ['promo_video_url.regex' => 'El video promocional debe ser un enlace de YouTube.'], ['milestones.*.title' => 'título de la fase', 'promo_video_url' => 'video promocional', 'criteria.*.name' => 'nombre del criterio', 'criteria.*.weight' => 'peso del criterio', 'criteria.*.max_score' => 'puntaje máximo', 'expert_title' => 'nombre del jurado experto', 'jury_weight' => '% jurados', 'expert_score_weight' => '% experto', 'community_weight' => '% comunidad', 'vote_grade_thresholds.*.min' => 'votos del rango', 'vote_grade_thresholds.*.grade' => 'nota del rango', 'prizes.*.items.*.title' => 'nombre del premio', 'prizes.*.items.*.amount' => 'valor del premio']);
 
         // En modo promedio el experto es un jurado más: todo el peso del comité queda en "jurados"
         if ($data['committee_mode'] === 'promedio') {
@@ -185,6 +193,16 @@ class EditionController extends Controller
         if ($data['vote_grade_mode'] === 'rangos' && ! $data['vote_grade_thresholds']) {
             throw \Illuminate\Validation\ValidationException::withMessages(['vote_grade_thresholds' => 'Define al menos un rango de votos.']);
         }
+
+        $data['prizes'] = collect($data['prizes'] ?? [])->map(fn ($place) => [
+            'position' => (int) $place['position'],
+            'label' => ($place['label'] ?? null) ?: Edition::PLACE_LABELS[(int) $place['position']],
+            'items' => collect($place['items'] ?? [])->map(fn ($item) => [
+                'title' => $item['title'],
+                'amount' => isset($item['amount']) ? (int) $item['amount'] : null,
+                'details' => $item['details'] ?? null,
+            ])->values()->all(),
+        ])->values()->all() ?: null;
 
         $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
         $data['is_published'] = $request->boolean('is_published');

@@ -177,4 +177,14 @@ class AdminCommandsTest extends TestCase
             ->assertOk()->assertSee('Paso a paso del evento')->assertSee('Rúbrica por jurado')->assertSee('Votación en redes', false);
         $this->actingAs(User::factory()->create(['role' => 'jurado']))->get(route('admin.help'))->assertForbidden();
     }
+
+    /** Un formulario con la sesión vencida (419) lleva al inicio, no a la página de error. */
+    public function test_expired_form_redirects_to_home(): void
+    {
+        \Illuminate\Support\Facades\Route::middleware('web')->post('/_prueba-419', fn () => abort(419));
+
+        $this->from('/admin/resultados')->post('/_prueba-419')->assertRedirect('/');
+
+        $this->postJson('/_prueba-419')->assertStatus(419);
+    }
 }

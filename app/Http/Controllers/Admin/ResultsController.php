@@ -79,6 +79,12 @@ class ResultsController extends Controller
             $edition->update(['results_published' => $request->boolean('results_published')]);
         });
 
+        // Dos emprendimientos en el mismo puesto: el podio solo puede mostrar a uno
+        $repeated = collect($data['rows'] ?? [])->pluck('final_position')->filter()->duplicates()->unique();
+        if ($repeated->isNotEmpty()) {
+            return back()->with('error', 'Se guardó, pero la posición '.$repeated->implode(', ').' está repetida: cada puesto debe tener un solo emprendimiento.');
+        }
+
         return back()->with('status', 'Resultados guardados.');
     }
 
